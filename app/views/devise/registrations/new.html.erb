@@ -1,0 +1,86 @@
+<div class="min-h-screen flex items-center justify-center bg-white px-6 py-12">
+  <div class="w-full max-w-sm space-y-8">
+    
+    <div class="text-left">
+      <h2 class="text-4xl font-bold text-gray-900">
+        Bem-vindo, corredor
+      </h2>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), 
+                 data: { turbo: false },
+                 html: { class: "mt-10 space-y-5" }) do |f| %>
+      
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="space-y-5">
+        
+        <div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <i class="fas fa-user text-gray-400"></i>
+            </div>
+            <%= f.text_field :username, 
+                autofocus: true,
+                placeholder: "Usuário",
+                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          </div>
+        </div>
+
+        <div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <i class="fas fa-envelope text-gray-400"></i>
+            </div>
+            <%= f.email_field :email, 
+                autocomplete: "email",
+                placeholder: "Email",
+                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          </div>
+        </div>
+
+        <div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <%= f.password_field :password, 
+                autocomplete: "new-password",
+                placeholder: "Senha",
+                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          </div>
+          <% if @minimum_password_length %>
+            <p class="mt-2 text-sm text-gray-500">
+              (mínimo <%= @minimum_password_length %> caracteres)
+            </p>
+          <% end %>
+        </div>
+
+        <div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <i class="fas fa-lock text-gray-400"></i>
+            </div>
+            <%= f.password_field :password_confirmation, 
+                autocomplete: "new-password",
+                placeholder: "Confirmar Senha",
+                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="text-center pt-2">
+        <%= link_to "Já tem uma conta? Entre Aqui.", new_session_path(resource_name), 
+            class: "text-base text-teal-500 hover:text-teal-600 font-medium" %>
+      </div>
+
+      <div class="pt-4">
+        <%= f.submit "Cadastrar", 
+            class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
+      </div>
+
+    <% end %>
+
+  </div>
+</div>

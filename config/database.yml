@@ -1,0 +1,31 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: tiago
+  password: <%= ENV["POSTGRES_PASSWORD"] %>  
+
+development:
+  <<: *default
+  database: runify_development
+test:
+  <<: *default
+  database: runify_test
+production:
+  primary: &primary_production
+    <<: *default
+    database: runify_production
+    username: runify
+    password: <%= ENV["RUNIFY_DATABASE_PASSWORD"] %>
+  cache:
+    <<: *primary_production
+    database: runify_production_cache
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: runify_production_queue
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: runify_production_cable
+    migrations_paths: db/cable_migrate
