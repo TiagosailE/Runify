@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  strava_activity_id: MyString
+  name: MyString
+  sport_type: MyString
+  distance: 9.99
+  duration: 1
+  moving_time: 1
+  pace: MyString
+  average_speed: 9.99
+  start_date: 2025-12-29 20:38:28
+  activity_data: 
+
+two:
+  user: two
+  strava_activity_id: MyString
+  name: MyString
+  sport_type: MyString
+  distance: 9.99
+  duration: 1
+  moving_time: 1
+  pace: MyString
+  average_speed: 9.99
+  start_date: 2025-12-29 20:38:28
+  activity_data: 

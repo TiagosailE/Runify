@@ -68,3 +68,7 @@ group :test do
 end
 
 gem "devise", "~> 4.9"
+
+gem "strava-ruby-client", "~> 3.0"
+
+gem "dotenv-rails", "~> 3.2"
