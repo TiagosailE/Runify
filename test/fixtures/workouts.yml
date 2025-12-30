@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  training_plan: one
+  week_number: 1
+  day_of_week: 1
+  scheduled_date: 2025-12-30
+  workout_type: MyString
+  distance: 9.99
+  duration: 1
+  pace: MyString
+  description: MyText
+  instructions: MyText
+  workout_details: 
+  status: MyString
+
+two:
+  training_plan: two
+  week_number: 1
+  day_of_week: 1
+  scheduled_date: 2025-12-30
+  workout_type: MyString
+  distance: 9.99
+  duration: 1
+  pace: MyString
+  description: MyText
+  instructions: MyText
+  workout_details: 
+  status: MyString

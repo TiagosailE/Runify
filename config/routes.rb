@@ -12,6 +12,12 @@ Rails.application.routes.draw do
   get "strava/callback", to: "strava#callback", as: :strava_callback
   delete "strava/disconnect", to: "strava#disconnect", as: :strava_disconnect
   
+  get "training", to: "training#index", as: :training_index
+  post "training/generate", to: "training#generate", as: :generate_training
+  get "training/:id", to: "training#show", as: :training_show
+  post "training/:id/complete", to: "training#complete", as: :training_complete
+  post "training/:id/feedback", to: "training#feedback", as: :training_feedback
+  
   get "onboarding/step1", to: "onboarding#step1", as: :onboarding_step1
   post "onboarding/step2", to: "onboarding#step2", as: :onboarding_step2
   get "onboarding/step2", to: "onboarding#step2_view", as: :onboarding_step2_view

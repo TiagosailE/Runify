@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  goal: MyText
+  status: MyString
+  start_date: 2025-12-30
+  end_date: 2025-12-30
+  total_weeks: 1
+  plan_data: 
+
+two:
+  user: two
+  goal: MyText
+  status: MyString
+  start_date: 2025-12-30
+  end_date: 2025-12-30
+  total_weeks: 1
+  plan_data: 
