@@ -1,0 +1,20 @@
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 z-40">
+  <div class="flex justify-around items-center">
+    <a href="<%= dashboard_path %>" class="flex flex-col items-center <%= current_page?(dashboard_path) ? 'text-teal-500' : 'text-gray-400' %>">
+      <i class="fas fa-home text-xl mb-1"></i>
+      <span class="text-xs font-medium">Início</span>
+    </a>
+    <a href="<%= training_index_path %>" class="flex flex-col items-center <%= current_page?(training_index_path) ? 'text-teal-500' : 'text-gray-400' %>">
+      <i class="fas fa-dumbbell text-xl mb-1"></i>
+      <span class="text-xs font-medium">Treino</span>
+    </a>
+    <a href="#" class="flex flex-col items-center text-gray-400">
+      <i class="fas fa-cog text-xl mb-1"></i>
+      <span class="text-xs font-medium">Configurações</span>
+    </a>
+    <a href="<%= profile_path %>" class="flex flex-col items-center <%= current_page?(profile_path) ? 'text-teal-500' : 'text-gray-400' %>">
+      <i class="fas fa-user text-xl mb-1"></i>
+      <span class="text-xs font-medium">Perfil</span>
+    </a>
+  </div>
+</nav>

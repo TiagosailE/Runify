@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-[#F5F5F5] pb-24" data-controller="loading">
+  
+  <%= render 'shared/loading_modal' %>
+
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="flex items-center justify-between px-6 py-4">
+      <button class="text-gray-700">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+      <h1 class="text-2xl font-bold">
+        Runi<span class="text-teal-500">fy</span>
+      </h1>
+      <div class="w-6"></div>
+    </div>
+  </header>
+
+  <main class="px-6 py-12 flex items-center justify-center min-h-[80vh]">
+    
+    <div class="bg-white rounded-2xl p-8 shadow-sm text-center max-w-sm w-full">
+      <div class="w-24 h-24 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-running text-4xl text-teal-500"></i>
+      </div>
+      
+      <h2 class="text-2xl font-bold text-gray-900 mb-3">
+        Vamos criar seu plano de treino!
+      </h2>
+      
+      <p class="text-gray-600 mb-6">
+        Nossa IA vai analisar suas atividades no Strava e criar um plano personalizado baseado no seu objetivo.
+      </p>
+
+      <% if current_user.strava_connected? %>
+        
+        <%= button_to generate_training_path, 
+            method: :post, 
+            form: { data: { action: "turbo:submit-start->loading#submit" } },
+            class: "w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-200 shadow-lg mb-3" do %>
+          
+          <i class="fas fa-magic mr-2"></i>
+          Gerar Plano com IA
+          
+        <% end %>
+        
+        <p class="text-xs text-gray-500">
+          Isso pode levar alguns segundos
+        </p>
+      <% else %>
+        <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
+          <p class="text-sm text-orange-800 mb-3">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            Conecte seu Strava primeiro
+          </p>
+          <%= link_to strava_connect_path, class: "inline-block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition-all" do %>
+            <i class="fab fa-strava mr-2"></i>
+            Conectar Strava
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+  </main>
+
+  <%= render 'shared/footer' %>
+
+</div>

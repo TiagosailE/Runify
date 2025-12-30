@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_29_233828) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_30_213140) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_29_233828) do
     t.index ["user_id"], name: "index_strava_integrations_on_user_id"
   end
 
+  create_table "training_plans", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "end_date"
+    t.text "goal"
+    t.jsonb "plan_data"
+    t.date "start_date"
+    t.string "status", default: "active"
+    t.integer "total_weeks"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["start_date"], name: "index_training_plans_on_start_date"
+    t.index ["status"], name: "index_training_plans_on_status"
+    t.index ["user_id"], name: "index_training_plans_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.date "birth_date"
     t.datetime "created_at", null: false
@@ -65,6 +80,29 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_29_233828) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "workouts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "day_of_week"
+    t.text "description"
+    t.decimal "distance", precision: 8, scale: 2
+    t.integer "duration"
+    t.text "instructions"
+    t.string "pace"
+    t.date "scheduled_date"
+    t.string "status", default: "pending"
+    t.bigint "training_plan_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "week_number"
+    t.jsonb "workout_details"
+    t.string "workout_type"
+    t.index ["scheduled_date"], name: "index_workouts_on_scheduled_date"
+    t.index ["status"], name: "index_workouts_on_status"
+    t.index ["training_plan_id", "week_number"], name: "index_workouts_on_training_plan_id_and_week_number"
+    t.index ["training_plan_id"], name: "index_workouts_on_training_plan_id"
+  end
+
   add_foreign_key "activities", "users"
   add_foreign_key "strava_integrations", "users"
+  add_foreign_key "training_plans", "users"
+  add_foreign_key "workouts", "training_plans"
 end
