@@ -1,4 +1,4 @@
-#  Sistema Inteligente para Prescrição de Treinos de Corrida (TCC)
+#  Sistema Inteligente para Prescrição de Treinos de Corrida
 
 > **SISTEMA INTELIGENTE PARA PRESCRIÇÃO AUTOMATIZADA DE TREINOS DE CORRIDA VOLTADO A CORREDORES AMADORES COM BASE EM INTELIGÊNCIA ARTIFICIAL ADAPTATIVA**
 
