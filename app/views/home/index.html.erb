@@ -1,4 +1,12 @@
-<div class="min-h-screen bg-[#F5F5F5] pb-24">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+  
+  body, .font-poppins {
+    font-family: 'Poppins', sans-serif !important;
+  }
+</style>
+
+<div class="min-h-screen bg-[#F5F5F5] pb-24 font-poppins">
   
   <header class="bg-white shadow-sm sticky top-0 z-10">
     <div class="flex items-center justify-between px-6 py-4">
@@ -25,24 +33,48 @@
           <div class="space-y-4">
             
             <% current_user.recent_activities.each do |activity| %>
-              <div class="bg-white rounded-2xl p-5 shadow-sm">
-                <p class="text-sm text-gray-500 mb-3"><%= activity.formatted_date %></p>
-                <div class="flex items-end justify-between">
-                  <div>
-                    <h3 class="text-base font-semibold text-gray-900 mb-2"><%= activity.name %></h3>
-                    <div class="flex gap-4 text-sm">
+              <div class="relative bg-[#2EC4B6]/[0.08] rounded-2xl p-6 mb-5 shadow-md overflow-visible">
+                
+                <svg class="absolute bottom-9 -right-6 w-28 h-3 text-[#FF6A3D] transform -rotate-2 pointer-events-none" 
+                     viewBox="0 0 100 10" fill="currentColor" preserveAspectRatio="none">
+                  <path d="M0 5 L95 3 A 2 2 0 0 1 95 7 Z" />
+                </svg>
+
+                <div class="relative z-10 flex justify-between items-start">
+                  <div class="flex flex-col justify-between h-full space-y-3">
+                    
+                    <p class="text-xs text-gray-500 font-medium pl-0.5">
+                      <%= activity.created_at.strftime("%d/%m/%Y") %> 
+                    </p>
+
+                    <h3 class="text-base font-bold text-gray-800 leading-tight">
+                      <%= activity.name %>
+                    </h3>
+
+                    <div class="flex gap-6 mt-1">
                       <div>
-                        <p class="text-orange-500 font-semibold"><%= activity.duration_formatted %></p>
-                        <p class="text-gray-500 text-xs">Tempo</p>
+                        <p class="text-[#FF6A3D] font-bold text-lg leading-none">
+                          <%= activity.duration_formatted %>
+                        </p>
+                        <p class="text-gray-400 text-xs mt-1">Tempo</p>
                       </div>
+                      
                       <div>
-                        <p class="text-teal-500 font-semibold"><%= activity.pace_per_km %></p>
-                        <p class="text-gray-500 text-xs">Pace</p>
+                        <p class="text-[#E9C46A] font-bold text-lg leading-none">
+                          <%= activity.pace_per_km %>
+                        </p>
+                        <p class="text-gray-400 text-xs mt-1">Pace</p>
                       </div>
                     </div>
                   </div>
-                  <div class="text-right">
-                    <p class="text-3xl font-bold text-gray-900"><%= activity.distance_km %> Km</p>
+
+                  <div class="flex flex-col items-end justify-center h-full pt-2">
+                    <div class="flex items-baseline gap-1 relative z-20">
+                      <span class="text-4xl font-extrabold text-gray-900 tracking-tight">
+                        <%= activity.distance_km %>
+                      </span>
+                      <span class="text-lg font-bold text-gray-900">Km</span>
+                    </div>
                   </div>
                 </div>
               </div>

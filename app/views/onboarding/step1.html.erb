@@ -53,6 +53,20 @@
           </div>
         </div>
 
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Dias disponíveis para treinar</label>
+          <div class="grid grid-cols-7 gap-2">
+            <% ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].each_with_index do |day, index| %>
+              <label class="flex flex-col items-center cursor-pointer">
+                <input type="checkbox" name="available_days[]" value="<%= index + 1 %>" class="hidden day-checkbox">
+                <div class="day-button w-12 h-12 rounded-full flex items-center justify-center border-2 border-gray-300 text-gray-400 transition-all">
+                  <span class="text-xs font-medium"><%= day %></span>
+                </div>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
       </div>
 
       <div class="pt-4">
@@ -64,3 +78,11 @@
 
   </div>
 </div>
+
+<style>
+.day-checkbox:checked + .day-button {
+  background-color: #14b8a6;
+  border-color: #14b8a6;
+  color: white;
+}
+</style>
