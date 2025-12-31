@@ -25,30 +25,39 @@
       </div>
 
       <div class="grid grid-cols-7 gap-2">
-        <% ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].each_with_index do |day, index| %>
+        <% ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].each_with_index do |day_name, index| %>
+          <% 
+            day_of_week = index + 1
+            start_of_week = @training_plan.start_date.beginning_of_week(:sunday)
+            current_week_start = start_of_week + (@current_week - 1).weeks
+            day_date = current_week_start + index.days
+            workout = @week_workouts.find { |w| w.day_of_week == day_of_week }
+          %>
           <div class="text-center">
-            <p class="text-xs text-gray-500 mb-2"><%= day %></p>
-            <% workout = @week_workouts.find { |w| w.day_of_week == index + 1 } %>
+            <p class="text-xs text-gray-500 mb-2"><%= day_name %></p>
+            
             <% if workout %>
               <button 
                 data-workout-id="<%= workout.id %>"
                 data-action="click->training#toggleWorkout"
-                class="workout-day w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all
+                class="workout-day w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all shadow-md
                   <%= if workout.completed?
-                    'bg-teal-500 text-white'
+                    'bg-teal-500 text-white ring-2 ring-teal-300'
                   elsif workout.scheduled_date == Date.today
-                    'bg-orange-100 text-orange-500 border-2 border-orange-500'
+                    'bg-[#FF6A3D] text-white ring-2 ring-orange-300 animate-pulse'
                   else
-                    'bg-gray-100 text-gray-400'
+                    'bg-[#FF6A3D] text-white'
                   end %>">
                 <% if workout.completed? %>
                   <i class="fas fa-check"></i>
                 <% else %>
-                  <%= (Date.today - @training_plan.start_date).to_i + index + 1 %>
+                  <%= day_date.day %>
                 <% end %>
               </button>
             <% else %>
-              <div class="w-12 h-12 rounded-full bg-gray-50"></div>
+              <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm font-medium border border-gray-200">
+                <%= day_date.day %>
+              </div>
             <% end %>
           </div>
         <% end %>
@@ -144,12 +153,11 @@
         <% @week_workouts.select { |w| w.scheduled_date > Date.today && !w.completed? }.first(3).each do |workout| %>
           <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
             <div class="text-center min-w-[50px]">
-              <p class="text-xs text-gray-500"><%= workout.scheduled_date.strftime('%a') %></p>
+              <p class="text-xs text-gray-500"><%= day_name_pt(workout.scheduled_date) %></p>
               <p class="text-lg font-bold text-gray-900"><%= workout.scheduled_date.day %></p>
             </div>
             <div class="flex-1">
               <p class="font-semibold text-gray-900 text-sm"><%= workout.workout_type %></p>
-              <p class="text-xs text-gray-500"><%= workout.distance_km %>km • <%= workout.pace %></p>
             </div>
             <i class="fas fa-chevron-right text-gray-400"></i>
           </div>
