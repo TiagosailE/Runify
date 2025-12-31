@@ -86,7 +86,5 @@ O diferencial deste Sistema é o uso de **Engenharia de Prompt** avançada. O si
     -   Uma instrução estrita para retornar a resposta em formato **JSON**.
 4.  O sistema recebe o JSON, valida a estrutura e salva no banco de dados, transformando a resposta da IA em uma interface de calendário interativo.
 
-## Autor
-
 ---
 *Este projeto é para fins acadêmicos e educacionais. Consulte sempre um profissional de educação física antes de iniciar atividades intensas.*
