@@ -10,7 +10,15 @@ Rails.application.routes.draw do
   
   get "strava/connect", to: "strava#connect", as: :strava_connect
   get "strava/callback", to: "strava#callback", as: :strava_callback
+  post "strava/sync", to: "strava#sync", as: :sync_strava
   delete "strava/disconnect", to: "strava#disconnect", as: :strava_disconnect
+  
+  get "history", to: "history#index", as: :history
+  
+  get "settings", to: "settings#index", as: :settings
+  post "settings/update_password", to: "settings#update_password", as: :update_password_settings
+  post "settings/toggle_theme", to: "settings#toggle_theme", as: :toggle_theme_settings
+  delete "settings/delete_account", to: "settings#delete_account", as: :delete_account_settings
   
   get "training", to: "training#index", as: :training_index
   post "training/generate", to: "training#generate", as: :generate_training

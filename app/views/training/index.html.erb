@@ -25,12 +25,15 @@
       </div>
 
       <div class="grid grid-cols-7 gap-2">
+        <% 
+          today = Date.today
+          week_start = today.beginning_of_week(:monday)
+        %>
         <% ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].each_with_index do |day_name, index| %>
           <% 
             day_of_week = index + 1
-            start_of_week = @training_plan.start_date.beginning_of_week(:sunday)
-            current_week_start = start_of_week + (@current_week - 1).weeks
-            day_date = current_week_start + index.days
+            day_date = week_start + index.days
+            
             workout = @week_workouts.find { |w| w.day_of_week == day_of_week }
           %>
           <div class="text-center">
@@ -43,7 +46,7 @@
                 class="workout-day w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all shadow-md
                   <%= if workout.completed?
                     'bg-teal-500 text-white ring-2 ring-teal-300'
-                  elsif workout.scheduled_date == Date.today
+                  elsif day_date == Date.today
                     'bg-[#FF6A3D] text-white ring-2 ring-orange-300 animate-pulse'
                   else
                     'bg-[#FF6A3D] text-white'
@@ -175,13 +178,13 @@
       
       <div class="space-y-3 mb-6">
         <button data-difficulty="facil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 transition-all">
-          <p class="font-semibold text-gray-900">Fácil</p>
+          <p class="font-semibold text-gray-900">😊 Fácil</p>
         </button>
         <button data-difficulty="medio" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-yellow-500 hover:bg-yellow-50 transition-all">
-          <p class="font-semibold text-gray-900">Médio</p>
+          <p class="font-semibold text-gray-900">😐 Médio</p>
         </button>
         <button data-difficulty="dificil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-red-500 hover:bg-red-50 transition-all">
-          <p class="font-semibold text-gray-900">Difícil</p>
+          <p class="font-semibold text-gray-900">😰 Difícil</p>
         </button>
       </div>
 

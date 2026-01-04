@@ -1,0 +1,139 @@
+<div class="min-h-screen bg-[#F5F5F5] pb-24">
+  
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="flex items-center justify-between px-6 py-4">
+      <button class="text-gray-700">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+      <h1 class="text-2xl font-bold">
+        Runi<span class="text-teal-500">fy</span>
+      </h1>
+      <div class="w-6"></div>
+    </div>
+  </header>
+
+  <main class="px-6 py-6 space-y-6">
+    
+    <section>
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Estatísticas</h2>
+      
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <i class="fas fa-route text-2xl text-teal-500 mb-2"></i>
+          <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_distance].round(1) %> km</p>
+          <p class="text-xs text-gray-500">Distância Total</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <i class="fas fa-running text-2xl text-orange-500 mb-2"></i>
+          <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_activities] %></p>
+          <p class="text-xs text-gray-500">Corridas</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <i class="fas fa-clock text-2xl text-purple-500 mb-2"></i>
+          <p class="text-2xl font-bold text-gray-900"><%= (@stats[:total_duration] / 3600.0).round(1) %>h</p>
+          <p class="text-xs text-gray-500">Tempo Total</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <i class="fas fa-tachometer-alt text-2xl text-yellow-500 mb-2"></i>
+          <p class="text-2xl font-bold text-gray-900"><%= @stats[:average_pace] %></p>
+          <p class="text-xs text-gray-500">Pace Médio</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Evolução (últimos 6 meses)</h2>
+      
+      <div class="bg-white rounded-2xl p-5 shadow-sm">
+        <div class="relative h-48">
+          <svg class="w-full h-full" viewBox="0 0 300 150">
+            <% max_distance = @monthly_data.map { |d| d[:distance] }.max %>
+            <% max_distance = 1 if max_distance.zero? %>
+            
+            <% @monthly_data.each_with_index do |data, index| %>
+              <% x = 50 * index + 25 %>
+              <% height = (data[:distance] / max_distance * 120).round %>
+              <% y = 130 - height %>
+              
+              <rect 
+                x="<%= x - 15 %>" 
+                y="<%= y %>" 
+                width="30" 
+                height="<%= height %>" 
+                fill="#14b8a6" 
+                rx="4"
+              />
+              
+              <text 
+                x="<%= x %>" 
+                y="145" 
+                text-anchor="middle" 
+                font-size="10" 
+                fill="#666"
+              >
+                <%= data[:month] %>
+              </text>
+              
+              <text 
+                x="<%= x %>" 
+                y="<%= y - 5 %>" 
+                text-anchor="middle" 
+                font-size="10" 
+                font-weight="bold" 
+                fill="#333"
+              >
+                <%= data[:distance] %>
+              </text>
+            <% end %>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-900">Histórico</h2>
+        
+        <select onchange="window.location.href='?filter='+this.value" class="text-sm border border-gray-300 rounded-lg px-3 py-2">
+          <option value="all" <%= 'selected' if @filter == 'all' %>>Todos</option>
+          <option value="week" <%= 'selected' if @filter == 'week' %>>Semana</option>
+          <option value="month" <%= 'selected' if @filter == 'month' %>>Mês</option>
+          <option value="year" <%= 'selected' if @filter == 'year' %>>Ano</option>
+        </select>
+      </div>
+      
+      <% if @activities.any? %>
+        <div class="space-y-3">
+          <% @activities.each do |activity| %>
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <p class="text-xs text-gray-500 mb-1"><%= activity.start_date&.strftime('%d/%m/%Y') %></p>
+                  <h3 class="font-semibold text-gray-900 text-sm mb-2"><%= activity.name %></h3>
+                  <div class="flex gap-4 text-xs">
+                    <span class="text-gray-600"><i class="fas fa-route mr-1 text-teal-500"></i><%= activity.distance_km %>km</span>
+                    <span class="text-gray-600"><i class="fas fa-clock mr-1 text-orange-500"></i><%= activity.duration_formatted %></span>
+                    <span class="text-gray-600"><i class="fas fa-tachometer-alt mr-1 text-yellow-500"></i><%= activity.pace_per_km %></span>
+                  </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-white rounded-2xl p-8 text-center shadow-sm">
+          <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+          <p class="text-gray-500">Nenhuma atividade encontrada</p>
+        </div>
+      <% end %>
+    </section>
+
+  </main>
+
+  <%= render 'shared/footer' %>
+
+</div>

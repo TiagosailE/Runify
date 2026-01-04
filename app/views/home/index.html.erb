@@ -25,9 +25,15 @@
     <% if current_user.strava_connected? %>
       
       <section>
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">
-          Suas <%= current_user.recent_activities.count %> últimas atividades
-        </h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">
+            Suas <%= current_user.recent_activities.count %> últimas atividades
+          </h2>
+          <%= button_to sync_strava_path, method: :post, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
+            <i class="fas fa-sync-alt"></i>
+            Sincronizar
+          <% end %>
+        </div>
         
         <% if current_user.recent_activities.any? %>
           <div class="space-y-4">
@@ -44,7 +50,7 @@
                   <div class="flex flex-col justify-between h-full space-y-3">
                     
                     <p class="text-xs text-gray-500 font-medium pl-0.5">
-                      <%= activity.created_at.strftime("%d/%m/%Y") %> 
+                      <%= activity.start_date&.strftime("%d/%m/%Y") || activity.created_at.strftime("%d/%m/%Y") %> 
                     </p>
 
                     <h3 class="text-base font-bold text-gray-800 leading-tight">

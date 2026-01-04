@@ -28,6 +28,17 @@ class StravaController < ApplicationController
 
     response = oauth_client.oauth_token(code: code)
 
+    existing_integration = StravaIntegration.find_by(strava_athlete_id: response.athlete.id.to_s)
+    
+    if existing_integration && existing_integration.user_id != current_user.id
+      redirect_to dashboard_path, alert: 'Esta conta do Strava já está conectada a outro usuário do Runify.'
+      return
+    end
+
+    if current_user.strava_integration
+      current_user.strava_integration.destroy
+    end
+
     current_user.create_strava_integration!(
       strava_athlete_id: response.athlete.id.to_s,
       access_token: response.access_token,
@@ -40,6 +51,8 @@ class StravaController < ApplicationController
     sync_activities
 
     redirect_to dashboard_path, notice: 'Strava conectado com sucesso!'
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to dashboard_path, alert: "Erro ao conectar: #{e.message}"
   rescue => e
     redirect_to dashboard_path, alert: "Erro ao conectar com Strava: #{e.message}"
   end
@@ -49,12 +62,58 @@ class StravaController < ApplicationController
     redirect_to dashboard_path, notice: 'Strava desconectado com sucesso!'
   end
 
+  def sync
+    integration = current_user.strava_integration
+    return redirect_to dashboard_path, alert: 'Strava não conectado' unless integration
+
+    begin
+      activities = integration.fetch_recent_activities(per_page: 30)
+      new_count = 0
+      updated_count = 0
+
+      activities.each do |strava_activity|
+        activity = current_user.activities.find_or_initialize_by(strava_activity_id: strava_activity.id.to_s)
+        
+        is_new = activity.new_record?
+        
+        activity.assign_attributes(
+          name: strava_activity.name,
+          sport_type: strava_activity.sport_type,
+          distance: strava_activity.distance,
+          duration: strava_activity.elapsed_time,
+          moving_time: strava_activity.moving_time,
+          average_speed: strava_activity.average_speed,
+          start_date: strava_activity.start_date,
+          activity_data: strava_activity.to_h
+        )
+        
+        if activity.save
+          is_new ? new_count += 1 : updated_count += 1
+        end
+      end
+
+      integration.update(last_sync_at: Time.current)
+      
+      message = []
+      message << "#{new_count} novas" if new_count > 0
+      message << "#{updated_count} atualizadas" if updated_count > 0
+      message << "Nenhuma nova" if new_count == 0 && updated_count == 0
+      
+      redirect_to dashboard_path, notice: "Sincronizado! #{message.join(', ')}"
+    rescue => e
+      Rails.logger.error "Sync error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      redirect_to dashboard_path, alert: "Erro ao sincronizar: #{e.message}"
+    end
+  end
+
   private
 
   def sync_activities
     integration = current_user.strava_integration
+    client = integration.strava_client
 
-    activities = integration.fetch_recent_activities(per_page: 10)
+    activities = client.athlete_activities(per_page: 10)
 
     activities.each do |strava_activity|
       current_user.activities.find_or_create_by(strava_activity_id: strava_activity.id.to_s) do |activity|
