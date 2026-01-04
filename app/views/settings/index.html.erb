@@ -1,0 +1,150 @@
+<div class="min-h-screen bg-[#F5F5F5] pb-24" id="settings-page">
+  
+  <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="flex items-center justify-between px-6 py-4">
+      <button class="text-gray-700">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+      <h1 class="text-2xl font-bold">
+        Runi<span class="text-teal-500">fy</span>
+      </h1>
+      <div class="w-6"></div>
+    </div>
+  </header>
+
+  <main class="px-6 py-6 space-y-6">
+    
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Aparência</h2>
+      
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-moon text-xl text-gray-700"></i>
+            <div>
+              <p class="font-semibold text-gray-900">Tema Escuro</p>
+              <p class="text-xs text-gray-500">Ativar modo escuro</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="dark-mode-toggle" class="sr-only peer" <%= 'checked' if @dark_mode %>>
+            <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-teal-500"></div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Segurança</h2>
+      
+      <div class="bg-white rounded-2xl p-5 shadow-sm">
+        <h3 class="font-semibold text-gray-900 mb-4">Alterar Senha</h3>
+        
+        <%= form_with url: update_password_settings_path, method: :post, local: true, class: "space-y-4" do |f| %>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Senha Atual</label>
+            <%= password_field_tag :current_password, nil, 
+                placeholder: "Digite sua senha atual",
+                class: "appearance-none block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" %>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nova Senha</label>
+            <%= password_field_tag :new_password, nil, 
+                placeholder: "Digite a nova senha",
+                class: "appearance-none block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" %>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Nova Senha</label>
+            <%= password_field_tag :password_confirmation, nil, 
+                placeholder: "Confirme a nova senha",
+                class: "appearance-none block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent" %>
+          </div>
+
+          <%= f.submit "Alterar Senha", 
+              class: "w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer" %>
+        <% end %>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Notificações</h2>
+      
+      <div class="bg-white rounded-2xl p-4 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-bell text-xl text-gray-700"></i>
+            <div>
+              <p class="font-semibold text-gray-900">Lembretes de Treino</p>
+              <p class="text-xs text-gray-500">Receber notificações</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer">
+            <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-teal-500"></div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Sobre</h2>
+      
+      <div class="bg-white rounded-2xl shadow-sm divide-y">
+        <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-shield-alt text-gray-700"></i>
+            <span class="text-gray-900">Política de Privacidade</span>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400"></i>
+        </a>
+        
+        <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-file-alt text-gray-700"></i>
+            <span class="text-gray-900">Termos de Uso</span>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400"></i>
+        </a>
+        
+        <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-info-circle text-gray-700"></i>
+            <span class="text-gray-900">Sobre o Runify</span>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400"></i>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <%= button_to "Excluir Conta", delete_account_settings_path, 
+          method: :delete,
+          data: { confirm: 'Tem certeza? Esta ação não pode ser desfeita.' },
+          class: "w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all" %>
+    </section>
+
+  </main>
+
+  <%= render 'shared/footer' %>
+
+</div>
+
+<script>
+document.getElementById('dark-mode-toggle')?.addEventListener('change', async (e) => {
+  const darkMode = e.target.checked;
+  
+  await fetch('<%= toggle_theme_settings_path %>', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ dark_mode: darkMode })
+  });
+  
+  document.body.classList.toggle('dark-mode', darkMode);
+});
+</script>
