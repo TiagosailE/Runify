@@ -39,31 +39,27 @@ class AiTrainingService
     days_text = available_days.map { |d| ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][d - 1] }.join(', ')
 
     <<~PROMPT
-      Você é um treinador profissional de corrida. Analise os dados do atleta e crie um plano de treino semanal personalizado.
+      Você é um treinador de corrida. Crie um plano de treino semanal personalizado baseado nos dados do atleta.
 
-      DADOS DO ATLETA:
+      DADOS:
       - Nome: #{@user.username || 'Atleta'}
-      - Idade: #{@user.age || 'Não informado'} anos
-      - Peso: #{@user.weight || 'Não informado'}kg
-      - Altura: #{@user.height || 'Não informado'}cm
+      - Idade: #{@user.age || 'N/A'} anos
+      - Peso: #{@user.weight || 'N/A'}kg
+      - Altura: #{@user.height || 'N/A'}cm
       - Objetivo: #{@user.goal || 'Melhorar performance'}
-      - Dias disponíveis para treinar: #{days_text}
+      - Dias de treino: #{days_text}
 
-      ATIVIDADES RECENTES (últimas 10):
+      ATIVIDADES RECENTES:
       #{activities_summary}
 
-      INSTRUÇÕES:
-      1. Analise o nível atual do atleta baseado nas atividades
-      2. Considere o objetivo dele
-      3. Crie um plano de 4 semanas com treinos APENAS nos dias: #{available_days.join(', ')}
-      4. Varie os tipos de treino: Corrida Leve, Tempo Run, Intervalado, Longão
-      5. SEJA MUITO ESPECÍFICO nas instruções de cada treino
+      TAREFA:
+      Crie um plano de 4 semanas com treinos nos dias: #{available_days.join(', ')}
+      Varie: Corrida Leve, Tempo Run, Intervalado, Longão
+      Seja específico nas instruções.
 
-      CRÍTICO: Retorne APENAS o JSON, sem nenhum texto antes ou depois, sem markdown, sem explicações.
-      
-      Formato JSON obrigatório:
+      RETORNE APENAS este JSON, sem markdown, sem texto extra:
       {
-        "analysis": "Breve análise do atleta",
+        "analysis": "Uma breve análise (máximo 50 palavras)",
         "plan_duration_weeks": 4,
         "weekly_volume_km": 25,
         "workouts": [
@@ -75,14 +71,10 @@ class AiTrainingService
             "duration_minutes": 30,
             "pace": "6:00-6:30",
             "description": "Corrida leve para começar",
-            "instructions": "Aquecimento: 5 min trote leve\\n\\nParte principal: 20 min corrida leve (pace 6:00-6:30)\\n\\nDesaquecimento: 5 min caminhada + alongamento"
+            "instructions": "Aquecimento 5min\\nPrincipal: 20min corrida leve\\nDesaquecimento 5min"
           }
         ]
       }
-
-      IMPORTANTE: 
-      - Use APENAS os dias #{available_days.join(', ')} 
-      - Retorne SOMENTE o JSON, nada mais
     PROMPT
   end
 
@@ -99,10 +91,10 @@ class AiTrainingService
         }]
       }],
       generationConfig: {
-        temperature: 0.4,
+        temperature: 0.3,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 8192,
+        maxOutputTokens: 16000,
         responseMimeType: "application/json"
       }
     }.to_json
