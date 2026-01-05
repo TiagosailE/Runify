@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  get "notifications/index"
-  get "notifications/mark_as_read"
   devise_for :users
   
   root "welcome#index"
@@ -14,6 +12,17 @@ Rails.application.routes.draw do
   get "strava/callback", to: "strava#callback", as: :strava_callback
   post "strava/sync", to: "strava#sync", as: :sync_strava
   delete "strava/disconnect", to: "strava#disconnect", as: :strava_disconnect
+  
+  get "notifications", to: "notifications#index", as: :notifications
+  post "notifications/:id/mark_as_read", to: "notifications#mark_as_read", as: :mark_as_read_notification
+  post "notifications/mark_all_as_read", to: "notifications#mark_all_as_read", as: :mark_all_as_read_notifications
+  
+  get "pacers", to: "pacers#index", as: :pacers
+  get "pacers/new", to: "pacers#new", as: :new_pacer
+  post "pacers/create", to: "pacers#create", as: :create_pacer
+  get "pacers/:id", to: "pacers#show", as: :pacer
+  post "pacers/:id/join", to: "pacers#join", as: :join_pacer
+  delete "pacers/:id/leave", to: "pacers#leave", as: :leave_pacer
   
   get "history", to: "history#index", as: :history
   

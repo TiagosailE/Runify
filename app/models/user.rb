@@ -7,6 +7,11 @@ class User < ApplicationRecord
   has_many :activities, dependent: :destroy
   has_many :training_plans, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :squad_members, dependent: :destroy
+  has_many :squads, through: :squad_members
+  has_many :owned_squads, class_name: 'Squad', foreign_key: 'owner_id', dependent: :destroy
+  has_many :user_achievements, dependent: :destroy
+  has_many :achievements, through: :user_achievements
 
   def strava_connected?
     strava_integration.present? && strava_integration.active?
@@ -35,5 +40,21 @@ class User < ApplicationRecord
     else
       "https://ui-avatars.com/api/?name=#{username || email}&background=14b8a6&color=fff&size=200"
     end
+  end
+
+  def primary_squad_member
+    squad_members.order(experience_points: :desc).first
+  end
+
+  def level
+    primary_squad_member&.level || 1
+  end
+
+  def experience_points
+    primary_squad_member&.experience_points || 0
+  end
+
+  def border_color
+    primary_squad_member&.border_color || 'border-gray-400'
   end
 end
