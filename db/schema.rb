@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_04_191807) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_05_025259) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "achievements", force: :cascade do |t|
+    t.string "badge_type"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "icon"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.integer "xp_reward", default: 0
+    t.index ["badge_type"], name: "index_achievements_on_badge_type"
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -61,6 +72,52 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_04_191807) do
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "message"
+    t.string "notification_type"
+    t.boolean "read", default: false
+    t.datetime "sent_at"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["notification_type"], name: "index_notifications_on_notification_type"
+    t.index ["read"], name: "index_notifications_on_read"
+    t.index ["sent_at"], name: "index_notifications_on_sent_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "squad_members", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "experience_points", default: 0
+    t.datetime "joined_at"
+    t.integer "level", default: 1
+    t.bigint "squad_id", null: false
+    t.integer "streak", default: 0
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["experience_points"], name: "index_squad_members_on_experience_points"
+    t.index ["level"], name: "index_squad_members_on_level"
+    t.index ["squad_id", "user_id"], name: "index_squad_members_on_squad_id_and_user_id", unique: true
+    t.index ["squad_id"], name: "index_squad_members_on_squad_id"
+    t.index ["user_id"], name: "index_squad_members_on_user_id"
+  end
+
+  create_table "squads", force: :cascade do |t|
+    t.integer "challenge_duration"
+    t.date "challenge_end"
+    t.date "challenge_start"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.integer "owner_id", null: false
+    t.string "squad_code", null: false
+    t.datetime "updated_at", null: false
+    t.index ["challenge_start"], name: "index_squads_on_challenge_start"
+    t.index ["owner_id"], name: "index_squads_on_owner_id"
+    t.index ["squad_code"], name: "index_squads_on_squad_code", unique: true
+  end
+
   create_table "strava_integrations", force: :cascade do |t|
     t.string "access_token"
     t.boolean "active", default: true
@@ -91,6 +148,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_04_191807) do
     t.index ["user_id"], name: "index_training_plans_on_user_id"
   end
 
+  create_table "user_achievements", force: :cascade do |t|
+    t.bigint "achievement_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "earned_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["achievement_id"], name: "index_user_achievements_on_achievement_id"
+    t.index ["user_id", "achievement_id"], name: "index_user_achievements_on_user_id_and_achievement_id", unique: true
+    t.index ["user_id"], name: "index_user_achievements_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.jsonb "available_days"
     t.date "birth_date"
@@ -99,6 +167,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_04_191807) do
     t.string "encrypted_password", default: "", null: false
     t.string "goal"
     t.integer "height"
+    t.boolean "notifications_enabled", default: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
@@ -133,7 +202,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_04_191807) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "activities", "users"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "squad_members", "squads"
+  add_foreign_key "squad_members", "users"
   add_foreign_key "strava_integrations", "users"
   add_foreign_key "training_plans", "users"
+  add_foreign_key "user_achievements", "achievements"
+  add_foreign_key "user_achievements", "users"
   add_foreign_key "workouts", "training_plans"
 end

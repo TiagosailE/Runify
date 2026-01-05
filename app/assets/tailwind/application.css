@@ -1,1 +1,62 @@
 @import "tailwindcss";
+
+/* 1. Garante altura total */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@layer base {
+  /* =========================================
+     FORÇAR MODO ESCURO (GLOBAL)
+     ========================================= */
+  
+  /* Usamos :root.dark para máxima especificidade */
+  :root.dark body,
+  :root.dark html {
+    background-color: #111827 !important; /* gray-900 */
+    color: #f3f4f6 !important; /* gray-100 */
+  }
+
+  /* Garante que o MAIN seja transparente para mostrar o fundo do body */
+  :root.dark main {
+    background-color: transparent !important;
+  }
+
+  /* =========================================
+     CORREÇÃO DE TEXTOS
+     ========================================= */
+  
+  /* Textos escuros viram claros */
+  :root.dark .text-gray-900 { color: #f3f4f6 !important; }
+  :root.dark .text-gray-800 { color: #e5e7eb !important; }
+  :root.dark .text-gray-700 { color: #d1d5db !important; }
+  :root.dark .text-gray-600 { color: #9ca3af !important; }
+  :root.dark .text-gray-500 { color: #9ca3af !important; }
+
+  /* =========================================
+     CORREÇÃO DOS CARDS E COMPONENTES
+     ========================================= */
+
+  /* Conserta o card verde claro (suas atividades) */
+  :root.dark [class*="bg-[#2EC4B6]"] {
+    background-color: #1f2937 !important; /* gray-800 */
+    border: 1px solid #374151 !important; /* borda sutil */
+    box-shadow: none !important;
+  }
+
+  /* Conserta qualquer fundo branco ou cinza claro explícito */
+  :root.dark .bg-white,
+  :root.dark .bg-gray-50,
+  :root.dark .bg-gray-100 {
+    background-color: #1f2937 !important; /* gray-800 */
+    border-color: #374151 !important;
+  }
+
+  /* Conserta bordas */
+  :root.dark .border-gray-200,
+  :root.dark .border-gray-300 {
+    border-color: #374151 !important;
+  }
+}

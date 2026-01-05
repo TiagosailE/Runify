@@ -1,16 +1,6 @@
 <div class="min-h-screen bg-[#F5F5F5] pb-24" id="settings-page">
   
-  <header class="bg-white shadow-sm sticky top-0 z-10">
-    <div class="flex items-center justify-between px-6 py-4">
-      <button class="text-gray-700">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-      <h1 class="text-2xl font-bold">
-        Runi<span class="text-teal-500">fy</span>
-      </h1>
-      <div class="w-6"></div>
-    </div>
-  </header>
+  <%= render 'shared/header' %>
 
   <main class="px-6 py-6 space-y-6">
     
@@ -82,7 +72,7 @@
             </div>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer">
+            <input type="checkbox" id="notifications-toggle" class="sr-only peer" <%= 'checked' if current_user.notifications_enabled %>>
             <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-teal-500"></div>
           </label>
         </div>
@@ -136,7 +126,7 @@
 document.getElementById('dark-mode-toggle')?.addEventListener('change', async (e) => {
   const darkMode = e.target.checked;
   
-  await fetch('<%= toggle_theme_settings_path %>', {
+  const response = await fetch('<%= toggle_theme_settings_path %>', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -145,6 +135,33 @@ document.getElementById('dark-mode-toggle')?.addEventListener('change', async (e
     body: JSON.stringify({ dark_mode: darkMode })
   });
   
-  document.body.classList.toggle('dark-mode', darkMode);
+  if (response.ok) {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode);
+  }
 });
+
+document.getElementById('notifications-toggle')?.addEventListener('change', async (e) => {
+  const enabled = e.target.checked;
+  
+  const response = await fetch('<%= toggle_notifications_settings_path %>', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ enabled: enabled })
+  });
+  
+  if (response.ok) {
+    const data = await response.json();
+    if (data.success) {
+      alert(enabled ? 'Notificações ativadas!' : 'Notificações desativadas!');
+    }
+  }
+});
+
+if (localStorage.getItem('darkMode') === 'true') {
+  document.documentElement.classList.add('dark');
+}
 </script>
