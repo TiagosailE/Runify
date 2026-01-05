@@ -1,13 +1,24 @@
-<header class="bg-white dark:bg-[#2d3748] shadow-sm sticky top-0 z-50">
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
   <div class="flex items-center justify-between px-6 py-4">
     
-    <div class="w-6"></div>
+    <%= link_to pacers_path, class: "text-gray-600 hover:text-teal-500 transition-colors" do %>
+      <i class="fas fa-users text-xl"></i>
+    <% end %>
     
     <h1 class="text-2xl font-bold">
       Runi<span class="text-teal-500">fy</span>
     </h1>
     
-    <div class="w-6"></div>
+    <div class="flex items-center gap-4">
+      <%= link_to notifications_path, class: "relative text-gray-600 hover:text-teal-500 transition-colors" do %>
+        <i class="fas fa-bell text-xl"></i>
+        <% if current_user.notifications.unread.count > 0 %>
+          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+            <%= current_user.notifications.unread.count %>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
     
   </div>
 </header>

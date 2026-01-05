@@ -88,7 +88,12 @@ class StravaController < ApplicationController
         )
         
         if activity.save
-          is_new ? new_count += 1 : updated_count += 1
+          if is_new
+            XpService.award_xp(current_user, activity)
+            new_count += 1
+          else
+            updated_count += 1
+          end
         end
       end
 

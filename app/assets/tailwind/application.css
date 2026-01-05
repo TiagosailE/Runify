@@ -24,6 +24,11 @@ html, body {
     background-color: transparent !important;
   }
 
+  /* Captura o container principal com bg-[#F5F5F5] */
+  :root.dark [class*="bg-\[#F5F5F5\]"] {
+    background-color: #111827 !important;
+  }
+
   /* =========================================
      CORREÇÃO DE TEXTOS
      ========================================= */
@@ -40,7 +45,7 @@ html, body {
      ========================================= */
 
   /* Conserta o card verde claro (suas atividades) */
-  :root.dark [class*="bg-[#2EC4B6]"] {
+  :root.dark [class*="bg-\[#2EC4B6\]"] {
     background-color: #1f2937 !important; /* gray-800 */
     border: 1px solid #374151 !important; /* borda sutil */
     box-shadow: none !important;
@@ -58,5 +63,35 @@ html, body {
   :root.dark .border-gray-200,
   :root.dark .border-gray-300 {
     border-color: #374151 !important;
+  }
+
+  /* =========================================
+     CORREÇÃO DE PLACEHOLDERS E INPUTS
+     ========================================= */
+  
+  :root.dark .placeholder-gray-400::placeholder {
+    color: #9ca3af !important;
+  }
+
+  :root.dark input,
+  :root.dark textarea,
+  :root.dark select {
+    background-color: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border-color: #374151 !important;
+  }
+
+  :root.dark input:focus,
+  :root.dark textarea:focus,
+  :root.dark select:focus {
+    border-color: #14b8a6 !important;
+  }
+
+  /* =========================================
+     CORREÇÃO DE HOVER STATES
+     ========================================= */
+  
+  :root.dark .hover\:bg-gray-50:hover {
+    background-color: #111827 !important;
   }
 }

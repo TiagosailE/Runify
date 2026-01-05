@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  get "pacers/index"
+  get "pacers/new"
+  get "pacers/create"
+  get "pacers/show"
+  get "pacers/join"
+  get "pacers/leave"
   devise_for :users
   
   root "welcome#index"
@@ -20,8 +26,9 @@ Rails.application.routes.draw do
   get "pacers", to: "pacers#index", as: :pacers
   get "pacers/new", to: "pacers#new", as: :new_pacer
   post "pacers/create", to: "pacers#create", as: :create_pacer
+  post "pacers/join", to: "pacers#join", as: :join_pacer
   get "pacers/:id", to: "pacers#show", as: :pacer
-  post "pacers/:id/join", to: "pacers#join", as: :join_pacer
+  post "pacers/:id/join", to: "pacers#join"
   delete "pacers/:id/leave", to: "pacers#leave", as: :leave_pacer
   
   get "history", to: "history#index", as: :history
