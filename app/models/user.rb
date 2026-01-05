@@ -6,6 +6,7 @@ class User < ApplicationRecord
   has_one :strava_integration, dependent: :destroy
   has_many :activities, dependent: :destroy
   has_many :training_plans, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   def strava_connected?
     strava_integration.present? && strava_integration.active?

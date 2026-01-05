@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "notifications/index"
+  get "notifications/mark_as_read"
   devise_for :users
   
   root "welcome#index"
@@ -18,6 +20,7 @@ Rails.application.routes.draw do
   get "settings", to: "settings#index", as: :settings
   post "settings/update_password", to: "settings#update_password", as: :update_password_settings
   post "settings/toggle_theme", to: "settings#toggle_theme", as: :toggle_theme_settings
+  post "settings/toggle_notifications", to: "settings#toggle_notifications", as: :toggle_notifications_settings
   delete "settings/delete_account", to: "settings#delete_account", as: :delete_account_settings
   
   get "training", to: "training#index", as: :training_index

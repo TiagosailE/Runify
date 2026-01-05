@@ -29,6 +29,8 @@ class TrainingController < ApplicationController
     @workout = Workout.find(params[:id])
     @workout.mark_as_completed!
     
+    NotificationService.send_congratulations(current_user, @workout)
+    
     render json: { success: true, message: 'Treino concluído!' }
   end
 

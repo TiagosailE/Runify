@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  squad: one
+  user: one
+  level: 1
+  experience_points: 1
+  streak: 1
+  joined_at: 2026-01-04 23:52:42
+
+two:
+  squad: two
+  user: two
+  level: 1
+  experience_points: 1
+  streak: 1
+  joined_at: 2026-01-04 23:52:42

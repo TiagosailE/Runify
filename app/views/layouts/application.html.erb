@@ -19,6 +19,12 @@
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <script>
+      if (localStorage.getItem('darkMode') === 'true' || document.cookie.includes('dark_mode=true')) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
   </head>
 
   <body class="antialiased">

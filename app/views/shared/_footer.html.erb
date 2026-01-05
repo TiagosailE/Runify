@@ -16,5 +16,9 @@
       <i class="fas fa-cog text-xl mb-1"></i>
       <span class="text-xs font-medium">Config</span>
     </a>
+    <a href="<%= profile_path %>" class="flex flex-col items-center <%= current_page?(profile_path) ? 'text-teal-500' : 'text-gray-400' %>">
+      <i class="fas fa-user text-xl mb-1"></i>
+      <span class="text-xs font-medium">Perfil</span>
+    </a>
   </div>
 </nav>
