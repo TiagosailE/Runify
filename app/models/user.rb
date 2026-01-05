@@ -13,6 +13,12 @@ class User < ApplicationRecord
   has_many :user_achievements, dependent: :destroy
   has_many :achievements, through: :user_achievements
 
+  # Validações de dados realistas
+  validates :age, numericality: { greater_than_or_equal_to: 12, less_than_or_equal_to: 120, allow_nil: true, message: "deve estar entre 12 e 120 anos" }
+  validates :weight, numericality: { greater_than: 30, less_than_or_equal_to: 300, allow_nil: true, message: "deve estar entre 30kg e 300kg" }
+  validates :height, numericality: { greater_than: 100, less_than_or_equal_to: 250, allow_nil: true, message: "deve estar entre 100cm e 250cm" }
+  validates :goal, length: { maximum: 500, allow_nil: true, message: "não pode exceder 500 caracteres" }
+
   def strava_connected?
     strava_integration.present? && strava_integration.active?
   end

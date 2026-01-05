@@ -51,13 +51,23 @@ class HistoryController < ApplicationController
   def calculate_monthly_data
     last_6_months = 6.times.map { |i| i.months.ago.beginning_of_month }
     
+    months_pt = {
+      'Jan' => 'Jan', 'Feb' => 'Fev', 'Mar' => 'Mar',
+      'Apr' => 'Abr', 'May' => 'Mai', 'Jun' => 'Jun',
+      'Jul' => 'Jul', 'Aug' => 'Ago', 'Sep' => 'Set',
+      'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
+    }
+    
     last_6_months.reverse.map do |month|
       activities = current_user.activities.where(
         start_date: month..month.end_of_month
       )
       
+      month_en = month.strftime('%b')
+      month_pt = months_pt[month_en] || month_en
+      
       {
-        month: month.strftime('%b'),
+        month: month_pt,
         distance: (activities.sum(:distance) / 1000.0).round(1)
       }
     end

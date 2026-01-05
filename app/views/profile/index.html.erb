@@ -4,7 +4,18 @@
 
   <main class="px-6 py-8 space-y-6">
     
-    <%= form_with url: profile_update_path, method: :patch, local: true, multipart: true, class: "space-y-6" do |f| %>
+    <%= form_with model: current_user, url: profile_update_path, method: :patch, local: true, multipart: true, class: "space-y-6" do |f| %>
+      
+      <% if current_user.errors.any? %>
+        <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-2xl p-4">
+          <h3 class="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">Erros encontrados:</h3>
+          <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
+            <% current_user.errors.full_messages.each do |message| %>
+              <li>• <%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
       
       <div class="flex flex-col items-center">
         <div class="relative">
@@ -18,10 +29,10 @@
           </label>
           <%= f.file_field :avatar, id: "avatar-input", class: "hidden", accept: "image/*", onchange: "previewAvatar(event)" %>
         </div>
-        <h2 class="text-xl font-bold text-gray-900 mt-4">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mt-4">
           <%= current_user.username || "Usuário" %>
         </h2>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
           <%= current_user.email %>
         </p>
       </div>
@@ -29,45 +40,49 @@
       <div class="space-y-4">
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome</label>
           <%= f.text_field :username, 
               value: current_user.username,
               placeholder: "Digite seu nome",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base bg-white" %>
+              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Idade</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Idade</label>
           <%= f.number_field :age, 
               value: current_user.age,
-              placeholder: "Digite sua idade",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base bg-white" %>
+              placeholder: "Digite sua idade (12-120)",
+              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 12, máximo 120 anos</p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Peso (kg)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Peso (kg)</label>
           <%= f.number_field :weight, 
               value: current_user.weight,
               step: 0.1,
-              placeholder: "Digite seu peso",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base bg-white" %>
+              placeholder: "Digite seu peso (30-300kg)",
+              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 30kg, máximo 300kg</p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Altura (cm)</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Altura (cm)</label>
           <%= f.number_field :height, 
               value: current_user.height,
-              placeholder: "Digite sua altura",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base bg-white" %>
+              placeholder: "Digite sua altura (100-250cm)",
+              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 100cm, máximo 250cm</p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Objetivo</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Objetivo</label>
           <%= f.text_area :goal, 
               value: current_user.goal,
               rows: 4,
               placeholder: "Digite seu objetivo (ex: correr 10km em 50 minutos)",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base resize-none bg-white" %>
+              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base resize-none" %>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Máximo 500 caracteres</p>
         </div>
 
       </div>
