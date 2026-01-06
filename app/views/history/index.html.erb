@@ -5,39 +5,39 @@
   <main class="px-6 py-6 space-y-6">
     
     <section>
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Estatísticas</h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Estatísticas</h2>
       
       <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
           <i class="fas fa-route text-2xl text-teal-500 mb-2"></i>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= @stats[:total_distance].round(1) %> km</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Distância Total</p>
+          <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_distance].round(1) %> km</p>
+          <p class="text-xs text-gray-500">Distância Total</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
           <i class="fas fa-running text-2xl text-orange-500 mb-2"></i>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= @stats[:total_activities] %></p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Corridas</p>
+          <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_activities] %></p>
+          <p class="text-xs text-gray-500">Corridas</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
           <i class="fas fa-clock text-2xl text-purple-500 mb-2"></i>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= (@stats[:total_duration] / 3600.0).round(1) %>h</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Tempo Total</p>
+          <p class="text-2xl font-bold text-gray-900"><%= (@stats[:total_duration] / 3600.0).round(1) %>h</p>
+          <p class="text-xs text-gray-500">Tempo Total</p>
         </div>
         
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
           <i class="fas fa-tachometer-alt text-2xl text-yellow-500 mb-2"></i>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= @stats[:average_pace] %></p>
-          <p class="text-xs text-gray-500 dark:text-gray-400">Pace Médio</p>
+          <p class="text-2xl font-bold text-gray-900"><%= @stats[:average_pace] %></p>
+          <p class="text-xs text-gray-500">Pace Médio</p>
         </div>
       </div>
     </section>
 
     <section>
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Evolução (últimos 6 meses)</h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-4">Evolução (últimos 6 meses)</h2>
       
-      <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+      <div class="bg-white rounded-2xl p-5 shadow-sm">
         <div class="relative h-48">
           <svg class="w-full h-full" viewBox="0 0 300 150">
             <% max_distance = @monthly_data.map { |d| d[:distance] }.max %>
@@ -62,8 +62,7 @@
                 y="145" 
                 text-anchor="middle" 
                 font-size="10" 
-                fill="#666" 
-                class="dark:fill-gray-400"
+                fill="#666"
               >
                 <%= data[:month] %>
               </text>
@@ -72,10 +71,9 @@
                 x="<%= x %>" 
                 y="<%= y - 5 %>" 
                 text-anchor="middle" 
-                font-size="11" 
+                font-size="10" 
                 font-weight="bold" 
-                fill="#1a1a1a"
-                class="dark:fill-white"
+                fill="#f3f4f6"
               >
                 <%= data[:distance] %>
               </text>
@@ -87,9 +85,9 @@
 
     <section>
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Histórico</h2>
+        <h2 class="text-xl font-bold text-gray-900">Histórico</h2>
         
-        <select onchange="window.location.href='?filter='+this.value" class="text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2">
+        <select onchange="window.location.href='?filter='+this.value" class="text-sm border border-gray-300 rounded-lg px-3 py-2">
           <option value="all" <%= 'selected' if @filter == 'all' %>>Todos</option>
           <option value="week" <%= 'selected' if @filter == 'week' %>>Semana</option>
           <option value="month" <%= 'selected' if @filter == 'month' %>>Mês</option>
@@ -100,26 +98,26 @@
       <% if @activities.any? %>
         <div class="space-y-3">
           <% @activities.each do |activity| %>
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="flex-1">
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= activity.start_date&.strftime('%d/%m/%Y') %></p>
-                  <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-2"><%= activity.name %></h3>
+                  <p class="text-xs text-gray-500 mb-1"><%= activity.start_date&.strftime('%d/%m/%Y') %></p>
+                  <h3 class="font-semibold text-gray-900 text-sm mb-2"><%= activity.name %></h3>
                   <div class="flex gap-4 text-xs">
-                    <span class="text-gray-600 dark:text-gray-300"><i class="fas fa-route mr-1 text-teal-500"></i><%= activity.distance_km %>km</span>
-                    <span class="text-gray-600 dark:text-gray-300"><i class="fas fa-clock mr-1 text-orange-500"></i><%= activity.duration_formatted %></span>
-                    <span class="text-gray-600 dark:text-gray-300"><i class="fas fa-tachometer-alt mr-1 text-yellow-500"></i><%= activity.pace_per_km %></span>
+                    <span class="text-gray-600"><i class="fas fa-route mr-1 text-teal-500"></i><%= activity.distance_km %>km</span>
+                    <span class="text-gray-600"><i class="fas fa-clock mr-1 text-orange-500"></i><%= activity.duration_formatted %></span>
+                    <span class="text-gray-600"><i class="fas fa-tachometer-alt mr-1 text-yellow-500"></i><%= activity.pace_per_km %></span>
                   </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
+                <i class="fas fa-chevron-right text-gray-400"></i>
               </div>
             </div>
           <% end %>
         </div>
       <% else %>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-sm">
-          <i class="fas fa-inbox text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
-          <p class="text-gray-500 dark:text-gray-400">Nenhuma atividade encontrada</p>
+        <div class="bg-white rounded-2xl p-8 text-center shadow-sm">
+          <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+          <p class="text-gray-500">Nenhuma atividade encontrada</p>
         </div>
       <% end %>
     </section>

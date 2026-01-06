@@ -10,15 +10,19 @@ class SettingsController < ApplicationController
       if params[:new_password] == params[:password_confirmation]
         if current_user.update(password: params[:new_password], password_confirmation: params[:password_confirmation])
           bypass_sign_in(current_user)
-          redirect_to settings_path, notice: 'Senha alterada com sucesso!'
+          flash[:toast] = { message: 'Senha alterada com sucesso!', type: 'success' }
+          redirect_to settings_path
         else
-          redirect_to settings_path, alert: current_user.errors.full_messages.join(', ')
+          flash[:toast] = { message: current_user.errors.full_messages.join(', '), type: 'error' }
+          redirect_to settings_path
         end
       else
-        redirect_to settings_path, alert: 'As senhas não coincidem.'
+        flash[:toast] = { message: 'As senhas não coincidem.', type: 'error' }
+        redirect_to settings_path
       end
     else
-      redirect_to settings_path, alert: 'Senha atual incorreta.'
+      flash[:toast] = { message: 'Senha atual incorreta.', type: 'error' }
+      redirect_to settings_path
     end
   end
 
@@ -36,6 +40,7 @@ class SettingsController < ApplicationController
 
   def delete_account
     current_user.destroy
-    redirect_to root_path, notice: 'Conta excluída com sucesso.'
+    flash[:toast] = { message: 'Conta excluída com sucesso.', type: 'success' }
+    redirect_to root_path
   end
 end

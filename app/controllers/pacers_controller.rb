@@ -33,7 +33,7 @@ class PacersController < ApplicationController
     @is_member = @squad.users.include?(current_user)
   end
 
-  def join
+  def join_by_code
     squad = Squad.find_by(squad_code: params[:code])
     
     if squad.nil?
@@ -57,7 +57,7 @@ class PacersController < ApplicationController
     redirect_to pacer_path(squad), notice: 'Você entrou no Pacer!'
   end
 
-  def leave
+  def join
     squad = Squad.find(params[:id])
     squad_member = squad.squad_members.find_by(user: current_user)
     

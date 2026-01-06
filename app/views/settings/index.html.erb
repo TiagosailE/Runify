@@ -110,19 +110,49 @@
     </section>
 
     <section>
-      <%= button_to "Excluir Conta", delete_account_settings_path, 
-          method: :delete,
-          data: { confirm: 'Tem certeza? Esta ação não pode ser desfeita.' },
-          class: "w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all" %>
+      <button onclick="showDeleteModal()" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+        Excluir Conta
+      </button>
     </section>
 
   </main>
+
+  <div id="delete-account-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Excluir Conta?</h3>
+        <p class="text-sm text-gray-600">Esta ação é irreversível. Todos os seus dados serão permanentemente apagados.</p>
+      </div>
+      
+      <%= form_with url: delete_account_settings_path, method: :delete, id: "delete-account-form" do %>
+        <div class="space-y-3">
+          <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+            Sim, excluir minha conta
+          </button>
+          <button type="button" onclick="hideDeleteModal()" class="w-full py-3 px-4 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all">
+            Cancelar
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
   <%= render 'shared/footer' %>
 
 </div>
 
 <script>
+function showDeleteModal() {
+  document.getElementById('delete-account-modal').classList.remove('hidden')
+}
+
+function hideDeleteModal() {
+  document.getElementById('delete-account-modal').classList.add('hidden')
+}
+
 document.getElementById('dark-mode-toggle')?.addEventListener('change', async (e) => {
   const darkMode = e.target.checked;
   
@@ -156,7 +186,7 @@ document.getElementById('notifications-toggle')?.addEventListener('change', asyn
   if (response.ok) {
     const data = await response.json();
     if (data.success) {
-      alert(enabled ? 'Notificações ativadas!' : 'Notificações desativadas!');
+      window.showToast(enabled ? 'Notificações ativadas!' : 'Notificações desativadas!', 'success');
     }
   }
 });

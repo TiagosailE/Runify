@@ -27,7 +27,7 @@
     <section>
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Entrar em um Pacer</h3>
       
-      <%= form_with url: join_pacer_path, method: :post, local: true, class: "bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm" do %>
+      <%= form_with url: join_by_code_pacers_path, method: :post, local: true, class: "bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm" do %>
         <div class="flex gap-3">
           <%= text_field_tag :code, nil, 
               placeholder: "Digite o código do Pacer",

@@ -28,7 +28,7 @@ class User < ApplicationRecord
   end
 
   def active_training_plan
-    training_plans.active.order(created_at: :desc).first
+    training_plans.where(status: 'active').order(created_at: :desc).first
   end
 
   def has_active_plan?
@@ -62,5 +62,10 @@ class User < ApplicationRecord
 
   def border_color
     primary_squad_member&.border_color || 'border-gray-400'
+  end
+
+  # Métodos para notificações
+  def notifications_enabled?
+    notifications_enabled == true
   end
 end

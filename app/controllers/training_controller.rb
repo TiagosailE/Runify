@@ -27,11 +27,16 @@ class TrainingController < ApplicationController
 
   def complete
     @workout = Workout.find(params[:id])
-    @workout.mark_as_completed!
     
-    NotificationService.send_congratulations(current_user, @workout)
-    
-    render json: { success: true, message: 'Treino concluído!' }
+    # Usa o método mark_as_completed! do modelo
+    if @workout.mark_as_completed!
+      # Envia notificação de parabéns
+      NotificationService.send_congratulations(current_user, @workout)
+      
+      render json: { success: true, message: 'Treino concluído! 🎉' }
+    else
+      render json: { success: false, message: 'Erro ao completar treino' }, status: :unprocessable_entity
+    end
   end
 
   def feedback
