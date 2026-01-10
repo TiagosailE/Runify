@@ -16,6 +16,12 @@ gem "stimulus-rails"
 
 gem "tailwindcss-rails"
 
+# Para jobs em background
+gem 'sidekiq'
+
+# Para agendar jobs
+gem 'whenever', require: false
+
 gem "jbuilder"
 
 gem "image_processing", "~> 1.2"
@@ -31,8 +37,6 @@ gem "bootsnap", require: false
 gem "kamal", require: false
 
 gem "thruster", require: false
-
-gem "image_processing", "~> 1.2"
 
 group :development, :test do
 

@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* 1. Garante altura total */
 html, body {
   height: 100%;
   margin: 0;
@@ -8,90 +7,174 @@ html, body {
 }
 
 @layer base {
-  /* =========================================
-     FORÇAR MODO ESCURO (GLOBAL)
-     ========================================= */
-  
-  /* Usamos :root.dark para máxima especificidade */
+
   :root.dark body,
   :root.dark html {
-    background-color: #111827 !important; /* gray-900 */
-    color: #f3f4f6 !important; /* gray-100 */
+    background-color: #111827 !important; 
+    color: #f3f4f6 !important; 
   }
 
-  /* Garante que o MAIN seja transparente para mostrar o fundo do body */
   :root.dark main {
     background-color: transparent !important;
   }
 
-  /* Captura o container principal com bg-[#F5F5F5] */
   :root.dark [class*="bg-\[#F5F5F5\]"] {
     background-color: #111827 !important;
   }
 
-  /* =========================================
-     CORREÇÃO DE TEXTOS
-     ========================================= */
-  
-  /* Textos escuros viram claros */
   :root.dark .text-gray-900 { color: #f3f4f6 !important; }
   :root.dark .text-gray-800 { color: #e5e7eb !important; }
   :root.dark .text-gray-700 { color: #d1d5db !important; }
   :root.dark .text-gray-600 { color: #9ca3af !important; }
   :root.dark .text-gray-500 { color: #9ca3af !important; }
-
-  /* =========================================
-     CORREÇÃO DOS CARDS E COMPONENTES
-     ========================================= */
-
-  /* Conserta o card verde claro (suas atividades) */
   :root.dark [class*="bg-\[#2EC4B6\]"] {
-    background-color: #1f2937 !important; /* gray-800 */
-    border: 1px solid #374151 !important; /* borda sutil */
+    background-color: #1f2937 !important; 
+    border: 1px solid #374151 !important; 
     box-shadow: none !important;
   }
 
-  /* Conserta qualquer fundo branco ou cinza claro explícito */
   :root.dark .bg-white,
   :root.dark .bg-gray-50,
   :root.dark .bg-gray-100 {
-    background-color: #1f2937 !important; /* gray-800 */
+    background-color: #1f2937 !important; 
     border-color: #374151 !important;
   }
 
-  /* Conserta bordas */
+  :root:not(.dark) .strava-card.bg-teal-50 {
+    background-color: #f0fdfa !important;
+    border-color: #99f6e4 !important;
+  }
+
+  :root:not(.dark) .strava-card.bg-orange-50 {
+    background-color: #fff7ed !important;
+    border-color: #fed7aa !important;
+  }
+
+  :root:not(.dark) .strava-card {
+    background-color: white !important;
+    border-color: #e5e7eb !important;
+  }
+
+  :root.dark .strava-card {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
   :root.dark .border-gray-200,
   :root.dark .border-gray-300 {
     border-color: #374151 !important;
   }
 
-  /* =========================================
-     CORREÇÃO DE PLACEHOLDERS E INPUTS
-     ========================================= */
   
   :root.dark .placeholder-gray-400::placeholder {
     color: #9ca3af !important;
   }
 
-  :root.dark input,
-  :root.dark textarea,
-  :root.dark select {
+
+
+  :root.dark .strava-card {
     background-color: #1f2937 !important;
-    color: #f3f4f6 !important;
     border-color: #374151 !important;
   }
 
-  :root.dark input:focus,
-  :root.dark textarea:focus,
-  :root.dark select:focus {
+  :root.dark .strava-card .text-gray-900 {
+    color: #f3f4f6 !important;
+  }
+
+  :root.dark .strava-card .text-gray-600 {
+    color: #9ca3af !important;
+  }
+
+  :root:not(.dark) .strava-card h3 {
+    color: #000000 !important;
+  }
+
+  :root.dark .hover\:bg-gray-50:hover {
+    background-color: #111827 !important;
+  }
+
+  :root:not(.dark) input,
+  :root:not(.dark) textarea,
+  :root:not(.dark) select {
+    background-color: white !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+  }
+
+  :root:not(.dark) input::placeholder,
+  :root:not(.dark) textarea::placeholder,
+  :root:not(.dark) select::placeholder {
+    color: #9ca3af !important;
+  }
+
+  :root:not(.dark) input:focus,
+  :root:not(.dark) textarea:focus,
+  :root:not(.dark) select:focus {
     border-color: #14b8a6 !important;
   }
 
-  /* =========================================
-     CORREÇÃO DE HOVER STATES
-     ========================================= */
-  
-  :root.dark .hover\:bg-gray-50:hover {
-    background-color: #111827 !important;
+  :root:not(.dark) label {
+    color: #374151 !important;
+  }
+
+  :root:not(.dark) .text-gray-700 {
+    color: #374151 !important;
+  }
+
+  :root:not(.dark) .bg-teal-500 {
+    background-color: #14b8a6 !important;
+  }
+
+  :root:not(.dark) .bg-teal-500:hover {
+    background-color: #0d9488 !important;
+  }
+
+  :root.dark select {
+    background-color: #374151 !important;
+    color: #f3f4f6 !important;
+    border-color: #4b5563 !important;
+  }
+
+  :root.dark select:focus {
+    border-color: #14b8a6 !important;
+    outline: none !important;
+  }
+
+  :root.dark select option {
+    background-color: #374151 !important;
+    color: #f3f4f6 !important;
+  }
+
+  :root.dark select::-webkit-scrollbar {
+    width: 8px;
+    background-color: #1f2937;
+  }
+
+  :root.dark select::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 4px;
+  }
+
+  :root.dark select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  @-moz-document url-prefix() {
+    :root.dark select {
+      color: #f3f4f6 !important;
+      background-color: #374151 !important;
+    }
+    
+    :root.dark select option {
+      background-color: #374151 !important;
+      color: #f3f4f6 !important;
+    }
   }
 }

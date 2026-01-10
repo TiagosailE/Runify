@@ -16,9 +16,11 @@ class TrainingController < ApplicationController
 
   def generate
     AiTrainingService.new(current_user).generate_training_plan
-    redirect_to training_index_path, notice: 'Plano de treino gerado com sucesso!'
+    flash[:toast] = { message: 'Plano de treino gerado com sucesso!', type: 'success' }
+    redirect_to training_index_path
   rescue => e
-    redirect_to training_index_path, alert: "Erro ao gerar plano: #{e.message}"
+    flash[:toast] = { message: "Erro ao gerar plano: #{e.message}", type: 'error' }
+    redirect_to training_index_path
   end
 
   def show
@@ -27,11 +29,14 @@ class TrainingController < ApplicationController
 
   def complete
     @workout = Workout.find(params[:id])
-    @workout.mark_as_completed!
-    
-    NotificationService.send_congratulations(current_user, @workout)
-    
-    render json: { success: true, message: 'Treino concluído!' }
+
+    if @workout.mark_as_completed!
+      NotificationService.send_congratulations(current_user, @workout)
+      
+      render json: { success: true, message: 'Treino concluído! 🎉' }
+    else
+      render json: { success: false, message: 'Erro ao completar treino' }, status: :unprocessable_entity
+    end
   end
 
   def feedback

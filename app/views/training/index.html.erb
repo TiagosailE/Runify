@@ -4,13 +4,13 @@
 
   <main class="px-6 py-6 space-y-6">
     
-    <div class="bg-white rounded-2xl p-5 shadow-sm">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-900">Semana <%= @current_week %> de <%= @training_plan.total_weeks %></h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Semana <%= @current_week %> de <%= @training_plan.total_weeks %></h2>
         <span class="text-sm font-medium text-teal-500"><%= @week_progress %>% completo</span>
       </div>
       
-      <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-6">
         <div class="bg-teal-500 h-2 rounded-full transition-all duration-300" style="width: <%= @week_progress %>%"></div>
       </div>
 
@@ -27,7 +27,7 @@
             workout = @week_workouts.find { |w| w.day_of_week == day_of_week }
           %>
           <div class="text-center">
-            <p class="text-xs text-gray-500 mb-2"><%= day_name %></p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-2"><%= day_name %></p>
             
             <% if workout %>
               <button 
@@ -48,7 +48,7 @@
                 <% end %>
               </button>
             <% else %>
-              <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm font-medium border border-gray-200">
+              <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm font-medium border border-gray-200 dark:border-gray-600">
                 <%= day_date.day %>
               </div>
             <% end %>
@@ -61,14 +61,14 @@
       <div class="space-y-4">
         
         <% if @today_workout.completed? %>
-          <div class="bg-teal-50 border-2 border-teal-500 rounded-2xl p-4">
+          <div class="bg-teal-50 dark:bg-teal-900/30 border-2 border-teal-500 rounded-2xl p-4">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center">
                 <i class="fas fa-check text-white"></i>
               </div>
               <div class="flex-1">
-                <p class="font-semibold text-teal-900">Treino de hoje concluído!</p>
-                <p class="text-sm text-teal-700">Parabéns pelo esforço</p>
+                <p class="font-semibold text-teal-900 dark:text-teal-100">Treino de hoje concluído!</p>
+                <p class="text-sm text-teal-700 dark:text-teal-300">Parabéns pelo esforço</p>
               </div>
             </div>
           </div>
@@ -83,46 +83,45 @@
           </div>
         <% end %>
 
-        <div class="bg-white rounded-2xl p-5 shadow-sm">
-          <h3 class="text-base font-semibold text-gray-900 mb-4">Detalhes do Treino</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Detalhes do Treino</h3>
           
           <div class="space-y-4">
             
             <div>
-              <p class="text-xs text-gray-500 mb-2">Distância</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Distância</p>
               <div class="flex items-center gap-2">
                 <i class="fas fa-route text-teal-500"></i>
-                <p class="text-lg font-bold text-gray-900"><%= @today_workout.distance_km %> km</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white"><%= @today_workout.distance_km %> km</p>
               </div>
             </div>
 
             <div>
-              <p class="text-xs text-gray-500 mb-2">Duração estimada</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Duração estimada</p>
               <div class="flex items-center gap-2">
                 <i class="fas fa-clock text-orange-500"></i>
-                <p class="text-lg font-bold text-gray-900"><%= @today_workout.duration_formatted %></p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white"><%= @today_workout.duration_formatted %></p>
               </div>
             </div>
 
             <div>
-              <p class="text-xs text-gray-500 mb-2">Pace alvo</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Pace alvo</p>
               <div class="flex items-center gap-2">
                 <i class="fas fa-tachometer-alt text-purple-500"></i>
-                <p class="text-lg font-bold text-gray-900"><%= @today_workout.pace %> /km</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white"><%= @today_workout.pace %> /km</p>
               </div>
             </div>
 
-            <div class="border-t border-gray-100 pt-4">
-              <p class="text-sm font-semibold text-gray-900 mb-2">Instruções:</p>
-              <p class="text-sm text-gray-600 leading-relaxed"><%= @today_workout.instructions %></p>
+            <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+              <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Instruções:</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"><%= @today_workout.instructions %></p>
             </div>
 
           </div>
 
           <% unless @today_workout.completed? %>
             <button 
-              data-workout-id="<%= @today_workout.id %>"
-              data-action="click->training#completeWorkout"
+              onclick="showCompleteWorkoutModal(<%= @today_workout.id %>)"
               class="w-full mt-6 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-4 rounded-2xl transition-all duration-200 shadow-lg">
               <i class="fas fa-check-circle mr-2"></i>
               Concluir Treino
@@ -132,58 +131,85 @@
 
       </div>
     <% else %>
-      <div class="bg-white rounded-2xl p-8 text-center shadow-sm">
-        <i class="fas fa-calendar-check text-4xl text-gray-300 mb-3"></i>
-        <p class="text-gray-500">Sem treino programado para hoje</p>
-        <p class="text-sm text-gray-400 mt-2">Aproveite para descansar</p>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-sm">
+        <i class="fas fa-calendar-check text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
+        <p class="text-gray-500 dark:text-gray-400">Sem treino programado para hoje</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">Aproveite para descansar</p>
       </div>
     <% end %>
 
-    <div class="bg-white rounded-2xl p-5 shadow-sm">
-      <h3 class="text-base font-semibold text-gray-900 mb-4">Próximos Treinos</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+      <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Próximos Treinos</h3>
       
       <div class="space-y-3">
         <% @week_workouts.select { |w| w.scheduled_date > Date.today && !w.completed? }.first(3).each do |workout| %>
-          <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
+          <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
             <div class="text-center min-w-[50px]">
-              <p class="text-xs text-gray-500"><%= day_name_pt(workout.scheduled_date) %></p>
-              <p class="text-lg font-bold text-gray-900"><%= workout.scheduled_date.day %></p>
+              <p class="text-xs text-gray-500 dark:text-gray-400"><%= day_name_pt(workout.scheduled_date) %></p>
+              <p class="text-lg font-bold text-gray-900 dark:text-white"><%= workout.scheduled_date.day %></p>
             </div>
             <div class="flex-1">
-              <p class="font-semibold text-gray-900 text-sm"><%= workout.workout_type %></p>
+              <p class="font-semibold text-gray-900 dark:text-white text-sm"><%= workout.workout_type %></p>
             </div>
-            <i class="fas fa-chevron-right text-gray-400"></i>
+            <i class="fas fa-chevron-right text-gray-400 dark:text-gray-500"></i>
           </div>
         <% end %>
       </div>
     </div>
 
+    <%= render 'shared/footer' %>
+
   </main>
 
-  <div id="feedback-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-sm">
-      <h3 class="text-xl font-bold text-gray-900 mb-4">Como foi o treino?</h3>
+  <!-- Modal de feedback -->
+  <div id="feedback-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Como foi o treino?</h3>
       
-      <p class="text-sm text-gray-600 mb-4">Sua avaliação ajuda a IA a ajustar os próximos treinos</p>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Sua avaliação ajuda a IA a ajustar os próximos treinos</p>
       
       <div class="space-y-3 mb-6">
-        <button data-difficulty="facil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 transition-all">
-          <p class="font-semibold text-gray-900">😊 Fácil</p>
+        <button data-difficulty="facil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
+          <p class="font-semibold text-gray-900 dark:text-white">😊 Fácil</p>
         </button>
-        <button data-difficulty="medio" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-yellow-500 hover:bg-yellow-50 transition-all">
-          <p class="font-semibold text-gray-900">😐 Médio</p>
+        <button data-difficulty="medio" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all">
+          <p class="font-semibold text-gray-900 dark:text-white">😐 Médio</p>
         </button>
-        <button data-difficulty="dificil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 hover:border-red-500 hover:bg-red-50 transition-all">
-          <p class="font-semibold text-gray-900">😰 Difícil</p>
+        <button data-difficulty="dificil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
+          <p class="font-semibold text-gray-900 dark:text-white">😰 Difícil</p>
         </button>
       </div>
 
-      <button data-action="click->training#closeFeedback" class="w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-medium">
+      <button data-action="click->training#closeFeedback" class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
         Pular
       </button>
     </div>
   </div>
 
-  <%= render 'shared/footer' %>
-
+  <!-- Modal de confirmação de conclusão de treino -->
+<div id="complete-workout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" style="backdrop-filter: blur(4px);">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-check-circle text-3xl text-teal-500"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Marcar como concluído?</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Você realmente completou este treino hoje?</p>
+    </div>
+    
+    <div class="flex gap-3">
+      <button 
+        type="button"
+        onclick="hideCompleteWorkoutModal()" 
+        class="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+        Não
+      </button>
+      <button 
+        type="button"
+        onclick="confirmCompleteWorkout()" 
+        class="flex-1 py-3 px-4 bg-teal-500 hover:bg-teal-600 rounded-xl text-white font-semibold transition-colors shadow-lg">
+        Sim
+      </button>
+    </div>
+  </div>
 </div>

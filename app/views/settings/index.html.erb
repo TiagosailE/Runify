@@ -72,7 +72,7 @@
             </div>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="notifications-toggle" class="sr-only peer" <%= 'checked' if current_user.notifications_enabled %>>
+            <input type="checkbox" id="notifications-toggle" class="sr-only peer" <%= 'checked' if @notifications_enabled %>>
             <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-teal-500"></div>
           </label>
         </div>
@@ -110,58 +110,36 @@
     </section>
 
     <section>
-      <%= button_to "Excluir Conta", delete_account_settings_path, 
-          method: :delete,
-          data: { confirm: 'Tem certeza? Esta ação não pode ser desfeita.' },
-          class: "w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all" %>
+      <button onclick="showDeleteModal()" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+        Excluir Conta
+      </button>
     </section>
 
   </main>
 
+  <div id="delete-account-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Excluir Conta?</h3>
+        <p class="text-sm text-gray-600">Esta ação é irreversível. Todos os seus dados serão permanentemente apagados.</p>
+      </div>
+      
+      <%= form_with url: delete_account_settings_path, method: :delete, id: "delete-account-form" do %>
+        <div class="space-y-3">
+          <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+            Sim, excluir minha conta
+          </button>
+          <button type="button" onclick="hideDeleteModal()" class="w-full py-3 px-4 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all">
+            Cancelar
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <%= render 'shared/footer' %>
 
 </div>
-
-<script>
-document.getElementById('dark-mode-toggle')?.addEventListener('change', async (e) => {
-  const darkMode = e.target.checked;
-  
-  const response = await fetch('<%= toggle_theme_settings_path %>', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-    },
-    body: JSON.stringify({ dark_mode: darkMode })
-  });
-  
-  if (response.ok) {
-    document.documentElement.classList.toggle('dark', darkMode);
-    localStorage.setItem('darkMode', darkMode);
-  }
-});
-
-document.getElementById('notifications-toggle')?.addEventListener('change', async (e) => {
-  const enabled = e.target.checked;
-  
-  const response = await fetch('<%= toggle_notifications_settings_path %>', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-    },
-    body: JSON.stringify({ enabled: enabled })
-  });
-  
-  if (response.ok) {
-    const data = await response.json();
-    if (data.success) {
-      alert(enabled ? 'Notificações ativadas!' : 'Notificações desativadas!');
-    }
-  }
-});
-
-if (localStorage.getItem('darkMode') === 'true') {
-  document.documentElement.classList.add('dark');
-}
-</script>

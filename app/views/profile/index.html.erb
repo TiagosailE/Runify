@@ -19,7 +19,7 @@
       
       <div class="flex flex-col items-center">
         <div class="relative">
-          <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+          <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-lg">
             <img id="avatar-preview" src="<%= current_user.avatar_url %>" 
                  alt="Profile" 
                  class="w-full h-full object-cover">
@@ -44,7 +44,7 @@
           <%= f.text_field :username, 
               value: current_user.username,
               placeholder: "Digite seu nome",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+              class: "appearance-none block w-full px-4 py-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
         </div>
 
         <div>
@@ -52,7 +52,7 @@
           <%= f.number_field :age, 
               value: current_user.age,
               placeholder: "Digite sua idade (12-120)",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+              class: "appearance-none block w-full px-4 py-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 12, máximo 120 anos</p>
         </div>
 
@@ -62,7 +62,7 @@
               value: current_user.weight,
               step: 0.1,
               placeholder: "Digite seu peso (30-300kg)",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+              class: "appearance-none block w-full px-4 py-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 30kg, máximo 300kg</p>
         </div>
 
@@ -71,7 +71,7 @@
           <%= f.number_field :height, 
               value: current_user.height,
               placeholder: "Digite sua altura (100-250cm)",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+              class: "appearance-none block w-full px-4 py-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 100cm, máximo 250cm</p>
         </div>
 
@@ -81,7 +81,7 @@
               value: current_user.goal,
               rows: 4,
               placeholder: "Digite seu objetivo (ex: correr 10km em 50 minutos)",
-              class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base resize-none" %>
+              class: "appearance-none block w-full px-4 py-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base resize-none" %>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Máximo 500 caracteres</p>
         </div>
 
@@ -95,35 +95,87 @@
     <% end %>
 
     <% if current_user.strava_connected? %>
-      <div class="bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-2xl p-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <i class="fab fa-strava text-2xl text-orange-500"></i>
+      <div class="strava-card group relative overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-5 flex items-center justify-between">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-full shrink-0">
+            <i class="fab fa-strava text-2xl text-[#FC4C02]"></i>
+          </div>
+          
           <div>
-            <p class="font-semibold text-gray-900 dark:text-teal-100">Strava Conectado</p>
-            <p class="text-xs text-gray-600 dark:text-teal-200/80">Última sincronização: <%= current_user.strava_integration.last_sync_at&.strftime('%d/%m/%Y %H:%M') || 'Nunca' %></p>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-gray-900 dark:text-gray-100">Strava Conectado</h3>
+              <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Sincronizado: <span class="font-mono text-xs opacity-90"><%= current_user.strava_integration.last_sync_at&.strftime('%d/%m/%Y %H:%M') || 'Nunca' %></span></p>
           </div>
         </div>
-        <%= button_to strava_disconnect_path, method: :delete, class: "text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium" do %>
+
+        <%= button_to strava_disconnect_path, method: :delete, class: "px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50" do %>
           Desconectar
         <% end %>
       </div>
     <% else %>
-      <div class="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-2xl p-4">
-        <%= link_to strava_connect_path, class: "flex items-center justify-center gap-2 text-orange-500 dark:text-orange-400 font-semibold" do %>
-          <i class="fab fa-strava text-xl"></i>
-          Conectar Strava
+      <div class="strava-card group relative overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-5">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
+
+        <%= link_to strava_connect_path, data: { turbo: false }, class: "flex items-center justify-center gap-3 text-orange-600 dark:text-orange-400 font-semibold" do %>
+          <div class="flex items-center justify-center w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-full">
+            <i class="fab fa-strava text-2xl text-[#FC4C02]"></i>
+          </div>
+          <span>Conectar Strava</span>
         <% end %>
       </div>
     <% end %>
 
     <div class="pt-4">
-      <%= button_to "Sair", destroy_user_session_path, method: :delete, 
-          class: "w-full flex justify-center py-4 px-4 border-2 border-red-500 text-base font-semibold rounded-2xl text-red-500 hover:bg-red-50 focus:outline-none transition-all duration-200 cursor-pointer" %>
+      <button 
+        type="button"
+        onclick="showLogoutModal()"
+        class="w-full flex justify-center py-4 px-4 border-2 border-red-500 text-base font-semibold rounded-2xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none transition-all duration-200 cursor-pointer">
+        Sair
+      </button>
     </div>
 
   </main>
 
   <%= render 'shared/footer' %>
+
+  <!-- Formulário oculto para logout -->
+  <%= form_with url: destroy_user_session_path, method: :delete, id: 'logout-form', class: 'hidden' do %>
+  <% end %>
+
+  <!-- Modal de confirmação de logout -->
+<div id="logout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" style="backdrop-filter: blur(4px);">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-sign-out-alt text-3xl text-red-500"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Sair da conta?</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Você precisará fazer login novamente para acessar sua conta.</p>
+    </div>
+    
+    <div class="flex gap-3">
+      <button 
+        type="button"
+        onclick="hideLogoutModal()" 
+        class="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+        Não
+      </button>
+      <button 
+        type="button"
+        onclick="confirmLogout()" 
+        class="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 rounded-xl text-white font-semibold transition-colors shadow-lg">
+        Sim
+      </button>
+    </div>
+  </div>
+</div>
 
 </div>
 

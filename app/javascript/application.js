@@ -1,3 +1,8 @@
-// Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
 import "controllers"
+import "toast"
+import "theme"
+import "settings"
+import "charts"
+import "training"
+import "profile"
