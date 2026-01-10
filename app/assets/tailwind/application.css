@@ -8,6 +8,7 @@ html, body {
 
 @layer base {
 
+  /* Dark mode - aplica APENAS quando a classe 'dark' estiver presente */
   :root.dark body,
   :root.dark html {
     background-color: #111827 !important; 
@@ -22,56 +23,41 @@ html, body {
     background-color: #111827 !important;
   }
 
+  /* Textos no dark mode */
   :root.dark .text-gray-900 { color: #f3f4f6 !important; }
   :root.dark .text-gray-800 { color: #e5e7eb !important; }
   :root.dark .text-gray-700 { color: #d1d5db !important; }
   :root.dark .text-gray-600 { color: #9ca3af !important; }
   :root.dark .text-gray-500 { color: #9ca3af !important; }
-  :root.dark [class*="bg-\[#2EC4B6\]"] {
+
+  /* Backgrounds no dark mode */
+  :root.dark .bg-white {
     background-color: #1f2937 !important; 
-    border: 1px solid #374151 !important; 
-    box-shadow: none !important;
+    border-color: #374151 !important;
   }
 
-  :root.dark .bg-white,
-  :root.dark .bg-gray-50,
+  :root.dark .bg-gray-50 {
+    background-color: #1f2937 !important; 
+    border-color: #374151 !important;
+  }
+
   :root.dark .bg-gray-100 {
-    background-color: #1f2937 !important; 
-    border-color: #374151 !important;
+    background-color: #374151 !important; 
+    border-color: #4b5563 !important;
   }
 
-  :root:not(.dark) .strava-card.bg-teal-50 {
-    background-color: #f0fdfa !important;
-    border-color: #99f6e4 !important;
-  }
-
-  :root:not(.dark) .strava-card.bg-orange-50 {
-    background-color: #fff7ed !important;
-    border-color: #fed7aa !important;
-  }
-
-  :root:not(.dark) .strava-card {
-    background-color: white !important;
-    border-color: #e5e7eb !important;
-  }
-
-  :root.dark .strava-card {
-    background-color: #1f2937 !important;
-    border-color: #374151 !important;
-  }
-
+  /* Borders no dark mode */
   :root.dark .border-gray-200,
   :root.dark .border-gray-300 {
     border-color: #374151 !important;
   }
 
-  
+  /* Placeholders no dark mode */
   :root.dark .placeholder-gray-400::placeholder {
     color: #9ca3af !important;
   }
 
-
-
+  /* Strava cards no dark mode */
   :root.dark .strava-card {
     background-color: #1f2937 !important;
     border-color: #374151 !important;
@@ -85,14 +71,122 @@ html, body {
     color: #9ca3af !important;
   }
 
-  :root:not(.dark) .strava-card h3 {
-    color: #000000 !important;
-  }
-
+  /* Hover states no dark mode */
   :root.dark .hover\:bg-gray-50:hover {
-    background-color: #111827 !important;
+    background-color: #374151 !important;
   }
 
+  /* Inputs, textareas e selects no dark mode */
+  :root.dark input,
+  :root.dark textarea,
+  :root.dark select {
+    background-color: #374151 !important;
+    color: #f3f4f6 !important;
+    border-color: #4b5563 !important;
+  }
+
+  :root.dark input::placeholder,
+  :root.dark textarea::placeholder {
+    color: #9ca3af !important;
+  }
+
+  :root.dark input:focus,
+  :root.dark textarea:focus,
+  :root.dark select:focus {
+    border-color: #14b8a6 !important;
+    outline: none !important;
+  }
+
+  /* Labels no dark mode */
+  :root.dark label {
+    color: #d1d5db !important;
+  }
+
+  /* SELECT específico no dark mode */
+  :root.dark select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  :root.dark select option {
+    background-color: #374151 !important;
+    color: #f3f4f6 !important;
+  }
+
+  :root.dark select::-webkit-scrollbar {
+    width: 8px;
+    background-color: #1f2937;
+  }
+
+  :root.dark select::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 4px;
+  }
+
+  /* Charts no dark mode */
+  :root.dark .chart-month-label {
+    fill: #d1d5db !important;
+  }
+
+  :root.dark .chart-value-label {
+    fill: #f3f4f6 !important;
+  }
+
+  /* ========================================
+     MODO CLARO - Mantém os estilos originais
+     ======================================== */
+  
+  /* Garante que no modo claro os textos fiquem escuros */
+  :root:not(.dark) .text-gray-900 {
+    color: #111827 !important;
+  }
+
+  :root:not(.dark) .text-gray-800 {
+    color: #1f2937 !important;
+  }
+
+  :root:not(.dark) .text-gray-700 {
+    color: #374151 !important;
+  }
+
+  :root:not(.dark) .text-gray-600 {
+    color: #4b5563 !important;
+  }
+
+  :root:not(.dark) .text-gray-500 {
+    color: #6b7280 !important;
+  }
+
+  /* Backgrounds no modo claro */
+  :root:not(.dark) .bg-white {
+    background-color: white !important;
+    border-color: #e5e7eb !important;
+  }
+
+  :root:not(.dark) .bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+
+  :root:not(.dark) .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+  }
+
+  /* Borders no modo claro */
+  :root:not(.dark) .border-gray-200 {
+    border-color: #e5e7eb !important;
+  }
+
+  :root:not(.dark) .border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+
+  /* Inputs no modo claro */
   :root:not(.dark) input,
   :root:not(.dark) textarea,
   :root:not(.dark) select {
@@ -117,10 +211,36 @@ html, body {
     color: #374151 !important;
   }
 
-  :root:not(.dark) .text-gray-700 {
-    color: #374151 !important;
+  /* Strava cards no modo claro */
+  :root:not(.dark) .strava-card {
+    background-color: white !important;
+    border-color: #e5e7eb !important;
   }
 
+  :root:not(.dark) .strava-card.bg-teal-50 {
+    background-color: #f0fdfa !important;
+    border-color: #99f6e4 !important;
+  }
+
+  :root:not(.dark) .strava-card.bg-orange-50 {
+    background-color: #fff7ed !important;
+    border-color: #fed7aa !important;
+  }
+
+  :root:not(.dark) .strava-card h3 {
+    color: #000000 !important;
+  }
+
+  /* Charts no modo claro */
+  :root:not(.dark) .chart-month-label {
+    fill: #666 !important;
+  }
+
+  :root:not(.dark) .chart-value-label {
+    fill: #333 !important;
+  }
+
+  /* Botões teal no modo claro */
   :root:not(.dark) .bg-teal-500 {
     background-color: #14b8a6 !important;
   }
@@ -129,52 +249,15 @@ html, body {
     background-color: #0d9488 !important;
   }
 
-  :root.dark select {
-    background-color: #374151 !important;
-    color: #f3f4f6 !important;
-    border-color: #4b5563 !important;
+  /* Para páginas com background escuro por padrão (como Pacers) */
+  /* NÃO aplica regras de dark mode nessas páginas específicas */
+  .bg-\[#1A1F2E\],
+  .bg-\[\#1A1F2E\] {
+    background-color: #1A1F2E !important;
   }
 
-  :root.dark select:focus {
-    border-color: #14b8a6 !important;
-    outline: none !important;
-  }
-
-  :root.dark select option {
-    background-color: #374151 !important;
-    color: #f3f4f6 !important;
-  }
-
-  :root.dark select::-webkit-scrollbar {
-    width: 8px;
-    background-color: #1f2937;
-  }
-
-  :root.dark select::-webkit-scrollbar-thumb {
-    background-color: #4b5563;
-    border-radius: 4px;
-  }
-
-  :root.dark select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.5rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-    padding-right: 2.5rem;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  }
-
-  @-moz-document url-prefix() {
-    :root.dark select {
-      color: #f3f4f6 !important;
-      background-color: #374151 !important;
-    }
-    
-    :root.dark select option {
-      background-color: #374151 !important;
-      color: #f3f4f6 !important;
-    }
+  /* Garante que elementos em páginas escuras por padrão mantenham suas cores */
+  [class*="bg-[#"] {
+    /* Preserva backgrounds customizados com cores hex */
   }
 }

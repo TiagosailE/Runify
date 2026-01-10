@@ -1,24 +1,28 @@
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 z-40">
-  <div class="flex justify-around items-center">
-    <a href="<%= dashboard_path %>" class="flex flex-col items-center <%= current_page?(dashboard_path) ? 'text-teal-500' : 'text-gray-400' %>">
-      <i class="fas fa-home text-xl mb-1"></i>
+<footer class="fixed bottom-0 left-0 right-0 <%= controller_name == 'pacers' ? 'bg-[#1A1F2E] border-gray-700' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800' %> border-t shadow-lg z-40">
+  <nav class="flex justify-around items-center py-3 px-6">
+    <%= link_to dashboard_path, class: "flex flex-col items-center gap-1 #{current_page?(dashboard_path) ? 'text-teal-500' : (controller_name == 'pacers' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400')} hover:text-teal-500 transition-colors" do %>
+      <i class="fas fa-home text-xl"></i>
       <span class="text-xs font-medium">Início</span>
-    </a>
-    <a href="<%= training_index_path %>" class="flex flex-col items-center <%= current_page?(training_index_path) ? 'text-teal-500' : 'text-gray-400' %>">
-      <i class="fas fa-dumbbell text-xl mb-1"></i>
+    <% end %>
+
+    <%= link_to training_index_path, class: "flex flex-col items-center gap-1 #{current_page?(training_index_path) ? 'text-teal-500' : (controller_name == 'pacers' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400')} hover:text-teal-500 transition-colors" do %>
+      <i class="fas fa-dumbbell text-xl"></i>
       <span class="text-xs font-medium">Treino</span>
-    </a>
-    <a href="<%= history_path %>" class="flex flex-col items-center <%= current_page?(history_path) ? 'text-teal-500' : 'text-gray-400' %>">
-      <i class="fas fa-chart-line text-xl mb-1"></i>
+    <% end %>
+
+    <%= link_to history_path, class: "flex flex-col items-center gap-1 #{current_page?(history_path) ? 'text-teal-500' : (controller_name == 'pacers' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400')} hover:text-teal-500 transition-colors" do %>
+      <i class="fas fa-chart-line text-xl"></i>
       <span class="text-xs font-medium">Histórico</span>
-    </a>
-    <a href="<%= settings_path %>" class="flex flex-col items-center <%= current_page?(settings_path) ? 'text-teal-500' : 'text-gray-400' %>">
-      <i class="fas fa-cog text-xl mb-1"></i>
+    <% end %>
+
+    <%= link_to settings_path, class: "flex flex-col items-center gap-1 #{current_page?(settings_path) ? 'text-teal-500' : (controller_name == 'pacers' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400')} hover:text-teal-500 transition-colors" do %>
+      <i class="fas fa-cog text-xl"></i>
       <span class="text-xs font-medium">Config</span>
-    </a>
-    <a href="<%= profile_path %>" class="flex flex-col items-center <%= current_page?(profile_path) ? 'text-teal-500' : 'text-gray-400' %>">
-      <i class="fas fa-user text-xl mb-1"></i>
+    <% end %>
+
+    <%= link_to profile_path, class: "flex flex-col items-center gap-1 #{current_page?(profile_path) ? 'text-teal-500' : (controller_name == 'pacers' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400')} hover:text-teal-500 transition-colors" do %>
+      <i class="fas fa-user text-xl"></i>
       <span class="text-xs font-medium">Perfil</span>
-    </a>
-  </div>
-</nav>
+    <% end %>
+  </nav>
+</footer>
