@@ -12,11 +12,13 @@
     <div class="flex items-center gap-4">
       <%= link_to notifications_path, class: "relative text-gray-600 hover:text-teal-500 transition-colors" do %>
         <i class="fas fa-bell text-xl"></i>
-        <% if current_user.notifications.unread.count > 0 %>
+        
+        <% if current_user && current_user.notifications.unread.count > 0 %>
           <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
             <%= current_user.notifications.unread.count %>
           </span>
         <% end %>
+        
       <% end %>
     </div>
     

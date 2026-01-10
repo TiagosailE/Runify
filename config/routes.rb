@@ -43,6 +43,7 @@ Rails.application.routes.draw do
   post "settings/update_password", to: "settings#update_password", as: :update_password_settings
   post "settings/toggle_theme", to: "settings#toggle_theme", as: :toggle_theme_settings
   post "settings/toggle_notifications", to: "settings#toggle_notifications", as: :toggle_notifications_settings
+  get "settings/get_settings_state", to: "settings#get_settings_state", as: :get_settings_state
   delete "settings/delete_account", to: "settings#delete_account", as: :delete_account_settings
   
   # Training

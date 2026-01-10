@@ -49,7 +49,7 @@ export default class extends Controller {
   toggleWorkout(event) {
     const button = event.currentTarget
     const workoutId = button.dataset.workoutId
-    
+
     if (button.classList.contains('bg-teal-500')) {
       return
     }
@@ -82,7 +82,6 @@ export default class extends Controller {
 
       if (response.ok) {
         this.closeFeedback()
-
         setTimeout(() => {
           window.location.reload()
         }, 500)
@@ -98,6 +97,7 @@ export default class extends Controller {
     const modal = document.getElementById('feedback-modal')
     if (modal) {
       modal.classList.remove('hidden')
+      modal.classList.add('backdrop-blur-sm')
     }
   }
 

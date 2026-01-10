@@ -2,6 +2,8 @@ class StravaController < ApplicationController
   before_action :authenticate_user!
 
   def connect
+    puts ">>> CONNECT: user_id = #{current_user.id}"
+    
     oauth_client = Strava::OAuth::Client.new(
       client_id: ENV['STRAVA_CLIENT_ID'],
       client_secret: ENV['STRAVA_CLIENT_SECRET']
@@ -14,12 +16,25 @@ class StravaController < ApplicationController
       scope: 'activity:read_all,profile:read_all',
       state: 'strava_connect'
     )
+    
+    puts ">>> CALLBACK URL: #{strava_callback_url}"
 
     redirect_to redirect_url, allow_other_host: true
   end
 
   def callback
+    puts ">>> CALLBACK CHAMADO!"
+    puts ">>> Params: #{params.inspect}"
+    puts ">>> current_user: #{current_user.inspect}"
+    
     code = params[:code]
+    
+    unless code
+      puts ">>> ERRO: Sem código!"
+      flash[:toast] = { message: 'Código não recebido', type: 'error' }
+      redirect_to dashboard_path
+      return
+    end
 
     oauth_client = Strava::OAuth::Client.new(
       client_id: ENV['STRAVA_CLIENT_ID'],
@@ -27,11 +42,14 @@ class StravaController < ApplicationController
     )
 
     response = oauth_client.oauth_token(code: code)
+    
+    puts ">>> Token recebido! Athlete: #{response.athlete.id}"
 
     existing_integration = StravaIntegration.find_by(strava_athlete_id: response.athlete.id.to_s)
     
     if existing_integration && existing_integration.user_id != current_user.id
-      redirect_to dashboard_path, alert: 'Esta conta do Strava já está conectada a outro usuário do Runify.'
+      flash[:toast] = { message: 'Esta conta do Strava já está conectada a outro usuário do Runify.', type: 'error' }
+      redirect_to dashboard_path
       return
     end
 
@@ -47,24 +65,40 @@ class StravaController < ApplicationController
       athlete_data: response.athlete.to_h,
       active: true
     )
+    
+    puts ">>> Integração criada!"
 
     sync_activities
+    
+    puts ">>> Sincronização concluída!"
 
-    redirect_to dashboard_path, notice: 'Strava conectado com sucesso!'
+    flash[:toast] = { message: 'Strava conectado com sucesso!', type: 'success' }
+    redirect_to dashboard_path
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to dashboard_path, alert: "Erro ao conectar: #{e.message}"
+    puts ">>> ERRO: #{e.message}"
+    flash[:toast] = { message: "Erro ao conectar: #{e.message}", type: 'error' }
+    redirect_to dashboard_path
   rescue => e
-    redirect_to dashboard_path, alert: "Erro ao conectar com Strava: #{e.message}"
+    puts ">>> ERRO GERAL: #{e.message}"
+    puts e.backtrace.first(5).join("\n")
+    flash[:toast] = { message: "Erro ao conectar com Strava: #{e.message}", type: 'error' }
+    redirect_to dashboard_path
   end
 
   def disconnect
     current_user.strava_integration&.destroy
-    redirect_to dashboard_path, notice: 'Strava desconectado com sucesso!'
+    flash[:toast] = { message: 'Strava desconectado com sucesso!', type: 'success' }
+    redirect_to dashboard_path
   end
 
   def sync
     integration = current_user.strava_integration
-    return redirect_to dashboard_path, alert: 'Strava não conectado' unless integration
+    
+    unless integration
+      flash[:toast] = { message: 'Strava não conectado', type: 'error' }
+      redirect_to dashboard_path
+      return
+    end
 
     begin
       activities = integration.fetch_recent_activities(per_page: 30)
@@ -104,11 +138,13 @@ class StravaController < ApplicationController
       message << "#{updated_count} atualizadas" if updated_count > 0
       message << "Nenhuma nova" if new_count == 0 && updated_count == 0
       
-      redirect_to dashboard_path, notice: "Sincronizado! #{message.join(', ')}"
+      flash[:toast] = { message: "Sincronizado! #{message.join(', ')}", type: 'success' }
+      redirect_to dashboard_path
     rescue => e
       Rails.logger.error "Sync error: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
-      redirect_to dashboard_path, alert: "Erro ao sincronizar: #{e.message}"
+      flash[:toast] = { message: "Erro ao sincronizar: #{e.message}", type: 'error' }
+      redirect_to dashboard_path
     end
   end
 

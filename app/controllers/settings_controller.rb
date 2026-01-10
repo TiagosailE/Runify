@@ -3,6 +3,7 @@ class SettingsController < ApplicationController
 
   def index
     @dark_mode = cookies[:dark_mode] == 'true'
+    @notifications_enabled = current_user.notifications_enabled
   end
 
   def update_password
@@ -27,15 +28,22 @@ class SettingsController < ApplicationController
   end
 
   def toggle_theme
-    dark_mode = params[:dark_mode] == 'true'
+    dark_mode = params[:dark_mode] == true || params[:dark_mode] == 'true'
     cookies.permanent[:dark_mode] = dark_mode
     render json: { success: true, dark_mode: dark_mode }
   end
 
   def toggle_notifications
-    enabled = params[:enabled] == 'true'
+    enabled = params[:enabled] == true || params[:enabled] == 'true'
     current_user.update(notifications_enabled: enabled)
     render json: { success: true, notifications_enabled: enabled }
+  end
+
+  def get_settings_state
+    render json: {
+      dark_mode: cookies[:dark_mode] == 'true',
+      notifications_enabled: current_user.notifications_enabled == true
+    }
   end
 
   def delete_account

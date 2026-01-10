@@ -19,7 +19,7 @@
       
       <div class="flex flex-col items-center">
         <div class="relative">
-          <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+          <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-lg">
             <img id="avatar-preview" src="<%= current_user.avatar_url %>" 
                  alt="Profile" 
                  class="w-full h-full object-cover">
@@ -123,7 +123,7 @@
       <div class="strava-card group relative overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-5">
         <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
 
-        <%= link_to strava_connect_path, class: "flex items-center justify-center gap-3 text-orange-600 dark:text-orange-400 font-semibold" do %>
+        <%= link_to strava_connect_path, data: { turbo: false }, class: "flex items-center justify-center gap-3 text-orange-600 dark:text-orange-400 font-semibold" do %>
           <div class="flex items-center justify-center w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-full">
             <i class="fab fa-strava text-2xl text-[#FC4C02]"></i>
           </div>
@@ -133,13 +133,49 @@
     <% end %>
 
     <div class="pt-4">
-      <%= button_to "Sair", destroy_user_session_path, method: :delete, 
-          class: "w-full flex justify-center py-4 px-4 border-2 border-red-500 text-base font-semibold rounded-2xl text-red-500 hover:bg-red-50 focus:outline-none transition-all duration-200 cursor-pointer" %>
+      <button 
+        type="button"
+        onclick="showLogoutModal()"
+        class="w-full flex justify-center py-4 px-4 border-2 border-red-500 text-base font-semibold rounded-2xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none transition-all duration-200 cursor-pointer">
+        Sair
+      </button>
     </div>
 
   </main>
 
   <%= render 'shared/footer' %>
+
+  <!-- Formulário oculto para logout -->
+  <%= form_with url: destroy_user_session_path, method: :delete, id: 'logout-form', class: 'hidden' do %>
+  <% end %>
+
+  <!-- Modal de confirmação de logout -->
+<div id="logout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" style="backdrop-filter: blur(4px);">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-sign-out-alt text-3xl text-red-500"></i>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Sair da conta?</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">Você precisará fazer login novamente para acessar sua conta.</p>
+    </div>
+    
+    <div class="flex gap-3">
+      <button 
+        type="button"
+        onclick="hideLogoutModal()" 
+        class="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+        Não
+      </button>
+      <button 
+        type="button"
+        onclick="confirmLogout()" 
+        class="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 rounded-xl text-white font-semibold transition-colors shadow-lg">
+        Sim
+      </button>
+    </div>
+  </div>
+</div>
 
 </div>
 

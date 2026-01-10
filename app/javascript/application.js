@@ -1,3 +1,8 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 import "toast"
+import "theme"
+import "settings"
+import "charts"
+import "training"
+import "profile"
