@@ -12,7 +12,6 @@ window.hideDeleteModal = function() {
   }
 };
 
-// Debounce helper para evitar múltiplas chamadas
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
@@ -33,7 +32,6 @@ document.addEventListener('turbo:load', () => {
   const notificationsToggle = document.getElementById('notifications-toggle');
 
   if (darkModeToggle) {
-    // Debounce de 500ms para evitar múltiplas chamadas
     const handleDarkModeChange = debounce(async (e) => {
       const darkMode = e.target.checked;
       
@@ -50,6 +48,13 @@ document.addEventListener('turbo:load', () => {
         if (response.ok) {
           localStorage.setItem('darkMode', darkMode ? 'true' : 'false');
           document.documentElement.classList.toggle('dark', darkMode);
+          
+          if (typeof window.showToast === 'function') {
+            window.showToast(
+              darkMode ? 'Modo escuro ativado' : 'Modo claro ativado', 
+              'success'
+            );
+          }
         } else {
           e.target.checked = !darkMode;
           if (typeof window.showToast === 'function') {
@@ -69,7 +74,6 @@ document.addEventListener('turbo:load', () => {
   }
 
   if (notificationsToggle) {
-    // Debounce de 500ms para evitar múltiplas chamadas
     const handleNotificationsChange = debounce(async (e) => {
       const enabled = e.target.checked;
       
@@ -84,6 +88,12 @@ document.addEventListener('turbo:load', () => {
         });
         
         if (response.ok) {
+          if (typeof window.showToast === 'function') {
+            window.showToast(
+              enabled ? 'Notificações ativadas' : 'Notificações desativadas', 
+              'success'
+            );
+          }
         } else {
           e.target.checked = !enabled;
           if (typeof window.showToast === 'function') {
@@ -110,3 +120,16 @@ document.addEventListener('turbo:load', () => {
     darkModeToggle.checked = isDark;
   }
 });
+
+window.copyToClipboard = function(text, elementText = 'Código copiado!') {
+  navigator.clipboard.writeText(text).then(() => {
+    if (typeof window.showToast === 'function') {
+      window.showToast(elementText, 'success');
+    }
+  }).catch(err => {
+    console.error('Erro ao copiar:', err);
+    if (typeof window.showToast === 'function') {
+      window.showToast('Erro ao copiar código', 'error');
+    }
+  });
+};

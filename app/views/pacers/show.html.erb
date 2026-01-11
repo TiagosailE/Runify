@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-[#F5F5F5] dark:bg-[#1a1a1a] pb-24">
+<div class="min-h-screen bg-[#1a1a1a] pb-24">
   
   <%= render 'shared/header' %>
 
@@ -83,8 +83,8 @@
           <p class="text-xs opacity-75 mb-2">Código do Pacer</p>
           <div class="flex items-center gap-2">
             <code class="bg-white/20 px-4 py-2 rounded-lg font-mono text-lg font-bold tracking-wider"><%= @squad.squad_code %></code>
-            <button onclick="navigator.clipboard.writeText('<%= @squad.squad_code %>'); alert('Código copiado!')" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all">
-              <i class="fas fa-copy"></i>
+            <button onclick="window.copyToClipboard('<%= @squad.squad_code %>', 'Código copiado!')" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all">
+            <i class="fas fa-copy"></i>
             </button>
           </div>
         </div>

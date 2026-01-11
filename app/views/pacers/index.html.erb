@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-[#F5F5F5] dark:bg-[#1a1a1a] pb-24">
+<div class="min-h-screen bg-[#1a1a1a] pb-24">
   
   <%= render 'shared/header' %>
 
@@ -51,17 +51,6 @@
   <main class="px-6 py-6 space-y-6">
     
     <section>
-<<<<<<< Updated upstream
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          <i class="fas fa-users text-teal-500 mr-2"></i>
-          Pacers
-        </h2>
-        <%= link_to new_pacer_path, class: "bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-xl transition-all" do %>
-          <i class="fas fa-plus mr-2"></i>Criar Pacer
-        <% end %>
-      </div>
-=======
       <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
         <div class="flex items-center justify-between">
           <div>
@@ -70,7 +59,6 @@
               <h2 class="text-2xl font-bold">Pacers</h2>
             </div>
           </div>
->>>>>>> Stashed changes
 
           <%= link_to new_pacer_path, class: "bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold py-2 px-4 rounded-xl transition-all border border-white/20" do %>
             <i class="fas fa-plus mr-2"></i>Criar Pacer
@@ -88,15 +76,6 @@
     </section>
 
     <section>
-<<<<<<< Updated upstream
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Entrar em um Pacer</h3>
-      
-      <%= form_with url: join_pacer_path, method: :post, local: true, class: "bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm" do %>
-        <div class="flex gap-3">
-          <%= text_field_tag :code, nil, 
-              placeholder: "Digite o código do Pacer",
-              class: "flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
-=======
       <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">
         <i class="fas fa-sign-in-alt text-teal-500 mr-2"></i>
         Entrar em um Pacer
@@ -107,7 +86,6 @@
           <%= text_field_tag :code, nil, 
               placeholder: "Digite o código do Pacer",
               class: "flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
->>>>>>> Stashed changes
           <%= submit_tag "Entrar", class: "bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-xl transition-all cursor-pointer" %>
         </div>
       <% end %>
@@ -115,38 +93,15 @@
 
     <% if @my_squads.any? %>
       <section>
-<<<<<<< Updated upstream
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meus Pacers</h3>
-=======
         <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">
           <i class="fas fa-flag text-teal-500 mr-2"></i>
           Meus Pacers
         </h3>
->>>>>>> Stashed changes
         
         <div class="space-y-3">
           <% @my_squads.each do |squad| %>
             <% member = squad.squad_members.find_by(user: current_user) %>
             <%= link_to pacer_path(squad), class: "block" do %>
-<<<<<<< Updated upstream
-              <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-                <div class="flex items-center justify-between">
-                  <div class="flex-1">
-                    <h4 class="font-bold text-gray-900 dark:text-white text-lg"><%= squad.name %></h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"><%= squad.users.count %> membros</p>
-                    <% if squad.challenge_end %>
-                      <p class="text-xs text-teal-500 mt-2">
-                        <i class="fas fa-calendar mr-1"></i>
-                        Termina em <%= (squad.challenge_end - Date.today).to_i %> dias
-                      </p>
-                    <% end %>
-                  </div>
-                  <div class="text-right">
-                    <% member = squad.squad_members.find_by(user: current_user) %>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Seu Nível</p>
-                    <div class="bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 rounded-lg px-3 py-2">
-                      <p class="text-2xl font-bold"><%= member&.level || 1 %></p>
-=======
               <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all">
                 
                 <div class="flex items-center gap-4">
@@ -164,35 +119,34 @@
                         </filter>
                       </defs>
                       
-                      <circle cx="60" cy="60" r="54" fill="none" stroke="<%= member.border_color %>" stroke-width="3" opacity="0.3"/>
-                      <circle cx="60" cy="60" r="57" fill="none" stroke="<%= member.border_color %>" stroke-width="2" filter="url(#glow-index-<%= member.user.id %>)"/>
+                      <circle cx="60" cy="60" r="54" fill="none" stroke="<%= member.tier_data[:color] %>" stroke-width="3" opacity="0.3"/>
+                      <circle cx="60" cy="60" r="57" fill="none" stroke="<%= member.tier_data[:color] %>" stroke-width="2" filter="url(#glow-index-<%= member.user.id %>)"/>
                       
-                      <path d="M 60,6 L 66,18 L 54,18 Z" fill="<%= member.border_color %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      <path d="M 114,60 L 102,66 L 102,54 Z" fill="<%= member.border_color %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      <path d="M 60,114 L 66,102 L 54,102 Z" fill="<%= member.border_color %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      <path d="M 6,60 L 18,66 L 18,54 Z" fill="<%= member.border_color %>" filter="url(#glow-index-<%= member.user.id %>)"/>
+                      <path d="M 60,6 L 66,18 L 54,18 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
+                      <path d="M 114,60 L 102,66 L 102,54 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
+                      <path d="M 60,114 L 66,102 L 54,102 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
+                      <path d="M 6,60 L 18,66 L 18,54 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
                       
                       <% if member.level >= 30 %>
-                        <circle cx="60" cy="60" r="50" fill="none" stroke="<%= member.border_color %>" stroke-width="1" opacity="0.5" stroke-dasharray="5,5"/>
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="<%= member.tier_data[:color] %>" stroke-width="1" opacity="0.5" stroke-dasharray="5,5"/>
                       <% end %>
                     </svg>
 
-                    <div class="w-24 h-24 rounded-full overflow-hidden border-3" style="border-color: <%= member.border_color %>; box-shadow: <%= member.border_glow %>">
+                    <div class="w-24 h-24 rounded-full overflow-hidden border-3" style="border-color: <%= member.tier_data[:color] %>; box-shadow: <%= member.tier_data[:box_shadow] %>">
                       <img src="<%= current_user.avatar_url %>" alt="<%= current_user.username %>" class="w-full h-full object-cover">
                     </div>
 
-                    <% if member.level >= 10 %>
-                      <div class="frame-icon corner-tl" style="color: <%= member.border_color %>; text-shadow: <%= member.border_glow %>">
-                        <i class="fas <%= member.tier_icon %>"></i>
+                    <% if member.level >= 10 && member.tier_data[:tier_icon] %>
+                      <div class="frame-icon corner-tl" style="color: <%= member.tier_data[:color] %>; text-shadow: <%= member.tier_data[:box_shadow] %>">
+                        <i class="fas fa-bolt"></i>
                       </div>
-                      <div class="frame-icon corner-tr" style="color: <%= member.border_color %>; text-shadow: <%= member.border_glow %>">
-                        <i class="fas <%= member.tier_icon %>"></i>
+                      <div class="frame-icon corner-tr" style="color: <%= member.tier_data[:color] %>; text-shadow: <%= member.tier_data[:box_shadow] %>">
+                        <i class="fas fa-bolt"></i>
                       </div>
                     <% end %>
 
-                    <div class="absolute -bottom-2 -right-2 text-white text-sm font-bold rounded-full w-10 h-10 flex items-center justify-center border-3 border-white dark:border-gray-800 shadow-lg" style="background: <%= member.border_color %>; box-shadow: <%= member.border_glow %>">
+                    <div class="absolute -bottom-2 -right-2 text-white text-sm font-bold rounded-full w-10 h-10 flex items-center justify-center border-3 border-white dark:border-gray-800 shadow-lg" style="background: <%= member.tier_data[:color] %>; box-shadow: <%= member.tier_data[:box_shadow] %>">
                       <%= member.level %>
->>>>>>> Stashed changes
                     </div>
                   </div>
 
@@ -216,9 +170,9 @@
                   <div class="text-right">
                     <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Seu Rank</p>
                     <p class="text-base font-bold <%= member.rank_color_class %> mb-1">
-                      <i class="fas <%= member.tier_icon %> mr-1"></i><%= member.rank_title %>
+                      <%= member.rank_title %>
                     </p>
-                    <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full" style="background: <%= member.border_color %>20; color: <%= member.border_color %>">
+                    <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full" style="background: <%= member.tier_data[:color] %>20; color: <%= member.tier_data[:color] %>">
                       <span class="text-xs font-bold"><%= member.experience_points %> XP</span>
                     </div>
                   </div>
@@ -231,13 +185,6 @@
       </section>
 
     <% else %>
-<<<<<<< Updated upstream
-      <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-8 text-center shadow-sm">
-        <i class="fas fa-users text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
-        <p class="text-gray-500 dark:text-gray-400">Você ainda não está em nenhum Pacer</p>
-        <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">Crie um ou entre com um código</p>
-      </div>
-=======
       <section>
         <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-8 text-center shadow-sm">
           <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
@@ -251,7 +198,6 @@
           </p>
         </div>
       </section>
->>>>>>> Stashed changes
     <% end %>
 
   </main>
