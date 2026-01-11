@@ -8,11 +8,15 @@ html, body {
 }
 
 @layer base {
+<<<<<<< Updated upstream
   /* =========================================
      FORÇAR MODO ESCURO (GLOBAL)
      ========================================= */
   
   /* Usamos :root.dark para máxima especificidade */
+=======
+
+>>>>>>> Stashed changes
   :root.dark body,
   :root.dark html {
     background-color: #111827 !important; /* gray-900 */
@@ -29,17 +33,21 @@ html, body {
     background-color: #111827 !important;
   }
 
+<<<<<<< Updated upstream
   /* =========================================
      CORREÇÃO DE TEXTOS
      ========================================= */
   
   /* Textos escuros viram claros */
+=======
+>>>>>>> Stashed changes
   :root.dark .text-gray-900 { color: #f3f4f6 !important; }
   :root.dark .text-gray-800 { color: #e5e7eb !important; }
   :root.dark .text-gray-700 { color: #d1d5db !important; }
   :root.dark .text-gray-600 { color: #9ca3af !important; }
   :root.dark .text-gray-500 { color: #9ca3af !important; }
 
+<<<<<<< Updated upstream
   /* =========================================
      CORREÇÃO DOS CARDS E COMPONENTES
      ========================================= */
@@ -49,6 +57,16 @@ html, body {
     background-color: #1f2937 !important; /* gray-800 */
     border: 1px solid #374151 !important; /* borda sutil */
     box-shadow: none !important;
+=======
+  :root.dark .bg-white {
+    background-color: #1f2937 !important; 
+    border-color: #374151 !important;
+  }
+
+  :root.dark .bg-gray-50 {
+    background-color: #1f2937 !important; 
+    border-color: #374151 !important;
+>>>>>>> Stashed changes
   }
 
   /* Conserta qualquer fundo branco ou cinza claro explícito */
@@ -59,20 +77,46 @@ html, body {
     border-color: #374151 !important;
   }
 
+<<<<<<< Updated upstream
   /* Conserta bordas */
+=======
+>>>>>>> Stashed changes
   :root.dark .border-gray-200,
   :root.dark .border-gray-300 {
     border-color: #374151 !important;
   }
 
+<<<<<<< Updated upstream
   /* =========================================
      CORREÇÃO DE PLACEHOLDERS E INPUTS
      ========================================= */
   
+=======
+>>>>>>> Stashed changes
   :root.dark .placeholder-gray-400::placeholder {
     color: #9ca3af !important;
   }
 
+<<<<<<< Updated upstream
+=======
+  :root.dark .strava-card {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  :root.dark .strava-card .text-gray-900 {
+    color: #f3f4f6 !important;
+  }
+
+  :root.dark .strava-card .text-gray-600 {
+    color: #9ca3af !important;
+  }
+
+  :root.dark .hover\:bg-gray-50:hover {
+    background-color: #374151 !important;
+  }
+
+>>>>>>> Stashed changes
   :root.dark input,
   :root.dark textarea,
   :root.dark select {
@@ -87,11 +131,159 @@ html, body {
     border-color: #14b8a6 !important;
   }
 
+<<<<<<< Updated upstream
   /* =========================================
      CORREÇÃO DE HOVER STATES
      ========================================= */
   
   :root.dark .hover\:bg-gray-50:hover {
     background-color: #111827 !important;
+=======
+  :root.dark label {
+    color: #d1d5db !important;
   }
+
+  :root.dark select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  :root.dark select option {
+    background-color: #374151 !important;
+    color: #f3f4f6 !important;
+  }
+
+  :root.dark select::-webkit-scrollbar {
+    width: 8px;
+    background-color: #1f2937;
+  }
+
+  :root.dark select::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 4px;
+  }
+
+  :root.dark .chart-month-label {
+    fill: #d1d5db !important;
+  }
+
+  :root.dark .chart-value-label {
+    fill: #f3f4f6 !important;
+  }
+
+  :root:not(.dark) .text-gray-900 {
+    color: #111827 !important;
+  }
+
+  :root:not(.dark) .text-gray-800 {
+    color: #1f2937 !important;
+  }
+
+  :root:not(.dark) .text-gray-700 {
+    color: #374151 !important;
+  }
+
+  :root:not(.dark) .text-gray-600 {
+    color: #4b5563 !important;
+  }
+
+  :root:not(.dark) .text-gray-500 {
+    color: #6b7280 !important;
+  }
+
+  :root:not(.dark) .bg-white {
+    background-color: white !important;
+    border-color: #e5e7eb !important;
+  }
+
+  :root:not(.dark) .bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+
+  :root:not(.dark) .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+  }
+
+  :root:not(.dark) .border-gray-200 {
+    border-color: #e5e7eb !important;
+  }
+
+  :root:not(.dark) .border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+
+  :root:not(.dark) input,
+  :root:not(.dark) textarea,
+  :root:not(.dark) select {
+    background-color: white !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+  }
+
+  :root:not(.dark) input::placeholder,
+  :root:not(.dark) textarea::placeholder,
+  :root:not(.dark) select::placeholder {
+    color: #9ca3af !important;
+  }
+
+  :root:not(.dark) input:focus,
+  :root:not(.dark) textarea:focus,
+  :root:not(.dark) select:focus {
+    border-color: #14b8a6 !important;
+  }
+
+  :root:not(.dark) label {
+    color: #374151 !important;
+  }
+
+  :root:not(.dark) .strava-card {
+    background-color: white !important;
+    border-color: #e5e7eb !important;
+  }
+
+  :root:not(.dark) .strava-card.bg-teal-50 {
+    background-color: #f0fdfa !important;
+    border-color: #99f6e4 !important;
+  }
+
+  :root:not(.dark) .strava-card.bg-orange-50 {
+    background-color: #fff7ed !important;
+    border-color: #fed7aa !important;
+  }
+
+  :root:not(.dark) .strava-card h3 {
+    color: #000000 !important;
+  }
+
+  :root:not(.dark) .chart-month-label {
+    fill: #666 !important;
+  }
+
+  :root:not(.dark) .chart-value-label {
+    fill: #333 !important;
+  }
+
+  :root:not(.dark) .bg-teal-500 {
+    background-color: #14b8a6 !important;
+  }
+
+  :root:not(.dark) .bg-teal-500:hover {
+    background-color: #0d9488 !important;
+  }
+
+  .bg-\[#1A1F2E\],
+  .bg-\[\#1A1F2E\] {
+    background-color: #1A1F2E !important;
+  }
+
+  [class*="bg-[#"] {
+>>>>>>> Stashed changes
+  }
+
 }

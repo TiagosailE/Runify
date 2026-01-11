@@ -43,7 +43,11 @@ class NotificationService
 
     user.notifications.create(
       title: "Resumo Semanal",
+<<<<<<< Updated upstream
       message: "Você completou #{completed} de #{total} treinos esta semana. #{completed >= 3 ? 'Ótimo trabalho!' : 'Vamos buscar mais!'}",
+=======
+      message: "Você completou #{completed} de #{total} treinos esta semana. #{motivation}",
+>>>>>>> Stashed changes
       notification_type: 'weekly_summary',
       sent_at: Time.current
     )
