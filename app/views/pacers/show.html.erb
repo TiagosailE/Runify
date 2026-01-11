@@ -2,6 +2,65 @@
   
   <%= render 'shared/header' %>
 
+  <style>
+    @keyframes pulse-frame {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+
+    @keyframes rotate-frame {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+    }
+
+    .frame-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .frame-border {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      pointer-events: none;
+    }
+
+    .frame-icon {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      z-index: 10;
+    }
+
+    .tier-challenger .frame-border {
+      animation: rotate-frame 4s linear infinite, glow-pulse 2s ease-in-out infinite;
+    }
+
+    .tier-grandmaster .frame-border {
+      animation: pulse-frame 2s ease-in-out infinite;
+    }
+
+    .tier-master .frame-border {
+      animation: pulse-frame 2.5s ease-in-out infinite;
+    }
+
+    .corner-tl { top: -8px; left: -8px; }
+    .corner-tr { top: -8px; right: -8px; }
+    .corner-bl { bottom: -8px; left: -8px; }
+    .corner-br { bottom: -8px; right: -8px; }
+  </style>
+
   <main class="px-6 py-6 space-y-6">
     
     <section>
@@ -59,11 +118,49 @@
 
             <div class="flex items-center gap-4 ml-10">
               
-              <div class="relative">
-                <div class="w-16 h-16 rounded-full overflow-hidden border-4 <%= member.border_color %> shadow-lg">
+              <div class="frame-container tier-<%= member.border_tier %>">
+                
+                <svg class="frame-border" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <filter id="glow-<%= member.user.id %>">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="<%= member.border_color %>" stroke-width="3" opacity="0.3"/>
+                  <circle cx="50" cy="50" r="48" fill="none" stroke="<%= member.border_color %>" stroke-width="2" filter="url(#glow-<%= member.user.id %>)" style="box-shadow: <%= member.border_glow %>"/>
+                  
+                  <path d="M 50,5 L 55,15 L 45,15 Z" fill="<%= member.border_color %>" filter="url(#glow-<%= member.user.id %>)"/>
+                  <path d="M 95,50 L 85,55 L 85,45 Z" fill="<%= member.border_color %>" filter="url(#glow-<%= member.user.id %>)"/>
+                  <path d="M 50,95 L 55,85 L 45,85 Z" fill="<%= member.border_color %>" filter="url(#glow-<%= member.user.id %>)"/>
+                  <path d="M 5,50 L 15,55 L 15,45 Z" fill="<%= member.border_color %>" filter="url(#glow-<%= member.user.id %>)"/>
+                  
+                  <% if member.level >= 30 %>
+                    <path d="M 20,20 L 25,15 L 15,25 Z" fill="<%= member.border_color %>" opacity="0.7"/>
+                    <path d="M 80,20 L 75,15 L 85,25 Z" fill="<%= member.border_color %>" opacity="0.7"/>
+                    <path d="M 20,80 L 25,85 L 15,75 Z" fill="<%= member.border_color %>" opacity="0.7"/>
+                    <path d="M 80,80 L 75,85 L 85,75 Z" fill="<%= member.border_color %>" opacity="0.7"/>
+                  <% end %>
+                </svg>
+
+                <div class="w-20 h-20 rounded-full overflow-hidden border-2" style="border-color: <%= member.border_color %>; box-shadow: <%= member.border_glow %>">
                   <img src="<%= member.user.avatar_url %>" alt="<%= member.user.username %>" class="w-full h-full object-cover">
                 </div>
-                <div class="absolute -bottom-1 -right-1 bg-teal-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-800">
+
+                <% if member.level >= 10 %>
+                  <div class="frame-icon corner-tl" style="color: <%= member.border_color %>">
+                    <i class="fas <%= member.tier_icon %>"></i>
+                  </div>
+                  <div class="frame-icon corner-tr" style="color: <%= member.border_color %>">
+                    <i class="fas <%= member.tier_icon %>"></i>
+                  </div>
+                <% end %>
+
+                <div class="absolute -bottom-1 -right-1 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center border-3 border-white dark:border-gray-800 shadow-lg" style="background: <%= member.border_color %>; box-shadow: <%= member.border_glow %>">
                   <%= member.level %>
                 </div>
               </div>
@@ -77,11 +174,13 @@
                     <span class="text-xs bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-full font-medium">Você</span>
                   <% end %>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400"><%= member.rank_title %></p>
+                <p class="text-sm font-semibold <%= member.rank_color_class %>">
+                  <i class="fas <%= member.tier_icon %> mr-1"></i><%= member.rank_title %>
+                </p>
                 
                 <div class="mt-2 flex items-center gap-2">
                   <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-                    <div class="bg-gradient-to-r from-teal-400 to-teal-500 h-2 rounded-full transition-all" style="width: <%= member.xp_progress_percentage %>%"></div>
+                    <div class="h-2 rounded-full transition-all" style="width: <%= member.xp_progress_percentage %>%; background: <%= member.border_color %>; box-shadow: 0 0 10px <%= member.border_color %>"></div>
                   </div>
                   <span class="text-xs text-gray-500 dark:text-gray-400 font-medium"><%= member.xp_progress_percentage %>%</span>
                 </div>

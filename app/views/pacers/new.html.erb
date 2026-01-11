@@ -1,77 +1,117 @@
-<div class="min-h-screen bg-[#F5F5F5] dark:bg-[#1a1a1a] pb-24">
+<div class="min-h-screen bg-[#0a0e17] pb-24 font-sans antialiased selection:bg-cyan-500 selection:text-black">
   
   <%= render 'shared/header' %>
 
-  <main class="px-6 py-6">
+  <main class="px-4 py-8 space-y-8 max-w-2xl mx-auto">
     
-    <div class="max-w-md mx-auto">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        <i class="fas fa-plus-circle text-teal-500 mr-2"></i>
-        Criar Novo Pacer
-      </h2>
+    <section class="relative">
+      <h1 class="text-4xl font-black text-white tracking-tight mb-3 flex items-center gap-3">
+        <i class="fas fa-plus-circle text-cyan-400"></i>
+        Criar <span class="text-cyan-400">Squad</span>
+      </h1>
+      <p class="text-gray-400 text-lg">Monte sua equipe, convide amigos e compita por XP em desafios épicos.</p>
+    </section>
 
-      <%= form_with url: pacers_path, method: :post, local: true, class: "space-y-5" do |f| %>
+<<<<<<< Updated upstream
+      <%= form_with url: create_pacer_path, method: :post, local: true, class: "space-y-5" do |f| %>
         
         <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm space-y-4">
+=======
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f1419] to-[#0a0e17] border border-gray-800/50 shadow-2xl">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDIpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-10"></div>
+
+      <div class="relative z-10 p-8">
+        <%= form_with model: @squad, url: pacers_path, local: true do |f| %>
+>>>>>>> Stashed changes
           
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Nome do Pacer
-            </label>
-            <%= text_field_tag 'squad[name]', nil, 
-                placeholder: "Ex: Corredores de Elite",
-                required: true,
-                class: "appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
+          <div class="space-y-6">
+            <div>
+              <%= f.label :name, class: "block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2" do %>
+                <i class="fas fa-flag text-cyan-500"></i>
+                NOME DA SQUAD
+              <% end %>
+              <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <i class="fas fa-shield-halved text-gray-600 group-focus-within:text-cyan-400 transition-colors"></i>
+                </div>
+                <%= f.text_field :name, 
+                    placeholder: "Ex: Guerreiros da Madrugada", 
+                    class: "w-full pl-14 pr-5 py-4 bg-[#0a0e17] border border-gray-800/50 rounded-xl text-white text-lg placeholder-gray-600 focus:outline-none focus:border-cyan-500 focus:shadow-lg focus:shadow-cyan-500/20 transition-all" %>
+              </div>
+            </div>
+
+            <div>
+              <%= f.label :description, class: "block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2" do %>
+                <i class="fas fa-align-left text-cyan-500"></i>
+                DESCRIÇÃO (Opcional)
+              <% end %>
+              <%= f.text_area :description, 
+                  rows: 4, 
+                  placeholder: "Descreva as regras do desafio, metas da squad, cultura do grupo...",
+                  class: "w-full px-5 py-4 bg-[#0a0e17] border border-gray-800/50 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 focus:shadow-lg focus:shadow-cyan-500/20 transition-all resize-none" %>
+            </div>
+
+            <div>
+              <%= f.label :challenge_end, class: "block text-xs font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2" do %>
+                <i class="fas fa-calendar-check text-cyan-500"></i>
+                DATA DE TÉRMINO (Opcional)
+              <% end %>
+              <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                  <i class="far fa-calendar text-gray-600 group-focus-within:text-cyan-400 transition-colors"></i>
+                </div>
+                <%= f.date_field :challenge_end, 
+                    class: "w-full pl-14 pr-5 py-4 bg-[#0a0e17] border border-gray-800/50 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:shadow-lg focus:shadow-cyan-500/20 transition-all" %>
+              </div>
+              <p class="text-xs text-gray-600 mt-3 ml-1 flex items-center gap-2">
+                <i class="fas fa-info-circle text-gray-700"></i>
+                Deixe em branco para criar um desafio sem prazo definido.
+              </p>
+            </div>
+
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Descrição (opcional)
-            </label>
-            <%= text_area_tag 'squad[description]', nil, 
-                rows: 3,
-                placeholder: "Descreva o objetivo do grupo...",
-                class: "appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none" %>
+          <div class="mt-8 pt-8 border-t border-gray-800/50 flex gap-4">
+            <%= link_to pacers_path, class: "flex-1 bg-gray-800 hover:bg-gray-700 text-white font-black py-5 rounded-xl transition-all text-center flex items-center justify-center gap-2" do %>
+              <i class="fas fa-arrow-left"></i>
+              CANCELAR
+            <% end %>
+            
+            <%= f.submit "CRIAR SQUAD", class: "flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black py-5 rounded-xl shadow-lg shadow-cyan-900/50 hover:shadow-xl hover:shadow-cyan-900/70 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2" %>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Duração do Desafio
-            </label>
-            <%= select_tag 'squad[challenge_duration]',
-                options_for_select([
-                  ['1 Semana', 7],
-                  ['2 Semanas', 14],
-                  ['1 Mês', 30],
-                  ['3 Meses', 90],
-                  ['Infinito', nil]
-                ]),
-                class: "appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
-          </div>
+        <% end %>
+      </div>
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Data de Início
-            </label>
-            <%= date_field_tag 'squad[challenge_start]', Date.today, 
-                class: "appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
-          </div>
-
+    <div class="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-6">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 flex-shrink-0">
+          <i class="fas fa-lightbulb text-xl"></i>
         </div>
-
-        <div class="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-2xl p-4">
-          <p class="text-sm text-teal-800 dark:text-teal-300">
-            <i class="fas fa-info-circle mr-2"></i>
-            Após criar, você receberá um código para convidar amigos!
-          </p>
+        <div>
+          <h3 class="font-black text-cyan-400 text-lg mb-2">Dicas para criar uma Squad de sucesso</h3>
+          <ul class="space-y-2 text-sm text-cyan-200/80">
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check text-cyan-500 mt-1 flex-shrink-0"></i>
+              <span>Escolha um nome memorável e motivador para sua equipe</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check text-cyan-500 mt-1 flex-shrink-0"></i>
+              <span>Defina regras claras e metas realistas na descrição</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check text-cyan-500 mt-1 flex-shrink-0"></i>
+              <span>Convide amigos que compartilham objetivos similares</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check text-cyan-500 mt-1 flex-shrink-0"></i>
+              <span>Use desafios com prazo para criar senso de urgência</span>
+            </li>
+          </ul>
         </div>
-
-        <div class="flex gap-3">
-          <%= link_to "Cancelar", pacers_path, class: "flex-1 text-center py-3 px-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all" %>
-          <%= f.submit "Criar Pacer", class: "flex-1 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer" %>
-        </div>
-
-      <% end %>
+      </div>
     </div>
 
   </main>

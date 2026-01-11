@@ -7,13 +7,14 @@ class PacersController < ApplicationController
   end
 
   def new
+    @squad = Squad.new
   end
 
   def create
-    squad = current_user.owned_squads.build(squad_params)
+    @squad = current_user.owned_squads.build(squad_params)
     
-    if squad.save
-      squad.squad_members.create(
+    if @squad.save
+      @squad.squad_members.create(
         user: current_user,
         level: 1,
         experience_points: 0,
@@ -21,9 +22,9 @@ class PacersController < ApplicationController
         joined_at: Time.current
       )
       
-      redirect_to pacer_path(squad), notice: 'Pacer criado com sucesso!'
+      redirect_to pacer_path(@squad), notice: 'Pacer criado com sucesso!'
     else
-      redirect_to new_pacer_path, alert: squad.errors.full_messages.join(', ')
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -31,9 +32,10 @@ class PacersController < ApplicationController
     @squad = Squad.find(params[:id])
     @leaderboard = @squad.leaderboard.includes(:user)
     @is_member = @squad.users.include?(current_user)
+    @my_squads = current_user.squads
   end
 
-  def join_by_code
+  def join
     squad = Squad.find_by(squad_code: params[:code])
     
     if squad.nil?
@@ -57,7 +59,7 @@ class PacersController < ApplicationController
     redirect_to pacer_path(squad), notice: 'Você entrou no Pacer!'
   end
 
-  def join
+  def leave
     squad = Squad.find(params[:id])
     squad_member = squad.squad_members.find_by(user: current_user)
     
