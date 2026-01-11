@@ -2,7 +2,10 @@ let toastCounter = 0;
 
 window.showToast = function(message, type = 'info') {
   const container = document.getElementById('toast-container');
-  if (!container || !message) return;
+  if (!container || !message) {
+    console.warn('Toast container not found or no message provided');
+    return;
+  }
 
   const toastId = `toast-${Date.now()}-${toastCounter++}`;
   const toast = document.createElement('div');
@@ -78,3 +81,5 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+console.log('Toast system initialized');
