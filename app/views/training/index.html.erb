@@ -61,14 +61,14 @@
       <div class="space-y-4">
         
         <% if @today_workout.completed? %>
-          <div class="bg-teal-50 dark:bg-teal-900/30 border-2 border-teal-500 rounded-2xl p-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center">
-                <i class="fas fa-check text-white"></i>
+          <div class="bg-white dark:bg-teal-900/30 border border-teal-200 dark:border-teal-500/30 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-teal-100 dark:bg-teal-500/20 rounded-full flex items-center justify-center shrink-0">
+                <i class="fas fa-check text-teal-600 dark:text-teal-400 text-xl"></i>
               </div>
               <div class="flex-1">
-                <p class="font-semibold text-teal-900 dark:text-teal-100">Treino de hoje concluído!</p>
-                <p class="text-sm text-teal-700 dark:text-teal-300">Parabéns pelo esforço</p>
+                <p class="font-bold text-gray-900 dark:text-white text-lg">Treino concluído!</p>
+                <p class="text-sm text-gray-500 dark:text-gray-300">Parabéns pelo esforço hoje</p>
               </div>
             </div>
           </div>
@@ -161,7 +161,6 @@
 
   </main>
 
-  <!-- Modal de feedback -->
   <div id="feedback-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
       <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Como foi o treino?</h3>
@@ -186,7 +185,6 @@
     </div>
   </div>
 
-  <!-- Modal de confirmação de conclusão de treino -->
 <div id="complete-workout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" style="backdrop-filter: blur(4px);">
   <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
     <div class="text-center mb-6">
@@ -212,4 +210,5 @@
       </button>
     </div>
   </div>
+</div>
 </div>
