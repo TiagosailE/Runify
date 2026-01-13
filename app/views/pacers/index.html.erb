@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-[#1a1a1a] pb-24">
+<div class="min-h-screen bg-[#1a1a1a] pb-24 text-white">
   
   <%= render 'shared/header' %>
 
@@ -76,16 +76,16 @@
     </section>
 
     <section>
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">
+      <h3 class="text-lg font-bold text-white mb-3">
         <i class="fas fa-sign-in-alt text-teal-500 mr-2"></i>
         Entrar em um Pacer
       </h3>
       
-      <%= form_with url: join_by_code_pacers_path, method: :post, local: true, class: "bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm" do %>
+      <%= form_with url: join_by_code_pacers_path, method: :post, local: true, class: "bg-[#2d3748] rounded-2xl p-5 shadow-sm" do %>
         <div class="flex gap-3">
           <%= text_field_tag :code, nil, 
               placeholder: "Digite o código do Pacer",
-              class: "flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
+              class: "flex-1 px-4 py-3 border border-gray-600 bg-[#1a1a1a] text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500" %>
           <%= submit_tag "Entrar", class: "bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-xl transition-all cursor-pointer" %>
         </div>
       <% end %>
@@ -93,7 +93,7 @@
 
     <% if @my_squads.any? %>
       <section>
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-3">
+        <h3 class="text-lg font-bold text-white mb-3">
           <i class="fas fa-flag text-teal-500 mr-2"></i>
           Meus Pacers
         </h3>
@@ -102,7 +102,7 @@
           <% @my_squads.each do |squad| %>
             <% member = squad.squad_members.find_by(user: current_user) %>
             <%= link_to pacer_path(squad), class: "block" do %>
-              <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all">
+              <div class="bg-[#2d3748] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all">
                 
                 <div class="flex items-center gap-4">
                   
@@ -145,22 +145,22 @@
                       </div>
                     <% end %>
 
-                    <div class="absolute -bottom-2 -right-2 text-white text-sm font-bold rounded-full w-10 h-10 flex items-center justify-center border-3 border-white dark:border-gray-800 shadow-lg" style="background: <%= member.tier_data[:color] %>; box-shadow: <%= member.tier_data[:box_shadow] %>">
+                    <div class="absolute -bottom-2 -right-2 text-white text-sm font-bold rounded-full w-10 h-10 flex items-center justify-center border-3 border-[#2d3748] shadow-lg" style="background: <%= member.tier_data[:color] %>; box-shadow: <%= member.tier_data[:box_shadow] %>">
                       <%= member.level %>
                     </div>
                   </div>
 
                   <div class="flex-1 min-w-0">
-                    <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-1 truncate">
+                    <h4 class="text-lg font-bold text-white mb-1 truncate">
                       <%= squad.name %>
                     </h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <p class="text-sm text-gray-400 mb-2">
                       <i class="fas fa-users mr-1"></i>
                       <%= squad.users.count %> membros
                     </p>
                     
                     <% if squad.challenge_end %>
-                      <div class="inline-flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded-lg text-xs font-medium">
+                      <div class="inline-flex items-center gap-1 bg-orange-900/30 text-orange-400 px-2 py-1 rounded-lg text-xs font-medium">
                         <i class="fas fa-clock"></i>
                         <span>Termina em <%= (squad.challenge_end - Date.today).to_i %> dias</span>
                       </div>
@@ -168,7 +168,7 @@
                   </div>
 
                   <div class="text-right">
-                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Seu Rank</p>
+                    <p class="text-xs font-medium text-gray-400 mb-1">Seu Rank</p>
                     <p class="text-base font-bold <%= member.rank_color_class %> mb-1">
                       <%= member.rank_title %>
                     </p>
@@ -186,14 +186,14 @@
 
     <% else %>
       <section>
-        <div class="bg-white dark:bg-[#2d3748] rounded-2xl p-8 text-center shadow-sm">
-          <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-            <i class="fas fa-users text-3xl text-gray-400 dark:text-gray-500"></i>
+        <div class="bg-[#2d3748] rounded-2xl p-8 text-center shadow-sm">
+          <div class="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
+            <i class="fas fa-users text-3xl text-gray-500"></i>
           </div>
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+          <h3 class="text-lg font-bold text-white mb-2">
             Você ainda não está em nenhum Pacer
           </h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="text-sm text-gray-400">
             Crie um ou entre com um código
           </p>
         </div>

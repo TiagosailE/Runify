@@ -1,50 +1,186 @@
 <div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] px-6 py-12">
-  <div class="w-full max-w-sm space-y-8">
+  <div class="w-full max-w-3xl space-y-8">
     
     <div class="text-center">
       <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
         <div class="bg-teal-500 h-2 rounded-full" style="width: 66%"></div>
       </div>
       <h2 class="text-3xl font-bold text-gray-900">
-        Seu Objetivo
+        Complete seu Perfil
       </h2>
       <p class="mt-2 text-base text-gray-600">
-        Passo 2 de 3
+        Passo 2 de 3 - Quanto mais detalhes, melhor!
       </p>
     </div>
 
-    <%= form_with url: onboarding_complete_path, method: :post, local: true, class: "mt-10 space-y-5" do |f| %>
+    <%= form_with url: onboarding_complete_path, method: :post, local: true, class: "mt-10 space-y-6" do |f| %>
       
-      <div class="space-y-5">
+      <div class="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Experiência na Corrida</h3>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Qual é o seu objetivo?</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Nível de experiência</label>
+          <%= f.select :running_experience, 
+              [
+                ['Iniciante (0-1 ano correndo regularmente)', 'beginner'],
+                ['Intermediário (1-3 anos de prática)', 'intermediate'],
+                ['Avançado (3+ anos de prática)', 'advanced']
+              ],
+              { include_blank: 'Selecione seu nível...' },
+              class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base",
+              required: true
+          %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Há quantos anos você corre?</label>
+            <%= f.number_field :running_experience_years, 
+                placeholder: "Ex: 2",
+                min: 0,
+                max: 80,
+                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base" 
+            %>
+            <p class="text-xs text-gray-500 mt-1">Anos completos de prática regular</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Km por semana atualmente</label>
+            <%= f.number_field :weekly_mileage, 
+                placeholder: "Ex: 20",
+                step: 0.1,
+                min: 0,
+                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base" 
+            %>
+            <p class="text-xs text-gray-500 mt-1">Sua quilometragem semanal média</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Melhores Tempos (opcional)</h3>
+        <p class="text-sm text-gray-600 mb-4">Isso ajuda a IA a calcular seus paces ideais de treino</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">5km (minutos)</label>
+            <%= f.number_field :best_5k_time, 
+                placeholder: "Ex: 25",
+                step: 0.01,
+                min: 10,
+                max: 120,
+                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base" 
+            %>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">10km (minutos)</label>
+            <%= f.number_field :best_10k_time, 
+                placeholder: "Ex: 52",
+                step: 0.01,
+                min: 20,
+                max: 240,
+                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base" 
+            %>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Meia Maratona (min)</label>
+            <%= f.number_field :best_half_marathon_time, 
+                placeholder: "Ex: 120",
+                step: 0.01,
+                min: 60,
+                max: 360,
+                class: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base" 
+            %>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dias Disponíveis para Treino</h3>
+        
+        <div class="grid grid-cols-7 gap-3">
+          <% days = [
+            { value: 1, label: 'Seg', name: 'S' },
+            { value: 2, label: 'Ter', name: 'T' },
+            { value: 3, label: 'Qua', name: 'Q' },
+            { value: 4, label: 'Qui', name: 'Q' },
+            { value: 5, label: 'Sex', name: 'S' },
+            { value: 6, label: 'Sáb', name: 'S' },
+            { value: 7, label: 'Dom', name: 'D' }
+          ] %>
+          
+          <% days.each do |day| %>
+            <label class="flex flex-col items-center cursor-pointer group">
+              <%= check_box_tag 'preferred_training_days[]', day[:value], false, 
+                  class: "hidden peer",
+                  id: "day_#{day[:value]}"
+              %>
+              <div class="w-full aspect-square flex items-center justify-center rounded-xl border-2 border-gray-300 peer-checked:border-teal-500 peer-checked:bg-teal-500 peer-checked:text-white text-gray-700 font-semibold text-lg transition-all hover:border-teal-400">
+                <%= day[:name] %>
+              </div>
+              <span class="text-xs text-gray-600 mt-1"><%= day[:label] %></span>
+            </label>
+          <% end %>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Selecione os dias que você pode treinar</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Objetivo e Histórico</h3>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Qual é o seu objetivo principal?</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-4 pt-4 pointer-events-none">
               <i class="fas fa-bullseye text-gray-400"></i>
             </div>
             <%= f.text_area :goal, 
-                rows: 4,
-                placeholder: "Ex: Melhorar meu tempo nos 10km, Completar minha primeira meia maratona...",
-                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base resize-none" %>
+                rows: 3,
+                placeholder: "Ex: Melhorar meu tempo nos 10km para menos de 50 minutos, Completar minha primeira meia maratona...",
+                class: "w-full px-4 py-4 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base resize-none",
+                required: true
+            %>
           </div>
         </div>
 
-        <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4">
-          <p class="text-sm text-teal-800">
-            <i class="fas fa-info-circle mr-2"></i>
-            Seja específico! Quanto mais detalhes, melhor a IA poderá personalizar seus treinos.
-          </p>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Histórico de lesões (opcional)</label>
+          <%= f.text_area :injury_history, 
+              rows: 2,
+              placeholder: "Ex: Fascite plantar em 2023, joelho esquerdo sensível...",
+              class: "w-full px-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-base resize-none"
+          %>
+          <p class="text-xs text-gray-500 mt-1">Isso ajuda a IA a criar treinos mais seguros</p>
         </div>
+      </div>
 
+      <div class="bg-teal-50 border border-teal-200 rounded-2xl p-4">
+        <p class="text-sm text-teal-800">
+          <i class="fas fa-info-circle mr-2"></i>
+          Quanto mais informações você fornecer, mais preciso e personalizado será seu plano de treino gerado pela IA!
+        </p>
       </div>
 
       <div class="pt-4">
-        <%= f.submit "Finalizar", 
-            class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
+        <%= f.submit "Finalizar e Criar Perfil", 
+            class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" 
+        %>
       </div>
 
     <% end %>
 
   </div>
 </div>
+
+<style>
+  input[type="checkbox"]:checked + div {
+    animation: checkBounce 0.3s ease;
+  }
+
+  @keyframes checkBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+</style>
