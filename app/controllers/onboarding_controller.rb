@@ -27,12 +27,26 @@ class OnboardingController < ApplicationController
   def complete
     available_days = JSON.parse(session[:onboarding_available_days] || '[]')
     
+    best_5k = params[:best_5k_time].present? ? (params[:best_5k_time].to_f * 60).to_i : nil
+    best_10k = params[:best_10k_time].present? ? (params[:best_10k_time].to_f * 60).to_i : nil
+    best_half = params[:best_half_marathon_time].present? ? (params[:best_half_marathon_time].to_f * 60).to_i : nil
+    
+    preferred_days = params[:preferred_training_days].present? ? params[:preferred_training_days].reject(&:blank?).map(&:to_i) : []
+    
     current_user.update(
       weight: session[:onboarding_weight],
       height: session[:onboarding_height],
       birth_date: session[:onboarding_birth_date],
       available_days: available_days,
-      goal: params[:goal]
+      goal: params[:goal],
+      running_experience: params[:running_experience],
+      running_experience_years: params[:running_experience_years],
+      best_5k_time: best_5k,
+      best_10k_time: best_10k,
+      best_half_marathon_time: best_half,
+      weekly_mileage: params[:weekly_mileage],
+      injury_history: params[:injury_history],
+      preferred_training_days: preferred_days
     )
     
     session.delete(:onboarding_weight)
