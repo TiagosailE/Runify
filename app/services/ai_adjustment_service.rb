@@ -2,7 +2,7 @@ require 'net/http'
 require 'json'
 
 class AiAdjustmentService
-  GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent'
+  GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent'
 
   def initialize(user, training_plan)
     @user = user
@@ -18,48 +18,96 @@ class AiAdjustmentService
     
     return if completed_workouts.empty?
     
-    prompt = build_adjustment_prompt(completed_workouts)
+    prompt = build_adjustment_prompt(completed_workouts, current_week)
     response = call_gemini_api(prompt)
     apply_adjustments(response, current_week)
+  rescue => e
+    Rails.logger.error "Erro em AiAdjustmentService: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
   end
 
   private
 
-  def build_adjustment_prompt(completed_workouts)
+  def build_adjustment_prompt(completed_workouts, current_week)
     feedback_summary = completed_workouts.map do |workout|
       feedback = workout.workout_details&.dig('user_feedback')
       difficulty = feedback&.dig('difficulty') || 'não informado'
+      notes = feedback&.dig('notes') || ''
       
-      "- #{workout.workout_type}: #{workout.distance_km}km, pace #{workout.pace}
-         Dificuldade reportada: #{difficulty}
-         Instruções: #{workout.instructions&.first(100)}..."
+      <<~WORKOUT
+        - Treino: #{workout.workout_type}
+          Distância planejada: #{workout.distance_km}km
+          Pace planejado: #{workout.pace}
+          Dificuldade reportada: #{difficulty}/5
+          Observações do atleta: #{notes.present? ? notes : 'Nenhuma'}
+      WORKOUT
     end.join("\n")
 
+    completion_rate = (completed_workouts.count.to_f / @training_plan.workouts_for_week(current_week - 1).count * 100).round
+    
+    recent_activities = @user.activities.where('start_date >= ?', 7.days.ago).order(start_date: :desc)
+    strava_summary = if recent_activities.any?
+      recent_activities.map do |act|
+        "- #{act.start_date.strftime('%d/%m')}: #{(act.distance/1000.0).round(2)}km, pace #{format_pace(act.average_speed)}"
+      end.join("\n")
+    else
+      "Nenhuma atividade no Strava na última semana"
+    end
+
     <<~PROMPT
-      Você é um treinador de corrida analisando o desempenho do atleta.
+      Você é um treinador de corrida experiente analisando o progresso do atleta para ajustar o plano de treino.
 
-      PERFIL DO ATLETA:
+      ### CONTEXTO DO PLANO
       - Objetivo: #{@user.goal}
-      - Semana atual: #{@training_plan.current_week} de #{@training_plan.total_weeks}
+      - Semana atual: #{current_week} de #{@training_plan.total_weeks}
+      - Nível do atleta: #{@user.running_experience&.capitalize || 'Não informado'}
+      - Taxa de conclusão semana passada: #{completion_rate}%
 
-      TREINOS DA SEMANA PASSADA (REALIZADOS):
+      ### FEEDBACKS DA SEMANA PASSADA (Semana #{current_week - 1})
       #{feedback_summary}
 
-      ANÁLISE NECESSÁRIA:
-      1. Se muitos treinos foram "fáceis" → aumentar intensidade/distância em 5-10%
-      2. Se muitos treinos foram "difíceis" → reduzir intensidade/distância em 10-15%
-      3. Se balanceado ("médio") → manter progressão normal
+      ### DADOS DO STRAVA (Última Semana)
+      #{strava_summary}
 
-      RESPONDA APENAS com JSON:
+      ### ANÁLISE NECESSÁRIA
+      
+      Analise os seguintes fatores:
+      1. **Dificuldade média reportada**: Se a maioria dos treinos foi muito fácil (1-2) ou muito difícil (4-5)
+      2. **Taxa de conclusão**: Se o atleta pulou treinos (pode indicar sobrecarga ou falta de motivação)
+      3. **Observações qualitativas**: O que o atleta escreveu nos feedbacks
+      4. **Dados reais do Strava**: Compare pace planejado vs executado
+      
+      ### REGRAS DE AJUSTE
+      
+      - Se dificuldade média <= 2.5 e conclusão >= 80%: Aumentar carga em 5-10%
+      - Se dificuldade média >= 4.0 ou conclusão < 60%: Reduzir carga em 10-15%
+      - Se dificuldade média entre 2.5-4.0 e conclusão >= 60%: Manter progressão normal (5%)
+      - Se há observações de dor/lesão: Reduzir carga e sugerir descanso
+      - Considerar progressão gradual (regra dos 10% máximo)
+      
+      ### FORMATO DE RESPOSTA
+      
+      Retorne APENAS este JSON válido:
+      
+      ```json
       {
-        "analysis": "Análise breve do desempenho",
+        "analysis": "Análise técnica do desempenho da semana passada (máximo 80 palavras)",
         "adjustment_type": "increase|decrease|maintain",
         "adjustment_percentage": 10,
+        "reasoning": "Justificativa clara do ajuste baseado nos dados",
         "recommendations": [
-          "Recomendação 1",
-          "Recomendação 2"
-        ]
+          "Primeira recomendação específica",
+          "Segunda recomendação específica"
+        ],
+        "red_flags": []
       }
+      ```
+      
+      **IMPORTANTE:**
+      - `adjustment_type` deve ser: "increase", "decrease" ou "maintain"
+      - `adjustment_percentage` deve ser um número entre -20 e 20
+      - `red_flags` deve conter alertas como "possível overtraining", "risco de lesão" se aplicável
+      - Seja conservador: sempre priorize saúde sobre performance
     PROMPT
   end
 
@@ -76,56 +124,100 @@ class AiAdjustmentService
         }]
       }],
       generationConfig: {
-        temperature: 0.7,
+        temperature: 0.3,
         topK: 40,
         topP: 0.95,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
+        responseMimeType: "application/json"
       }
     }.to_json
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, read_timeout: 60) do |http|
       http.request(request)
     end
 
-    JSON.parse(response.body)
+    parsed = JSON.parse(response.body)
+    
+    if parsed['error']
+      raise "Erro da API Gemini: #{parsed['error']['message']}"
+    end
+    
+    parsed
   end
 
   def apply_adjustments(gemini_response, current_week)
     content = gemini_response.dig('candidates', 0, 'content', 'parts', 0, 'text')
     return unless content
     
-    clean_content = content.gsub(/```json|```/, '').strip
+    clean_content = content.gsub(/```json|```/m, '').strip
     adjustment_data = JSON.parse(clean_content)
     
     adjustment_type = adjustment_data['adjustment_type']
-    percentage = adjustment_data['adjustment_percentage'].to_f / 100
+    percentage = adjustment_data['adjustment_percentage'].to_f / 100.0
     
-    remaining_workouts = @training_plan.workouts.where('week_number >= ?', current_week)
+    remaining_workouts = @training_plan.workouts.where('week_number >= ? AND status = ?', current_week, 'pending')
+    
+    adjusted_count = 0
     
     remaining_workouts.each do |workout|
-      next if workout.completed?
+      original_distance = workout.distance
+      original_duration = workout.duration
       
       case adjustment_type
       when 'increase'
         workout.distance = (workout.distance * (1 + percentage)).round(2)
         workout.duration = (workout.duration * (1 + percentage)).to_i
       when 'decrease'
-        workout.distance = (workout.distance * (1 - percentage)).round(2)
-        workout.duration = (workout.duration * (1 - percentage)).to_i
+        workout.distance = (workout.distance * (1 - percentage.abs)).round(2)
+        workout.duration = (workout.duration * (1 - percentage.abs)).to_i
+      when 'maintain'
+        workout.distance = (workout.distance * 1.05).round(2)
+        workout.duration = (workout.duration * 1.05).to_i
       end
       
-      workout.workout_details = workout.workout_details.merge({
+      workout.distance = [workout.distance, 1.0].max
+      workout.duration = [workout.duration, 600].max
+      
+      workout.workout_details = (workout.workout_details || {}).merge({
         'ai_adjustment' => {
-          'date' => Time.current,
+          'adjusted_at' => Time.current.iso8601,
           'type' => adjustment_type,
-          'percentage' => percentage * 100,
-          'reason' => adjustment_data['analysis']
+          'percentage' => (percentage * 100).round(1),
+          'reason' => adjustment_data['analysis'],
+          'recommendations' => adjustment_data['recommendations'],
+          'red_flags' => adjustment_data['red_flags'],
+          'original_distance' => original_distance,
+          'original_duration' => original_duration
         }
       })
       
-      workout.save
+      if workout.save
+        adjusted_count += 1
+      end
     end
     
-    Rails.logger.info "AI Adjustment applied: #{adjustment_type} by #{percentage * 100}%"
+    Rails.logger.info "=== AI ADJUSTMENT APPLIED ==="
+    Rails.logger.info "Type: #{adjustment_type}"
+    Rails.logger.info "Percentage: #{(percentage * 100).round(1)}%"
+    Rails.logger.info "Workouts adjusted: #{adjusted_count}"
+    Rails.logger.info "Analysis: #{adjustment_data['analysis']}"
+    Rails.logger.info "Red Flags: #{adjustment_data['red_flags'].join(', ')}" if adjustment_data['red_flags']&.any?
+    
+    if adjustment_data['red_flags']&.any?
+      NotificationService.send_adjustment_alert(@user, adjustment_data)
+    end
+    
+    true
+  rescue JSON::ParserError => e
+    Rails.logger.error "Erro ao fazer parse do JSON de ajuste: #{e.message}"
+    false
+  end
+
+  def format_pace(speed_m_s)
+    return 'N/A' unless speed_m_s && speed_m_s > 0
+    pace_min_km = 1000.0 / (speed_m_s * 60)
+    mins = pace_min_km.floor
+    secs = ((pace_min_km - mins) * 60).round
+    "#{mins}:#{secs.to_s.rjust(2, '0')}/km"
   end
 end

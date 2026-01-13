@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_06_160301) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_13_015103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -161,19 +161,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_06_160301) do
 
   create_table "users", force: :cascade do |t|
     t.jsonb "available_days"
+    t.integer "best_10k_time"
+    t.integer "best_5k_time"
+    t.integer "best_half_marathon_time"
     t.date "birth_date"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "goal"
     t.integer "height"
+    t.text "injury_history"
     t.datetime "last_strava_sync_at"
     t.boolean "notifications_enabled", default: false
+    t.integer "preferred_training_days", default: [], array: true
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.string "running_experience"
+    t.integer "running_experience_years"
     t.datetime "updated_at", null: false
     t.string "username"
+    t.decimal "weekly_mileage", precision: 5, scale: 2
     t.integer "weight"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
