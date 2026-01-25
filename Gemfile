@@ -60,7 +60,7 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 
 gem "strava-ruby-client", "~> 3.0"
 
