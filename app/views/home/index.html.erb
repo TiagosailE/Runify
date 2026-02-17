@@ -1,81 +1,52 @@
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-  
-  body, .font-poppins {
-    font-family: 'Poppins', sans-serif !important;
-  }
-</style>
-
 <div class="min-h-screen bg-[#F5F5F5] pb-24 font-poppins">
-  
   <%= render 'shared/header' %>
 
-  <main class="px-6 py-6 space-y-8">
-    
+  <main class="px-4 py-6 space-y-8 max-w-lg mx-auto">
+
     <% if current_user.strava_connected? %>
-      
       <section>
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-900">
             Suas <%= current_user.recent_activities.count %> últimas atividades
           </h2>
           <%= button_to sync_strava_path, method: :post, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
-            <i class="fas fa-sync-alt"></i>
-            Sincronizar
+            <i class="fas fa-sync-alt"></i> Sincronizar
           <% end %>
         </div>
-        
         <% if current_user.recent_activities.any? %>
           <div class="space-y-4">
-            
             <% current_user.recent_activities.each do |activity| %>
-              <div class="relative bg-[#2EC4B6]/[0.08] rounded-2xl p-6 mb-5 shadow-md overflow-visible">
-                
-                <svg class="absolute bottom-9 -right-6 w-28 h-3 text-[#FF6A3D] transform -rotate-2 pointer-events-none" 
+              <div class="relative bg-[#2EC4B6]/[0.08] rounded-2xl p-5 shadow-md overflow-visible">
+                <svg class="absolute bottom-8 -right-5 w-24 h-3 text-[#FF6A3D] transform -rotate-2 pointer-events-none"
                      viewBox="0 0 100 10" fill="currentColor" preserveAspectRatio="none">
                   <path d="M0 5 L95 3 A 2 2 0 0 1 95 7 Z" />
                 </svg>
-
                 <div class="relative z-10 flex justify-between items-start">
-                  <div class="flex flex-col justify-between h-full space-y-3">
-                    
-                    <p class="text-xs text-gray-500 font-medium pl-0.5">
-                      <%= activity.start_date&.strftime("%d/%m/%Y") || activity.created_at.strftime("%d/%m/%Y") %> 
+                  <div class="flex flex-col space-y-2">
+                    <p class="text-xs text-gray-500 font-medium">
+                      <%= activity.start_date&.strftime("%d/%m/%Y") || activity.created_at.strftime("%d/%m/%Y") %>
                     </p>
-
-                    <h3 class="text-base font-bold text-gray-800 leading-tight">
+                    <h3 class="text-sm font-bold text-gray-800 leading-tight pr-4">
                       <%= activity.name %>
                     </h3>
-
-                    <div class="flex gap-6 mt-1">
+                    <div class="flex gap-5">
                       <div>
-                        <p class="text-[#FF6A3D] font-bold text-lg leading-none">
-                          <%= activity.duration_formatted %>
-                        </p>
+                        <p class="text-[#FF6A3D] font-bold text-base leading-none"><%= activity.duration_formatted %></p>
                         <p class="text-gray-400 text-xs mt-1">Tempo</p>
                       </div>
-                      
                       <div>
-                        <p class="text-[#E9C46A] font-bold text-lg leading-none">
-                          <%= activity.pace_per_km %>
-                        </p>
+                        <p class="text-[#E9C46A] font-bold text-base leading-none"><%= activity.pace_per_km %></p>
                         <p class="text-gray-400 text-xs mt-1">Pace</p>
                       </div>
                     </div>
                   </div>
-
-                  <div class="flex flex-col items-end justify-center h-full pt-2">
-                    <div class="flex items-baseline gap-1 relative z-20">
-                      <span class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                        <%= activity.distance_km %>
-                      </span>
-                      <span class="text-lg font-bold text-gray-900">Km</span>
-                    </div>
+                  <div class="flex items-baseline gap-1 pt-1">
+                    <span class="text-3xl font-extrabold text-gray-900 tracking-tight"><%= activity.distance_km %></span>
+                    <span class="text-base font-bold text-gray-900">Km</span>
                   </div>
                 </div>
               </div>
             <% end %>
-
           </div>
         <% else %>
           <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
@@ -85,61 +56,174 @@
           </div>
         <% end %>
       </section>
-
     <% else %>
-      
       <section>
         <div class="bg-white rounded-2xl p-6 shadow-sm text-center space-y-4">
-          <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
-            <i class="fas fa-link text-3xl text-orange-500"></i>
+          <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
+            <i class="fas fa-link text-2xl text-orange-500"></i>
           </div>
-          <h3 class="text-xl font-bold text-gray-900">Conecte seu Strava</h3>
-          <p class="text-gray-600">
-            Conecte sua conta do Strava para importar suas atividades e receber treinos personalizados
-          </p>
-          <%= link_to strava_connect_path, data: { turbo: false }, class: "inline-block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-200 shadow-lg" do %>
-            <i class="fab fa-strava mr-2"></i>
-            Conectar com Strava
+          <h3 class="text-lg font-bold text-gray-900">Conecte seu Strava</h3>
+          <p class="text-gray-600 text-sm">Conecte sua conta do Strava para importar suas atividades e receber treinos personalizados</p>
+          <%= link_to strava_connect_path, data: { turbo: false }, class: "inline-block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-2xl transition-all shadow-lg text-sm" do %>
+            <i class="fab fa-strava mr-2"></i>Conectar com Strava
           <% end %>
         </div>
       </section>
-
     <% end %>
 
     <section>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">
-        Encontre grupos perto de você
-      </h2>
-      
-      <div class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
-        
-        <div class="min-w-[160px] rounded-2xl overflow-hidden shadow-sm relative">
-          <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80" 
-               alt="Grupo" 
-               class="w-full h-32 object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div class="absolute bottom-0 left-0 right-0 p-3">
-            <h3 class="text-white font-semibold text-sm">Unidos Runners</h3>
-            <p class="text-white text-xs opacity-90">Porto Alegre, RS</p>
-          </div>
-        </div>
-
-        <div class="min-w-[160px] rounded-2xl overflow-hidden shadow-sm relative">
-          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80" 
-               alt="Grupo" 
-               class="w-full h-32 object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div class="absolute bottom-0 left-0 right-0 p-3">
-            <h3 class="text-white font-semibold text-sm">Run da Sun Pe</h3>
-            <p class="text-white text-xs opacity-90">Porto Alegre, RS</p>
-          </div>
-        </div>
-
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900">
+          <i class="fas fa-users text-teal-500 mr-2"></i>Seus Pacers
+        </h2>
+        <% if @squads_with_leaderboard.any? %>
+          <%= link_to pacers_path, class: "text-sm text-teal-500 hover:text-teal-600 font-medium" do %>
+            Ver todos <i class="fas fa-chevron-right text-xs ml-1"></i>
+          <% end %>
+        <% end %>
       </div>
+
+      <% if @squads_with_leaderboard.any? %>
+        <div class="space-y-4">
+          <% @squads_with_leaderboard.each do |squad_data| %>
+            <% squad      = squad_data[:squad] %>
+            <% top3       = squad_data[:top3] %>
+            <% members_km = squad_data[:members_with_km] %>
+            <% max_km     = [members_km.map { |m| m[:week_km] }.max.to_f, 0.1].max %>
+            <% my_member  = squad.squad_members.find_by(user: current_user) %>
+
+            <%= link_to pacer_path(squad), class: "pacer-card", data: { turbo: false } do %>
+
+              <%# Cabeçalho %>
+              <div class="pacer-card-header">
+                <div class="flex items-center justify-between">
+                  <div class="min-w-0 flex-1 pr-3">
+                    <h3 class="font-bold text-gray-900 text-sm leading-tight truncate">
+                      <%= squad.name %>
+                    </h3>
+                    <p class="text-gray-500 text-xs mt-0.5">
+                      <i class="fas fa-users mr-1"></i><%= squad.users.count %> membros
+                      <% if squad.challenge_end %>
+                        &nbsp;·&nbsp;<i class="fas fa-flag-checkered mr-1"></i><%= squad.challenge_end.strftime('%d/%m') %>
+                      <% end %>
+                    </p>
+                  </div>
+                  <% if my_member %>
+                    <span class="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0"
+                          style="background: <%= my_member.border_color %>18; color: <%= my_member.border_color %>; border: 1px solid <%= my_member.border_color %>33;">
+                      <i class="fas <%= my_member.tier_icon %> mr-1"></i>Lv <%= my_member.level %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+
+              <%# Pódio Top 3 — máx 3 pessoas %>
+              <% if top3.any? %>
+                <div class="podium-wrap">
+
+                  <%# 2º lugar %>
+                  <% if (m2 = top3[1]) %>
+                    <div class="podium-item">
+                      <span class="podium-xp"><%= m2.experience_points %> XP</span>
+                      <div class="relative inline-block">
+                        <img src="<%= m2.user.avatar_url %>" class="podium-avatar w-10 h-10"
+                             style="border-color: <%= m2.border_color %>;" alt="<%= m2.user.username %>">
+                        <span class="medal-2 rank-num absolute -top-1 -right-1"
+                              style="width:15px;height:15px;font-size:7px;">2</span>
+                      </div>
+                      <span class="podium-name"><%= m2.user.username.split(' ').first %></span>
+                      <span class="podium-tier <%= m2.rank_color_class %>">
+                        <i class="fas <%= m2.tier_icon %>"></i> <%= m2.rank_title %>
+                      </span>
+                    </div>
+                  <% end %>
+
+                  <%# 1º lugar — elevado %>
+                  <% m1 = top3[0] %>
+                  <div class="podium-item" style="margin-bottom:10px;">
+                    <span class="podium-xp" style="color:#ca8a04;font-weight:800;"><%= m1.experience_points %> XP</span>
+                    <div class="relative inline-block">
+                      <img src="<%= m1.user.avatar_url %>" class="podium-avatar w-14 h-14"
+                           style="border-color: <%= m1.border_color %>; border-width:3px; box-shadow: 0 0 10px <%= m1.border_color %>55;"
+                           alt="<%= m1.user.username %>">
+                      <span class="medal-1 rank-num absolute -top-1.5 -right-1.5"
+                            style="width:17px;height:17px;font-size:8px;">1</span>
+                    </div>
+                    <span class="podium-name" style="font-size:11px;"><%= m1.user.username.split(' ').first %></span>
+                    <span class="podium-tier <%= m1.rank_color_class %>">
+                      <i class="fas <%= m1.tier_icon %>"></i> <%= m1.rank_title %>
+                    </span>
+                  </div>
+
+                  <%# 3º lugar %>
+                  <% if (m3 = top3[2]) %>
+                    <div class="podium-item">
+                      <span class="podium-xp"><%= m3.experience_points %> XP</span>
+                      <div class="relative inline-block">
+                        <img src="<%= m3.user.avatar_url %>" class="podium-avatar w-10 h-10"
+                             style="border-color: <%= m3.border_color %>;" alt="<%= m3.user.username %>">
+                        <span class="medal-3 rank-num absolute -top-1 -right-1"
+                              style="width:15px;height:15px;font-size:7px;">3</span>
+                      </div>
+                      <span class="podium-name"><%= m3.user.username.split(' ').first %></span>
+                      <span class="podium-tier <%= m3.rank_color_class %>">
+                        <i class="fas <%= m3.tier_icon %>"></i> <%= m3.rank_title %>
+                      </span>
+                    </div>
+                  <% end %>
+
+                </div>
+              <% end %>
+
+              <%# Km da semana — apenas top 3 %>
+              <div class="km-section">
+                <p class="km-section-label"><i class="fas fa-road mr-1"></i>Km esta semana</p>
+                <% members_km.first(3).each_with_index do |entry, idx| %>
+                  <% m       = entry[:member] %>
+                  <% km      = entry[:week_km] %>
+                  <% bar_pct = ((km / max_km) * 100).round %>
+                  <div class="km-list-row">
+                    <span class="rank-num <%= ['medal-1','medal-2','medal-3'].fetch(idx, 'medal-n') %>">
+                      <%= idx + 1 %>
+                    </span>
+                    <img src="<%= m.user.avatar_url %>"
+                         class="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                         style="border: 1.5px solid <%= m.border_color %>;" alt="">
+                    <span class="km-member-name"><%= m.user.username.split(' ').first %></span>
+                    <div class="km-bar-track">
+                      <div class="km-bar-fill" style="width:<%= bar_pct %>%;background:<%= m.border_color %>;"></div>
+                    </div>
+                    <span class="km-value"><%= km %> km</span>
+                    <% if m.streak.to_i > 0 %>
+                      <span class="streak-badge">
+                        <i class="fas fa-fire text-xs"></i><%= m.streak %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+
+            <% end %><%# fim link_to %>
+          <% end %><%# fim each %>
+        </div>
+
+      <% else %>
+        <div class="pacer-empty bg-white rounded-2xl p-8 text-center border border-gray-100 shadow-sm">
+          <div class="w-14 h-14 bg-teal-50 border border-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-users text-2xl text-teal-500"></i>
+          </div>
+          <h3 class="text-gray-900 font-bold text-base mb-2">Nenhum Pacer ainda</h3>
+          <p class="text-gray-500 text-sm leading-relaxed mb-5">
+            Crie ou entre em um grupo para competir com amigos e se motivar a correr mais!
+          </p>
+          <%= link_to pacers_path, class: "inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm text-sm", data: { turbo: false } do %>
+            <i class="fas fa-users"></i> Explorar Pacers
+          <% end %>
+        </div>
+      <% end %>
     </section>
 
   </main>
 
   <%= render 'shared/footer' %>
-
 </div>

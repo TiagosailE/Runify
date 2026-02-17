@@ -33,7 +33,7 @@ class TrainingController < ApplicationController
     if @workout.mark_as_completed!
       NotificationService.send_congratulations(current_user, @workout)
       
-      render json: { success: true, message: 'Treino concluído! 🎉' }
+      render json: { success: true, message: 'Treino concluído!'}
     else
       render json: { success: false, message: 'Erro ao completar treino' }, status: :unprocessable_entity
     end
