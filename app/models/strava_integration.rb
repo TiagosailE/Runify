@@ -25,27 +25,27 @@ class StravaIntegration < ApplicationRecord
   end
 
   def refresh_token!
-    return unless refresh_token.present?
+  return unless refresh_token.present?
 
-    oauth_client = Strava::OAuth::Client.new(
-      client_id: ENV['STRAVA_CLIENT_ID'],
-      client_secret: ENV['STRAVA_CLIENT_SECRET']
-    )
+  oauth_client = Strava::OAuth::Client.new(
+    client_id: ENV['STRAVA_CLIENT_ID'],
+    client_secret: ENV['STRAVA_CLIENT_SECRET']
+  )
 
-    response = oauth_client.oauth_token(
-      refresh_token: refresh_token,
-      grant_type: 'refresh_token'
-    )
+  token_response = oauth_client.oauth_token( 
+    refresh_token: refresh_token,
+    grant_type: 'refresh_token'
+  )
 
-    update!(
-      access_token: response.access_token,
-      refresh_token: response.refresh_token,
-      token_expires_at: Time.at(response.expires_at)
-    )
-  rescue => e
-    Rails.logger.error("Strava token refresh failed for user_id=#{user_id}: #{e.message}")
-    raise
-  end
+  update!(
+    access_token: token_response.access_token,
+    refresh_token: token_response.refresh_token,
+    token_expires_at: Time.at(token_response.expires_at)
+  )
+rescue => e
+  Rails.logger.error("Strava token refresh failed for user_id=#{user_id}: #{e.message}")
+  raise
+end
 
   def fetch_recent_activities(per_page: 30)
     client = strava_client

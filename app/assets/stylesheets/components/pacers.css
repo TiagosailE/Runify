@@ -1,0 +1,243 @@
+/* ==============================================
+   Pacer Cards — Light + Dark Mode
+   app/assets/stylesheets/components/pacers.css
+   ============================================== */
+
+/* ---- Card base (light) ---- */
+.pacer-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pacer-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-1px);
+}
+
+.pacer-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2EC4B6, #FF6A3D, #E9C46A);
+  z-index: 1;
+}
+
+/* ---- Header ---- */
+.pacer-card-header {
+  background: linear-gradient(135deg, rgba(46,196,182,0.07), rgba(255,106,61,0.03));
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* ---- Pódio ---- */
+.podium-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #f3f4f6;
+  overflow: hidden;
+}
+
+.podium-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  max-width: 90px;
+}
+
+.podium-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid;
+  display: block;
+}
+
+.podium-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  padding: 0 2px;
+}
+
+.podium-xp {
+  font-size: 9px;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+}
+
+.podium-tier {
+  font-size: 9px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ---- Km lista ---- */
+.km-section {
+  padding: 12px 16px;
+}
+
+.km-section-label {
+  font-size: 10px;
+  color: #9ca3af;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.km-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.km-list-row:last-child { border-bottom: none; }
+
+.rank-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+
+.km-bar-track {
+  background: #f3f4f6;
+  border-radius: 99px;
+  height: 4px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.km-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.km-member-name {
+  font-size: 11px;
+  color: #374151;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 80px;
+}
+
+.km-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1f2937;
+  flex-shrink: 0;
+  width: 48px;
+  text-align: right;
+}
+
+/* ---- Medalhas ---- */
+.medal-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
+.medal-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); }
+.medal-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); }
+.medal-n { background: #e5e7eb; color: #9ca3af; }
+
+/* ---- Streak ---- */
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #f97316;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ==============================================
+   DARK MODE — usa :root.dark igual ao app
+   ============================================== */
+
+:root.dark .pacer-card {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  color: #f3f4f6;
+}
+
+:root.dark .pacer-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+:root.dark .pacer-card-header {
+  background: linear-gradient(135deg, rgba(46,196,182,0.12), rgba(255,106,61,0.06)) !important;
+  border-bottom-color: #374151 !important;
+}
+
+:root.dark .podium-wrap {
+  border-bottom-color: #374151 !important;
+}
+
+:root.dark .podium-name {
+  color: #f3f4f6 !important;
+}
+
+:root.dark .podium-xp {
+  color: #9ca3af !important;
+}
+
+:root.dark .km-section-label {
+  color: #6b7280 !important;
+}
+
+:root.dark .km-list-row {
+  border-bottom-color: #374151 !important;
+}
+
+:root.dark .km-bar-track {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+:root.dark .km-member-name {
+  color: #d1d5db !important;
+}
+
+:root.dark .km-value {
+  color: #f9fafb !important;
+}
+
+:root.dark .medal-n {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #6b7280 !important;
+}
+
+:root.dark .pacer-empty {
+  background: linear-gradient(135deg, #1a1f2e, #0f1117) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
