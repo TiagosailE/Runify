@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   # Strava
   get "strava/connect", to: "strava#connect", as: :strava_connect
   get "strava/callback", to: "strava#callback", as: :strava_callback
+  get "strava/after_logout", to: "strava#after_logout", as: :strava_after_logout
   post "strava/sync", to: "strava#sync", as: :sync_strava
   delete "strava/disconnect", to: "strava#disconnect", as: :strava_disconnect
   

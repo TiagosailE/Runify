@@ -32,15 +32,26 @@ export default class extends Controller {
       const data = await response.json()
 
       if (response.ok && data.success) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Treino concluído! Parabéns!', 'success')
+        }
         this.showFeedbackModal()
       } else {
-        alert('Erro ao completar treino')
+        if (typeof window.showToast === 'function') {
+          window.showToast('Erro ao completar treino', 'error')
+        } else {
+          alert('Erro ao completar treino')
+        }
         button.disabled = false
         button.innerHTML = originalContent
       }
     } catch (error) {
       console.error('Error completing workout:', error)
-      alert('Erro ao completar treino')
+      if (typeof window.showToast === 'function') {
+        window.showToast('Erro ao completar treino', 'error')
+      } else {
+        alert('Erro ao completar treino')
+      }
       button.disabled = false
       button.innerHTML = originalContent
     }
@@ -55,7 +66,11 @@ export default class extends Controller {
     }
 
     if (!button.classList.contains('animate-pulse')) {
-      alert('Este treino não está disponível hoje')
+      if (typeof window.showToast === 'function') {
+        window.showToast('Este treino não está disponível hoje', 'warning')
+      } else {
+        alert('Este treino não está disponível hoje')
+      }
       return
     }
 
@@ -80,11 +95,18 @@ export default class extends Controller {
         body: JSON.stringify({ difficulty })
       })
 
-      if (response.ok) {
+      const data = await response.json()
+
+      if (response.ok && data.success) {
         this.closeFeedback()
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('Feedback enviado! Obrigado!', 'success')
+        }
+        
         setTimeout(() => {
           window.location.reload()
-        }, 500)
+        }, 800)
       }
     } catch (error) {
       console.error('Error submitting feedback:', error)

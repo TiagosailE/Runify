@@ -40,19 +40,21 @@
     <%= yield %>
 
     <% if flash[:toast].present? %>
-      <script>
-        (function() {
+  <script>
+    (function() {
+      var message = '<%= j (flash[:toast][:message] || flash[:toast]["message"]) %>';
+      var type = '<%= (flash[:toast][:type] || flash[:toast]["type"] || "info") %>';
+      if (typeof window.showToast === 'function') {
+        window.showToast(message, type);
+      } else {
+        setTimeout(function() {
           if (typeof window.showToast === 'function') {
-            window.showToast('<%= j flash[:toast][:message] %>', '<%= flash[:toast][:type] || "info" %>');
-          } else {
-            setTimeout(function() {
-              if (typeof window.showToast === 'function') {
-                window.showToast('<%= j flash[:toast][:message] %>', '<%= flash[:toast][:type] || "info" %>');
-              }
-            }, 100);
+            window.showToast(message, type);
           }
-        })();
-      </script>
-    <% end %>
+        }, 100);
+      }
+    })();
+  </script>
+<% end %>
   </body>
 </html>
