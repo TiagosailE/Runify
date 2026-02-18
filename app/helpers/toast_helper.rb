@@ -1,6 +1,7 @@
 module ToastHelper
   def show_toast(message, type = 'info')
     flash[:toast] = { message: message, type: type }
+    flash.keep(:toast) 
   end
 
   def toast_success(message)
@@ -21,7 +22,10 @@ module ToastHelper
 
   def render_toast_script
     if flash[:toast].present?
-      javascript_tag "window.showToast('#{flash[:toast][:message]}', '#{flash[:toast][:type] || "info"}');"
+      # Log para debug
+      Rails.logger.info "Rendering toast: #{flash[:toast].inspect}"
+      
+      javascript_tag "window.showToast('#{j flash[:toast][:message]}', '#{flash[:toast][:type] || "info"}');"
     end
   end
 end
