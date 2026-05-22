@@ -5,7 +5,7 @@ end
 
 # Lembrete de sincronização - todo dia às 19h
 every 1.day, at: '7:00 pm' do
-  runner "SyncReminderJob.perform_later"
+  runner "DailyNotificationsJob.perform_later"
 end
 
 # Resumo semanal - todo domingo às 18h

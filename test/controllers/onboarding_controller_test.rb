@@ -1,6 +1,10 @@
 require "test_helper"
 
 class OnboardingControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    sign_in users(:one)
+  end
+
   test "should get step1" do
     get onboarding_step1_url
     assert_response :success
@@ -12,7 +16,7 @@ class OnboardingControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get complete" do
-    get onboarding_complete_url
-    assert_response :success
+    post onboarding_complete_url
+    assert_redirected_to dashboard_path
   end
 end

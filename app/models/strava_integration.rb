@@ -1,6 +1,9 @@
 class StravaIntegration < ApplicationRecord
   belongs_to :user
 
+  encrypts :access_token, deterministic: true
+  encrypts :refresh_token
+
   validates :strava_athlete_id, uniqueness: { 
   message: "já está conectado a outra conta do Runify" 
 }

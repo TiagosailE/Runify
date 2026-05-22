@@ -1,33 +1,48 @@
 require "test_helper"
 
 class PacersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    sign_in users(:one)
+  end
+
   test "should get index" do
-    get pacers_index_url
+    get pacers_url
     assert_response :success
   end
 
   test "should get new" do
-    get pacers_new_url
+    get new_pacer_url
     assert_response :success
   end
 
   test "should get create" do
-    get pacers_create_url
-    assert_response :success
+    post pacers_url, params: {
+      squad: {
+        name: "New Squad",
+        description: "Test squad",
+        challenge_duration: 7,
+        challenge_start: Date.today,
+        challenge_end: Date.today + 7.days
+      }
+    }
+    assert_response :redirect
   end
 
   test "should get show" do
-    get pacers_show_url
+    get pacer_url(squads(:one))
     assert_response :success
   end
 
   test "should get join" do
-    get pacers_join_url
-    assert_response :success
+    post join_pacer_url(squads(:two)), params: { code: squads(:two).squad_code }
+    assert_response :redirect
   end
 
   test "should get leave" do
-    get pacers_leave_url
-    assert_response :success
+    sign_out users(:one)
+    sign_in users(:two)
+
+    delete leave_pacer_url(squads(:two))
+    assert_response :redirect
   end
 end

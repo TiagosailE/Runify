@@ -1,5 +1,6 @@
 class TrainingController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_workout, only: [:show, :complete, :feedback]
 
   def index
     @training_plan = current_user.active_training_plan
@@ -24,12 +25,9 @@ class TrainingController < ApplicationController
   end
 
   def show
-    @workout = Workout.find(params[:id])
   end
 
   def complete
-    @workout = Workout.find(params[:id])
-
     if @workout.mark_as_completed!
       NotificationService.send_congratulations(current_user, @workout)
       
@@ -40,15 +38,11 @@ class TrainingController < ApplicationController
   end
 
   def feedback
-    @workout = Workout.find(params[:id])
-    difficulty = params[:difficulty]
-    notes = params[:notes]
-    
     @workout.update(
-      workout_details: @workout.workout_details.merge({
+      workout_details: (@workout.workout_details || {}).merge({
         'user_feedback' => {
-          'difficulty' => difficulty,
-          'notes' => notes,
+          'difficulty' => feedback_params[:difficulty],
+          'notes' => feedback_params[:notes],
           'completed_at' => Time.current
         }
       })
@@ -65,6 +59,14 @@ class TrainingController < ApplicationController
   end
 
   private
+
+  def set_workout
+    @workout = Workout.joins(:training_plan).find_by!(id: params[:id], training_plans: { user_id: current_user.id })
+  end
+
+  def feedback_params
+    params.permit(:difficulty, :notes)
+  end
 
   def calculate_week_progress(workouts)
     return 0 if workouts.empty?

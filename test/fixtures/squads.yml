@@ -7,7 +7,7 @@ one:
   challenge_duration: 1
   challenge_start: 2026-01-04
   challenge_end: 2026-01-04
-  squad_code: MyString
+  squad_code: SQUAD001
 
 two:
   name: MyString
@@ -16,4 +16,4 @@ two:
   challenge_duration: 1
   challenge_start: 2026-01-04
   challenge_end: 2026-01-04
-  squad_code: MyString
+  squad_code: SQUAD002

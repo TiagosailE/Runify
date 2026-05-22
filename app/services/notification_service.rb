@@ -65,4 +65,22 @@ class NotificationService
       sent_at: Time.current
     )
   end
+
+  def self.send_adjustment_alert(user, adjustment_data)
+    return unless user.notifications_enabled?
+
+    recommendations = Array(adjustment_data['recommendations']).first(2).join(' ')
+    red_flags = Array(adjustment_data['red_flags']).join(', ')
+
+    message_parts = [adjustment_data['analysis']]
+    message_parts << recommendations if recommendations.present?
+    message_parts << "Alertas: #{red_flags}" if red_flags.present?
+
+    user.notifications.create(
+      title: "Ajuste no Plano",
+      message: message_parts.join(' '),
+      notification_type: 'weekly_summary',
+      sent_at: Time.current
+    )
+  end
 end
