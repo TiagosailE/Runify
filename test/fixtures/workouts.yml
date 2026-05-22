@@ -11,7 +11,7 @@ one:
   pace: MyString
   description: MyText
   instructions: MyText
-  workout_details: 
+  workout_details: {}
   status: MyString
 
 two:
@@ -25,5 +25,5 @@ two:
   pace: MyString
   description: MyText
   instructions: MyText
-  workout_details: 
+  workout_details: {}
   status: MyString
