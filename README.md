@@ -1,92 +1,131 @@
-#  Sistema Inteligente para Prescrição de Treinos de Corrida
+# Runify
 
-> **SISTEMA INTELIGENTE PARA PRESCRIÇÃO AUTOMATIZADA DE TREINOS DE CORRIDA VOLTADO A CORREDORES AMADORES COM BASE EM INTELIGÊNCIA ARTIFICIAL ADAPTATIVA**
+Runify é uma aplicação Rails para corredores amadores que combina onboarding esportivo, integração com o Strava, geração de planos com Gemini e recursos sociais como pacers, notificações e XP.
 
-![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow)
-![Ruby](https://img.shields.io/badge/Ruby-3.x-red)
-![Rails](https://img.shields.io/badge/Rails-7.x-red)
-![AI](https://img.shields.io/badge/AI-Google_Gemini-blue)
+## Funcionalidades
 
-## Sobre o Projeto
+- Onboarding com dados físicos, experiência de corrida e objetivo do atleta
+- Autenticação com Devise
+- Conexão com Strava via OAuth e sincronização de atividades
+- Geração de training plans com Gemini
+- Feedback de treinos e ajuste do plano
+- Histórico de atividades e dashboard do corredor
+- Pacers/Squads com ranking de membros
+- Notificações de treino, sincronização e resumo semanal
+- Sistema de XP, nível e conquistas
 
-Este projeto foi desenvolvido como parte do Trabalho de Conclusão de Curso (TCC) do curso de **Sistemas de informação**.
+## Stack
 
-O objetivo principal é democratizar o acesso a treinos de corrida personalizados. Muitos corredores amadores treinam sem orientação ou seguem planilhas estáticas que não respeitam sua evolução ou fadiga.
+- Ruby on Rails 8.1.1
+- PostgreSQL
+- Turbo + Stimulus
+- Tailwind CSS
+- Devise
+- `strava-ruby-client`
+- `gemini-ai`
+- Solid Cache, Solid Queue e Solid Cable
 
-Este sistema resolve esse problema utilizando **Inteligência Artificial Generativa (LLM)** para atuar como um treinador virtual. O sistema analisa o histórico real do atleta e gera planos de treino adaptativos, considerando o volume semanal, pace atual e dias disponíveis.
+## Pré-requisitos
 
-## Funcionalidades Principais
+- Ruby 3.x
+- Bundler
+- PostgreSQL
+- Arquivo `.env` na raiz do projeto
 
--   **Importação de Dados Reais:** Upload e processamento de arquivos `.fit` (padrão Strava) para extração de métricas (distância, duração, pace, data).
--   **Dashboard do Atleta:** Visualização do histórico de corridas e estatísticas recentes.
--   **Geração de Treino via IA:** Integração com a **Google Gemini API** para criar periodizações de treino baseadas no histórico do usuário.
--   **Personalização:** Definição de objetivos (ex: "Correr 5km", "Melhorar Pace") e disponibilidade semanal.
--   **Feedback Adaptativo:** O sistema reavalia o plano com base na execução dos treinos anteriores.
+## Variáveis de ambiente
 
-## Tecnologias Utilizadas
+Crie um `.env` com as chaves necessárias para desenvolvimento local:
 
-### Backend & Frontend
--   **Ruby on Rails:** Framework principal para estrutura MVC, garantindo desenvolvimento ágil e robusto.
--   **PostgreSQL:** Banco de dados relacional para armazenar perfis, atividades e planos.
--   **Tailwind CSS** Estilização da interface.
+```env
+GEMINI_API_KEY=sua_chave_gemini
+STRAVA_CLIENT_ID=seu_client_id
+STRAVA_CLIENT_SECRET=seu_client_secret
+POSTGRES_PASSWORD=sua_senha_postgres
+RUNIFY_DATABASE_PASSWORD=sua_senha_postgres
+```
 
-### Inteligência Artificial & Serviços
--   **Google Gemini API:** Modelo de linguagem (LLM) utilizado para a lógica de raciocínio do treinador, análise de dados não estruturados e geração do JSON do plano de treino.
-    -   *Modelos testados:* `gemini-1.5-flash`, `gemini-2.5-flash`.
+## Setup inicial
 
-### Bibliotecas Chave (Gems)
--   `google-generative-ai`: Interação com a API do Gemini.
--   `fit-parser`: Leitura e decodificação de arquivos binários de atividades físicas (.fit).
--   `devise`: Autenticação de usuários.
+```bash
+bin/setup
+```
 
-## Como Executar o Projeto
+Para preparar o ambiente sem subir o servidor:
 
-### Pré-requisitos
--   Ruby instalado (versão 3.0 ou superior)
--   Bundler
--   Chave de API do Google Gemini (Google AI Studio)
+```bash
+bin/setup --skip-server
+```
 
-### Passo a Passo
+## Comandos principais
 
-2.  **Instale as dependências:**
-    ```bash
-    bundle install
-    ```
+### Desenvolvimento
 
-3.  **Configuração de Variáveis de Ambiente:**
-    Crie um arquivo `.env` na raiz do projeto e adicione sua chave da API:
-    ```env
-    GEMINI_API_KEY=sua_chave_aqui_faca_no_google_ai_studio
-    ```
+```bash
+bin/dev
+bin/rails server
+bin/jobs
+```
 
-4.  **Configuração do Banco de Dados:**
-    ```bash
-    rails db:create
-    rails db:migrate
-    ```
+- `bin/dev` inicia o servidor Rails e o watcher do Tailwind
+- `bin/rails server` sobe apenas o servidor Rails
+- `bin/jobs` inicia o worker de jobs
 
-5.  **Inicie o Servidor:**
-    ```bash
-    rails server
-    ou
-    foreman start -f Procfile.dev
-    ```
-    Acesse `http://localhost:3000` ou `http://localhost:5000` no seu navegador.
+A aplicação roda em `http://localhost:3000`.
 
-## Como a IA Funciona no Projeto
+### Banco de dados
 
-O diferencial deste Sistema é o uso de **Engenharia de Prompt** avançada. O sistema não pede apenas "um treino de corrida". O fluxo é:
+```bash
+bin/rails db:prepare
+bin/rails db:seed
+```
 
-1.  O sistema busca as últimas 10 atividades do banco de dados.
-2.  Formata esses dados em um resumo textual (Data, Distância, Pace).
-3.  Envia um prompt estruturado para o **Gemini**, contendo:
-    -   O Perfil do Atleta (Objetivo).
-    -   O Histórico Recente (Contexto).
-    -   As restrições (Dias da semana disponíveis).
-    -   Uma instrução estrita para retornar a resposta em formato **JSON**.
-4.  O sistema recebe o JSON, valida a estrutura e salva no banco de dados, transformando a resposta da IA em uma interface de calendário interativo.
+### Testes e validação
 
----
-*Este projeto é para fins acadêmicos e educacionais. Consulte sempre um profissional de educação física antes de iniciar atividades intensas.
-O código está disponível para fins de estudo e portfólio. Uso comercial, reprodução ou distribuição são estritamente proibidos sem autorização do autor.*
+```bash
+bin/rails test
+bin/rails test:system
+bin/rubocop
+bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+bin/bundler-audit
+bin/importmap audit
+bin/ci
+```
 
+## Arquitetura em alto nível
+
+Runify é um monólito Rails 8.1 com views server-rendered.
+
+### Modelos centrais
+
+- `User`: perfil do atleta, autenticação, notificações, squads e conexão com Strava
+- `Activity`: atividades sincronizadas do Strava
+- `TrainingPlan` e `Workout`: plano de treino e sessões programadas
+- `Squad` e `SquadMember`: grupo social, ranking e XP
+- `Achievement` e `UserAchievement`: conquistas do usuário
+- `Notification`: notificações internas da aplicação
+
+### Fluxo do Strava
+
+`StravaController` recebe o OAuth callback, persiste a integração via `StravaIntegration` e dispara a sincronização de atividades.
+
+### Fluxo de IA
+
+`AiTrainingService` monta o prompt com dados do usuário e atividades recentes, chama o Gemini e cria `TrainingPlan` + `Workout`.
+
+`AiAdjustmentService` analisa feedbacks e ajusta treinos futuros quando há dados suficientes.
+
+## Rotas principais
+
+- `/dashboard`
+- `/profile`
+- `/training`
+- `/history`
+- `/notifications`
+- `/pacers`
+- `/settings`
+- `/onboarding/step1`
+- `/strava/connect`
+
+## Observação conhecida
+
+`config/schedule.rb` referencia `SyncReminderJob`, mas essa classe não existe hoje no repositório.
