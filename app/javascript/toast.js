@@ -81,5 +81,3 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-
-console.log('Toast system initialized');

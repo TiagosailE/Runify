@@ -7,9 +7,9 @@ class SettingsController < ApplicationController
   end
 
   def update_password
-    if current_user.valid_password?(params[:current_password])
-      if params[:new_password] == params[:password_confirmation]
-        if current_user.update(password: params[:new_password], password_confirmation: params[:password_confirmation])
+    if current_user.valid_password?(password_params[:current_password])
+      if password_params[:new_password] == password_params[:password_confirmation]
+        if current_user.update(password: password_params[:new_password], password_confirmation: password_params[:password_confirmation])
           bypass_sign_in(current_user)
           flash[:toast] = { message: 'Senha alterada com sucesso!', type: 'success' }
           redirect_to settings_path
@@ -28,13 +28,13 @@ class SettingsController < ApplicationController
   end
 
   def toggle_theme
-    dark_mode = params[:dark_mode] == true || params[:dark_mode] == 'true'
+    dark_mode = theme_params[:dark_mode] == true || theme_params[:dark_mode] == 'true'
     cookies.permanent[:dark_mode] = dark_mode
     render json: { success: true, dark_mode: dark_mode }
   end
 
   def toggle_notifications
-    enabled = params[:enabled] == true || params[:enabled] == 'true'
+    enabled = notification_params[:enabled] == true || notification_params[:enabled] == 'true'
     current_user.update(notifications_enabled: enabled)
     render json: { success: true, notifications_enabled: enabled }
   end
@@ -50,5 +50,19 @@ class SettingsController < ApplicationController
     current_user.destroy
     flash[:toast] = { message: 'Conta excluída com sucesso.', type: 'success' }
     redirect_to root_path
+  end
+
+  private
+
+  def password_params
+    params.permit(:current_password, :new_password, :password_confirmation)
+  end
+
+  def theme_params
+    params.permit(:dark_mode)
+  end
+
+  def notification_params
+    params.permit(:enabled)
   end
 end
