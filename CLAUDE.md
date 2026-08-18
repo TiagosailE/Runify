@@ -81,6 +81,7 @@ This file provides guidance to Claude Code when working with this repository.
 - `.env` file required for local development.
 - `GEMINI_API_KEY` — AI plan generation.
 - `STRAVA_CLIENT_ID` + `STRAVA_CLIENT_SECRET` — Strava OAuth.
+- `STRAVA_REDIRECT_URI` — optional; overrides the host-derived callback URL. Needed whenever the app is reachable through a host not registered as the Strava app's Authorization Callback Domain (e.g. `127.0.0.1` when only `localhost` is registered).
 - `POSTGRES_PASSWORD` / `RUNIFY_DATABASE_PASSWORD` — database credentials.
 
 ### High-level architecture
