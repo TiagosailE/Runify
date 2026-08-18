@@ -39,3 +39,12 @@
 .env
 .env
 .env
+
+# Coverage report (SimpleCov)
+/coverage
+
+# Notas de trabalho e progresso -- nao sao documentacao do produto,
+# ficam so no disco local. Ver docs/ para o que e publico.
+/CLAUDE.md
+/NOTES.md
+/PROGRESS.md

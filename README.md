@@ -91,28 +91,15 @@ bin/importmap audit
 bin/ci
 ```
 
-## Arquitetura em alto nível
+## Arquitetura
 
-Runify é um monólito Rails 8.1 com views server-rendered.
+Runify é um monólito Rails 8.1 com views server-rendered (Turbo, Stimulus,
+Tailwind — sem Node/SPA).
 
-### Modelos centrais
-
-- `User`: perfil do atleta, autenticação, notificações, squads e conexão com Strava
-- `Activity`: atividades sincronizadas do Strava
-- `TrainingPlan` e `Workout`: plano de treino e sessões programadas
-- `Squad` e `SquadMember`: grupo social, ranking e XP
-- `Achievement` e `UserAchievement`: conquistas do usuário
-- `Notification`: notificações internas da aplicação
-
-### Fluxo do Strava
-
-`StravaController` recebe o OAuth callback, persiste a integração via `StravaIntegration` e dispara a sincronização de atividades.
-
-### Fluxo de IA
-
-`AiTrainingService` monta o prompt com dados do usuário e atividades recentes, chama o Gemini e cria `TrainingPlan` + `Workout`.
-
-`AiAdjustmentService` analisa feedbacks e ajusta treinos futuros quando há dados suficientes.
+- [`docs/architecture.md`](docs/architecture.md) — fluxos e contratos dos
+  service objects (Strava, geração de plano com IA, XP, notificações).
+- [`docs/modelagem-banco-de-dados.md`](docs/modelagem-banco-de-dados.md) —
+  schema do banco, tabela por tabela, e as decisões de modelagem.
 
 ## Rotas principais
 
@@ -125,7 +112,3 @@ Runify é um monólito Rails 8.1 com views server-rendered.
 - `/settings`
 - `/onboarding/step1`
 - `/strava/connect`
-
-## Observação conhecida
-
-`config/schedule.rb` referencia `SyncReminderJob`, mas essa classe não existe hoje no repositório.
