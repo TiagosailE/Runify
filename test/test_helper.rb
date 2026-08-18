@@ -1,3 +1,9 @@
+require "simplecov"
+SimpleCov.start "rails" do
+  command_name "Minitest#{ENV['TEST_ENV_NUMBER']}"
+  minimum_coverage ENV.fetch("COVERAGE_MIN", 0).to_i if ENV["COVERAGE_MIN"]
+end
+
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
