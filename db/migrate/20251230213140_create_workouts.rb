@@ -19,6 +19,6 @@ class CreateWorkouts < ActiveRecord::Migration[8.0]
 
     add_index :workouts, :scheduled_date
     add_index :workouts, :status
-    add_index :workouts, [:training_plan_id, :week_number]
+    add_index :workouts, [ :training_plan_id, :week_number ]
   end
 end

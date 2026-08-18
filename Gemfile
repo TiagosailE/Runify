@@ -17,10 +17,10 @@ gem "stimulus-rails"
 gem "tailwindcss-rails"
 
 # Para jobs em background
-gem 'sidekiq'
+gem "sidekiq"
 
 # Para agendar jobs
-gem 'whenever', require: false
+gem "whenever", require: false
 
 gem "jbuilder"
 
@@ -39,7 +39,6 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 group :development, :test do
-
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   gem "minitest", "< 6"
@@ -52,17 +51,15 @@ group :development, :test do
 end
 
 group :development do
-
   gem "web-console"
 end
 
 group :test do
-
   gem "capybara"
   gem "selenium-webdriver"
 end
 
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 
 gem "strava-ruby-client", "~> 3.0"
 

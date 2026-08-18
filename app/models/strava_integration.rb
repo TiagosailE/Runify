@@ -4,8 +4,8 @@ class StravaIntegration < ApplicationRecord
   encrypts :access_token, deterministic: true
   encrypts :refresh_token
 
-  validates :strava_athlete_id, uniqueness: { 
-  message: "já está conectado a outra conta do Runify" 
+  validates :strava_athlete_id, uniqueness: {
+  message: "já está conectado a outra conta do Runify"
 }
 
   REFRESH_BUFFER = 1.minute
@@ -31,13 +31,13 @@ class StravaIntegration < ApplicationRecord
   return unless refresh_token.present?
 
   oauth_client = Strava::OAuth::Client.new(
-    client_id: ENV['STRAVA_CLIENT_ID'],
-    client_secret: ENV['STRAVA_CLIENT_SECRET']
+    client_id: ENV["STRAVA_CLIENT_ID"],
+    client_secret: ENV["STRAVA_CLIENT_SECRET"]
   )
 
-  token_response = oauth_client.oauth_token( 
+  token_response = oauth_client.oauth_token(
     refresh_token: refresh_token,
-    grant_type: 'refresh_token'
+    grant_type: "refresh_token"
   )
 
   update!(

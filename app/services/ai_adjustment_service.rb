@@ -1,8 +1,8 @@
-require 'net/http'
-require 'json'
+require "net/http"
+require "json"
 
 class AiAdjustmentService
-  GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent'
+  GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"
 
   def initialize(user, training_plan)
     @user = user
@@ -12,12 +12,12 @@ class AiAdjustmentService
   def analyze_and_adjust
     current_week = @training_plan.current_week
     return unless current_week > 1
-    
+
     previous_week_workouts = @training_plan.workouts_for_week(current_week - 1)
     completed_workouts = previous_week_workouts.select(&:completed?)
-    
+
     return if completed_workouts.empty?
-    
+
     prompt = build_adjustment_prompt(completed_workouts, current_week)
     response = call_gemini_api(prompt)
     apply_adjustments(response, current_week)
@@ -30,10 +30,10 @@ class AiAdjustmentService
 
   def build_adjustment_prompt(completed_workouts, current_week)
     feedback_summary = completed_workouts.map do |workout|
-      feedback = workout.workout_details&.dig('user_feedback')
-      difficulty = feedback&.dig('difficulty') || 'não informado'
-      notes = feedback&.dig('notes') || ''
-      
+      feedback = workout.workout_details&.dig("user_feedback")
+      difficulty = feedback&.dig("difficulty") || "não informado"
+      notes = feedback&.dig("notes") || ""
+
       <<~WORKOUT
         - Treino: #{workout.workout_type}
           Distância planejada: #{workout.distance_km}km
@@ -44,8 +44,8 @@ class AiAdjustmentService
     end.join("\n")
 
     completion_rate = (completed_workouts.count.to_f / @training_plan.workouts_for_week(current_week - 1).count * 100).round
-    
-    recent_activities = @user.activities.where('start_date >= ?', 7.days.ago).order(start_date: :desc)
+
+    recent_activities = @user.activities.where("start_date >= ?", 7.days.ago).order(start_date: :desc)
     strava_summary = if recent_activities.any?
       recent_activities.map do |act|
         "- #{act.start_date.strftime('%d/%m')}: #{(act.distance/1000.0).round(2)}km, pace #{format_pace(act.average_speed)}"
@@ -70,25 +70,25 @@ class AiAdjustmentService
       #{strava_summary}
 
       ### ANÁLISE NECESSÁRIA
-      
+
       Analise os seguintes fatores:
       1. **Dificuldade média reportada**: Se a maioria dos treinos foi muito fácil (1-2) ou muito difícil (4-5)
       2. **Taxa de conclusão**: Se o atleta pulou treinos (pode indicar sobrecarga ou falta de motivação)
       3. **Observações qualitativas**: O que o atleta escreveu nos feedbacks
       4. **Dados reais do Strava**: Compare pace planejado vs executado
-      
+
       ### REGRAS DE AJUSTE
-      
+
       - Se dificuldade média <= 2.5 e conclusão >= 80%: Aumentar carga em 5-10%
       - Se dificuldade média >= 4.0 ou conclusão < 60%: Reduzir carga em 10-15%
       - Se dificuldade média entre 2.5-4.0 e conclusão >= 60%: Manter progressão normal (5%)
       - Se há observações de dor/lesão: Reduzir carga e sugerir descanso
       - Considerar progressão gradual (regra dos 10% máximo)
-      
+
       ### FORMATO DE RESPOSTA
-      
+
       Retorne APENAS este JSON válido:
-      
+
       ```json
       {
         "analysis": "Análise técnica do desempenho da semana passada (máximo 80 palavras)",
@@ -102,7 +102,7 @@ class AiAdjustmentService
         "red_flags": []
       }
       ```
-      
+
       **IMPORTANTE:**
       - `adjustment_type` deve ser: "increase", "decrease" ou "maintain"
       - `adjustment_percentage` deve ser um número entre -20 e 20
@@ -113,16 +113,16 @@ class AiAdjustmentService
 
   def call_gemini_api(prompt)
     uri = URI("#{GEMINI_API_URL}?key=#{ENV['GEMINI_API_KEY']}")
-    
+
     request = Net::HTTP::Post.new(uri)
-    request['Content-Type'] = 'application/json'
-    
+    request["Content-Type"] = "application/json"
+
     request.body = {
-      contents: [{
-        parts: [{
+      contents: [ {
+        parts: [ {
           text: prompt
-        }]
-      }],
+        } ]
+      } ],
       generationConfig: {
         temperature: 0.3,
         topK: 40,
@@ -137,76 +137,76 @@ class AiAdjustmentService
     end
 
     parsed = JSON.parse(response.body)
-    
-    if parsed['error']
+
+    if parsed["error"]
       raise "Erro da API Gemini: #{parsed['error']['message']}"
     end
-    
+
     parsed
   end
 
   def apply_adjustments(gemini_response, current_week)
-    content = gemini_response.dig('candidates', 0, 'content', 'parts', 0, 'text')
+    content = gemini_response.dig("candidates", 0, "content", "parts", 0, "text")
     return unless content
-    
-    clean_content = content.gsub(/```json|```/m, '').strip
+
+    clean_content = content.gsub(/```json|```/m, "").strip
     adjustment_data = JSON.parse(clean_content)
-    
-    adjustment_type = adjustment_data['adjustment_type']
-    percentage = adjustment_data['adjustment_percentage'].to_f / 100.0
-    
-    remaining_workouts = @training_plan.workouts.where('week_number >= ? AND status = ?', current_week, 'pending')
-    
+
+    adjustment_type = adjustment_data["adjustment_type"]
+    percentage = adjustment_data["adjustment_percentage"].to_f / 100.0
+
+    remaining_workouts = @training_plan.workouts.where("week_number >= ? AND status = ?", current_week, "pending")
+
     adjusted_count = 0
-    
+
     remaining_workouts.each do |workout|
       original_distance = workout.distance
       original_duration = workout.duration
-      
+
       case adjustment_type
-      when 'increase'
+      when "increase"
         workout.distance = (workout.distance * (1 + percentage)).round(2)
         workout.duration = (workout.duration * (1 + percentage)).to_i
-      when 'decrease'
+      when "decrease"
         workout.distance = (workout.distance * (1 - percentage.abs)).round(2)
         workout.duration = (workout.duration * (1 - percentage.abs)).to_i
-      when 'maintain'
+      when "maintain"
         workout.distance = (workout.distance * 1.05).round(2)
         workout.duration = (workout.duration * 1.05).to_i
       end
-      
-      workout.distance = [workout.distance, 1.0].max
-      workout.duration = [workout.duration, 600].max
-      
+
+      workout.distance = [ workout.distance, 1.0 ].max
+      workout.duration = [ workout.duration, 600 ].max
+
       workout.workout_details = (workout.workout_details || {}).merge({
-        'ai_adjustment' => {
-          'adjusted_at' => Time.current.iso8601,
-          'type' => adjustment_type,
-          'percentage' => (percentage * 100).round(1),
-          'reason' => adjustment_data['analysis'],
-          'recommendations' => adjustment_data['recommendations'],
-          'red_flags' => adjustment_data['red_flags'],
-          'original_distance' => original_distance,
-          'original_duration' => original_duration
+        "ai_adjustment" => {
+          "adjusted_at" => Time.current.iso8601,
+          "type" => adjustment_type,
+          "percentage" => (percentage * 100).round(1),
+          "reason" => adjustment_data["analysis"],
+          "recommendations" => adjustment_data["recommendations"],
+          "red_flags" => adjustment_data["red_flags"],
+          "original_distance" => original_distance,
+          "original_duration" => original_duration
         }
       })
-      
+
       if workout.save
         adjusted_count += 1
       end
     end
-    
+
     Rails.logger.info "=== AI ADJUSTMENT APPLIED ==="
     Rails.logger.info "Type: #{adjustment_type}"
     Rails.logger.info "Percentage: #{(percentage * 100).round(1)}%"
     Rails.logger.info "Workouts adjusted: #{adjusted_count}"
     Rails.logger.info "Analysis: #{adjustment_data['analysis']}"
-    Rails.logger.info "Red Flags: #{adjustment_data['red_flags'].join(', ')}" if adjustment_data['red_flags']&.any?
-    
-    if adjustment_data['red_flags']&.any?
+    Rails.logger.info "Red Flags: #{adjustment_data['red_flags'].join(', ')}" if adjustment_data["red_flags"]&.any?
+
+    if adjustment_data["red_flags"]&.any?
       NotificationService.send_adjustment_alert(@user, adjustment_data)
     end
-    
+
     true
   rescue JSON::ParserError => e
     Rails.logger.error "Erro ao fazer parse do JSON de ajuste: #{e.message}"
@@ -214,7 +214,7 @@ class AiAdjustmentService
   end
 
   def format_pace(speed_m_s)
-    return 'N/A' unless speed_m_s && speed_m_s > 0
+    return "N/A" unless speed_m_s && speed_m_s > 0
     pace_min_km = 1000.0 / (speed_m_s * 60)
     mins = pace_min_km.floor
     secs = ((pace_min_km - mins) * 60).round

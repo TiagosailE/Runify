@@ -4,7 +4,7 @@ class TrainingPlan < ApplicationRecord
 
   validates :status, inclusion: { in: %w[active completed cancelled] }
 
-  scope :active, -> { where(status: 'active') }
+  scope :active, -> { where(status: "active") }
 
   def current_week
     return 0 unless start_date
@@ -20,10 +20,10 @@ class TrainingPlan < ApplicationRecord
   end
 
   def completed?
-    status == 'completed'
+    status == "completed"
   end
 
   def active?
-    status == 'active'
+    status == "active"
   end
 end

@@ -10,7 +10,7 @@ users_data = [
     height: 175,
     birth_date: Date.new(1993, 4, 18),
     goal: 'Completar 10 km com consistência e baixar o pace médio.',
-    available_days: [2, 4, 6, 7],
+    available_days: [ 2, 4, 6, 7 ],
     running_experience: 'intermediate',
     running_experience_years: 3,
     best_5k_time: 27 * 60,
@@ -18,7 +18,7 @@ users_data = [
     best_half_marathon_time: 128 * 60,
     weekly_mileage: 32,
     injury_history: 'Sem lesões recentes.',
-    preferred_training_days: [2, 4, 6, 7],
+    preferred_training_days: [ 2, 4, 6, 7 ],
     notifications_enabled: true
   },
   {
@@ -28,12 +28,12 @@ users_data = [
     height: 168,
     birth_date: Date.new(1995, 9, 10),
     goal: 'Manter consistência e evoluir nos longões.',
-    available_days: [2, 4, 6],
+    available_days: [ 2, 4, 6 ],
     running_experience: 'advanced',
     running_experience_years: 6,
     weekly_mileage: 45,
     injury_history: 'Sem histórico relevante.',
-    preferred_training_days: [2, 4, 6],
+    preferred_training_days: [ 2, 4, 6 ],
     notifications_enabled: true
   },
   {
@@ -43,12 +43,12 @@ users_data = [
     height: 180,
     birth_date: Date.new(1990, 1, 22),
     goal: 'Ganhar velocidade para provas curtas.',
-    available_days: [3, 5, 7],
+    available_days: [ 3, 5, 7 ],
     running_experience: 'intermediate',
     running_experience_years: 4,
     weekly_mileage: 28,
     injury_history: 'Tensão leve na panturrilha no ano passado.',
-    preferred_training_days: [3, 5, 7],
+    preferred_training_days: [ 3, 5, 7 ],
     notifications_enabled: false
   }
 ]

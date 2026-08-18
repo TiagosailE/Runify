@@ -12,7 +12,7 @@ class PacersController < ApplicationController
 
   def create
     @squad = current_user.owned_squads.build(squad_params)
-    
+
     if @squad.save
       @squad.squad_members.create(
         user: current_user,
@@ -21,8 +21,8 @@ class PacersController < ApplicationController
         streak: 0,
         joined_at: Time.current
       )
-      
-      redirect_to pacer_path(@squad), notice: 'Pacer criado com sucesso!'
+
+      redirect_to pacer_path(@squad), notice: "Pacer criado com sucesso!"
     else
       render :new, status: :unprocessable_entity
     end
@@ -37,14 +37,14 @@ class PacersController < ApplicationController
 
   def join
     squad = Squad.find_by(squad_code: params[:code])
-    
+
     if squad.nil?
-      redirect_to pacers_path, alert: 'Código inválido'
+      redirect_to pacers_path, alert: "Código inválido"
       return
     end
 
     if squad.users.include?(current_user)
-      redirect_to pacer_path(squad), alert: 'Você já é membro deste Pacer'
+      redirect_to pacer_path(squad), alert: "Você já é membro deste Pacer"
       return
     end
 
@@ -56,20 +56,20 @@ class PacersController < ApplicationController
       joined_at: Time.current
     )
 
-    redirect_to pacer_path(squad), notice: 'Você entrou no Pacer!'
+    redirect_to pacer_path(squad), notice: "Você entrou no Pacer!"
   end
 
   def leave
     squad = Squad.find(params[:id])
     squad_member = squad.squad_members.find_by(user: current_user)
-    
+
     if squad.owner == current_user
-      redirect_to pacer_path(squad), alert: 'Você é o dono deste Pacer. Transfira a propriedade antes de sair.'
+      redirect_to pacer_path(squad), alert: "Você é o dono deste Pacer. Transfira a propriedade antes de sair."
       return
     end
 
     squad_member&.destroy
-    redirect_to pacers_path, notice: 'Você saiu do Pacer'
+    redirect_to pacers_path, notice: "Você saiu do Pacer"
   end
 
   private

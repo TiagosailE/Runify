@@ -17,10 +17,10 @@ class ProfileController < ApplicationController
     end
 
     if current_user.update(update_params)
-      flash[:toast] = { message: 'Perfil atualizado com sucesso!', type: 'success' }
+      flash[:toast] = { message: "Perfil atualizado com sucesso!", type: "success" }
       redirect_to profile_path
     else
-      flash[:toast] = { message: "Erro ao atualizar perfil: #{current_user.errors.full_messages.join(', ')}", type: 'error' }
+      flash[:toast] = { message: "Erro ao atualizar perfil: #{current_user.errors.full_messages.join(', ')}", type: "error" }
       redirect_to profile_path
     end
   end

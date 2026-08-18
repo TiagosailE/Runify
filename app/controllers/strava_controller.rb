@@ -1,5 +1,5 @@
 class StravaController < ApplicationController
-  before_action :authenticate_user!, except: [:callback]
+  before_action :authenticate_user!, except: [ :callback ]
 
   def connect
     session[:strava_connecting_user_id] = current_user.id
@@ -7,12 +7,12 @@ class StravaController < ApplicationController
     if current_user.strava_integration&.active?
       begin
         access_token = current_user.strava_integration.access_token
-        conn = Faraday.new(url: 'https://www.strava.com') do |f|
+        conn = Faraday.new(url: "https://www.strava.com") do |f|
           f.request :url_encoded
           f.adapter Faraday.default_adapter
         end
-        conn.post('/oauth/deauthorize') do |req|
-          req.headers['Authorization'] = "Bearer #{access_token}"
+        conn.post("/oauth/deauthorize") do |req|
+          req.headers["Authorization"] = "Bearer #{access_token}"
         end
         Rails.logger.info "Deauthorized previous Strava connection"
       rescue => e
@@ -20,20 +20,20 @@ class StravaController < ApplicationController
       end
       current_user.strava_integration.update(active: false)
     end
-    
+
     oauth_client = Strava::OAuth::Client.new(
-      client_id: ENV['STRAVA_CLIENT_ID'],
-      client_secret: ENV['STRAVA_CLIENT_SECRET']
+      client_id: ENV["STRAVA_CLIENT_ID"],
+      client_secret: ENV["STRAVA_CLIENT_SECRET"]
     )
 
     redirect_url = oauth_client.authorize_url(
       redirect_uri: strava_callback_url,
-      approval_prompt: 'force',
-      response_type: 'code',
-      scope: 'activity:read_all,profile:read_all',
-      state: 'strava_connect'
+      approval_prompt: "force",
+      response_type: "code",
+      scope: "activity:read_all,profile:read_all",
+      state: "strava_connect"
     )
-    
+
     redirect_to redirect_url, allow_other_host: true
   end
 
@@ -48,27 +48,27 @@ class StravaController < ApplicationController
   Rails.logger.info "State: #{params[:state]}"
 
   unless user
-    flash[:toast] = { message: 'Sessão expirada. Faça login novamente.', type: 'error' }
+    flash[:toast] = { message: "Sessão expirada. Faça login novamente.", type: "error" }
     redirect_to new_user_session_path and return
   end
 
   unless code
-    flash[:toast] = { message: 'Código não recebido do Strava', type: 'error' }
+    flash[:toast] = { message: "Código não recebido do Strava", type: "error" }
     redirect_to dashboard_path and return
   end
 
-  unless params[:state] == 'strava_connect'
-    flash[:toast] = { message: 'Requisição inválida', type: 'error' }
+  unless params[:state] == "strava_connect"
+    flash[:toast] = { message: "Requisição inválida", type: "error" }
     redirect_to dashboard_path and return
   end
 
   oauth_client = Strava::OAuth::Client.new(
-    client_id: ENV['STRAVA_CLIENT_ID'],
-    client_secret: ENV['STRAVA_CLIENT_SECRET']
+    client_id: ENV["STRAVA_CLIENT_ID"],
+    client_secret: ENV["STRAVA_CLIENT_SECRET"]
   )
 
   token_response = oauth_client.oauth_token(code: code)
-  
+
   Rails.logger.info "Athlete ID from Strava: #{token_response.athlete.id}"
 
   existing_integration = StravaIntegration.find_by(
@@ -83,14 +83,14 @@ class StravaController < ApplicationController
 
   if existing_integration && existing_integration.user_id != user.id
   Rails.logger.error "!!! BLOCKING: Strava account already connected to another user !!!"
-  
-  redirect_to dashboard_path, flash: { 
-    toast: { message: 'Esta conta do Strava já está conectada a outro usuário do Runify.', type: 'error' }
+
+  redirect_to dashboard_path, flash: {
+    toast: { message: "Esta conta do Strava já está conectada a outro usuário do Runify.", type: "error" }
   } and return
-end
+  end
 
   Rails.logger.info "Creating new integration..."
-  
+
   user.strava_integration&.destroy
 
   user.create_strava_integration!(
@@ -104,25 +104,25 @@ end
 
   sync_activities(user)
 
-  flash[:toast] = { message: 'Strava conectado com sucesso!', type: 'success' }
+  flash[:toast] = { message: "Strava conectado com sucesso!", type: "success" }
   redirect_to dashboard_path
 
 rescue ActiveRecord::RecordInvalid => e
   Rails.logger.error "Strava integration error: #{e.message}"
-  flash[:toast] = { message: "Erro ao conectar: #{e.message}", type: 'error' }
+  flash[:toast] = { message: "Erro ao conectar: #{e.message}", type: "error" }
   redirect_to dashboard_path
 rescue => e
   Rails.logger.error "Strava callback error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
-  flash[:toast] = { message: "Erro ao conectar com Strava. Tente novamente.", type: 'error' }
+  flash[:toast] = { message: "Erro ao conectar com Strava. Tente novamente.", type: "error" }
   redirect_to dashboard_path
 end
 
   def disconnect
     if current_user.strava_integration
       current_user.strava_integration.destroy
-      flash[:toast] = { message: 'Strava desconectado com sucesso!', type: 'success' }
+      flash[:toast] = { message: "Strava desconectado com sucesso!", type: "success" }
     else
-      flash[:toast] = { message: 'Nenhuma conta do Strava conectada.', type: 'info' }
+      flash[:toast] = { message: "Nenhuma conta do Strava conectada.", type: "info" }
     end
     redirect_to dashboard_path
   end
@@ -131,7 +131,7 @@ end
     integration = current_user.strava_integration
 
     unless integration
-      flash[:toast] = { message: 'Strava não conectado', type: 'error' }
+      flash[:toast] = { message: "Strava não conectado", type: "error" }
       redirect_to dashboard_path and return
     end
 
@@ -175,17 +175,17 @@ end
       message << "#{updated_count} atualizadas" if updated_count > 0
       message << "Nenhuma nova atividade" if new_count == 0 && updated_count == 0
 
-      flash[:toast] = { 
-        message: "Sincronizado! #{message.join(', ')}", 
-        type: 'success' 
+      flash[:toast] = {
+        message: "Sincronizado! #{message.join(', ')}",
+        type: "success"
       }
       redirect_to dashboard_path
 
     rescue => e
       Rails.logger.error "Sync error: #{e.message}\n#{e.backtrace.join("\n")}"
-      flash[:toast] = { 
-        message: "Erro ao sincronizar: #{e.message}", 
-        type: 'error' 
+      flash[:toast] = {
+        message: "Erro ao sincronizar: #{e.message}",
+        type: "error"
       }
       redirect_to dashboard_path
     end

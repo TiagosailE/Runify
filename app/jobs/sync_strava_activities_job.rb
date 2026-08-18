@@ -17,7 +17,7 @@ class SyncStravaActivitiesJob < ApplicationJob
     return unless user.strava_connected?
 
     integration = user.strava_integration
-    
+
     begin
       activities = integration.fetch_recent_activities(per_page: 30)
 
@@ -35,7 +35,7 @@ class SyncStravaActivitiesJob < ApplicationJob
       end
 
       integration.update(last_sync_at: Time.current)
-      
+
       Rails.logger.info "Synced #{activities.count} activities for user #{user.id}"
     rescue => e
       Rails.logger.error "Failed to sync Strava for user #{user.id}: #{e.message}"

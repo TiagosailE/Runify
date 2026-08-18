@@ -3,7 +3,6 @@ class WorkoutReminderJob < ApplicationJob
 
   def perform
     User.where(notifications_enabled: true).find_each do |user|
-
       training_plan = user.active_training_plan
       next unless training_plan
 
