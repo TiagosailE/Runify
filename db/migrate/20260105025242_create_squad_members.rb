@@ -11,7 +11,7 @@ class CreateSquadMembers < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :squad_members, [:squad_id, :user_id], unique: true
+    add_index :squad_members, [ :squad_id, :user_id ], unique: true
     add_index :squad_members, :experience_points
     add_index :squad_members, :level
   end

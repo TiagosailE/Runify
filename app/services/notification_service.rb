@@ -5,7 +5,7 @@ class NotificationService
     user.notifications.create(
       title: "Treino de Hoje!",
       message: "Você tem um treino agendado: #{workout.workout_type} - #{workout.distance_km}km às #{workout.scheduled_date.strftime('%H:%M')}",
-      notification_type: 'workout_reminder',
+      notification_type: "workout_reminder",
       sent_at: Time.current
     )
   end
@@ -16,7 +16,7 @@ class NotificationService
     user.notifications.create(
       title: "Sincronize seu Strava",
       message: "Já faz um tempo que você não sincroniza suas atividades. Que tal atualizar?",
-      notification_type: 'sync_reminder',
+      notification_type: "sync_reminder",
       sent_at: Time.current
     )
   end
@@ -34,7 +34,7 @@ class NotificationService
     user.notifications.create(
       title: "Parabéns!",
       message: messages.sample,
-      notification_type: 'congratulations',
+      notification_type: "congratulations",
       sent_at: Time.current
     )
   end
@@ -61,7 +61,7 @@ class NotificationService
     user.notifications.create(
       title: "Resumo Semanal",
       message: "Você completou #{completed} de #{total} treinos esta semana. #{motivation}",
-      notification_type: 'weekly_summary',
+      notification_type: "weekly_summary",
       sent_at: Time.current
     )
   end
@@ -69,17 +69,17 @@ class NotificationService
   def self.send_adjustment_alert(user, adjustment_data)
     return unless user.notifications_enabled?
 
-    recommendations = Array(adjustment_data['recommendations']).first(2).join(' ')
-    red_flags = Array(adjustment_data['red_flags']).join(', ')
+    recommendations = Array(adjustment_data["recommendations"]).first(2).join(" ")
+    red_flags = Array(adjustment_data["red_flags"]).join(", ")
 
-    message_parts = [adjustment_data['analysis']]
+    message_parts = [ adjustment_data["analysis"] ]
     message_parts << recommendations if recommendations.present?
     message_parts << "Alertas: #{red_flags}" if red_flags.present?
 
     user.notifications.create(
       title: "Ajuste no Plano",
-      message: message_parts.join(' '),
-      notification_type: 'weekly_summary',
+      message: message_parts.join(" "),
+      notification_type: "weekly_summary",
       sent_at: Time.current
     )
   end

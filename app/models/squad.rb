@@ -1,5 +1,5 @@
 class Squad < ApplicationRecord
-  belongs_to :owner, class_name: 'User', foreign_key: 'owner_id'
+  belongs_to :owner, class_name: "User", foreign_key: "owner_id"
   has_many :squad_members, dependent: :destroy
   has_many :users, through: :squad_members
 

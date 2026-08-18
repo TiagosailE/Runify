@@ -16,7 +16,7 @@ class DailyNotificationsJob < ApplicationJob
 
     today_workout = training_plan.workouts.find_by(
       scheduled_date: Date.today,
-      status: 'pending'
+      status: "pending"
     )
 
     if today_workout
@@ -28,7 +28,7 @@ class DailyNotificationsJob < ApplicationJob
     return unless user.strava_connected?
 
     last_sync = user.strava_integration.last_sync_at
-    
+
     if last_sync.nil? || last_sync < 3.days.ago
       NotificationService.send_sync_reminder(user)
     end

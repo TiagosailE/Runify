@@ -25,7 +25,7 @@ class OnboardingController < ApplicationController
   end
 
   def complete
-    available_days = JSON.parse(session[:onboarding_available_days] || '[]')
+    available_days = JSON.parse(session[:onboarding_available_days] || "[]")
 
     best_5k = onboarding_complete_params[:best_5k_time].present? ? (onboarding_complete_params[:best_5k_time].to_f * 60).to_i : nil
     best_10k = onboarding_complete_params[:best_10k_time].present? ? (onboarding_complete_params[:best_10k_time].to_f * 60).to_i : nil

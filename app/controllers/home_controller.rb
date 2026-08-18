@@ -9,7 +9,7 @@ class HomeController < ApplicationController
       week_start = 7.days.ago.beginning_of_day
       members_with_km = squad.squad_members.includes(:user).map do |member|
         week_km = member.user.activities
-                        .where('start_date >= ?', week_start)
+                        .where("start_date >= ?", week_start)
                         .sum(:distance)
         week_km = (week_km / 1000.0).round(1)
         { member: member, week_km: week_km }

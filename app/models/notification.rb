@@ -1,8 +1,8 @@
 class Notification < ApplicationRecord
   belongs_to :user
 
-  validates :notification_type, inclusion: { 
-    in: %w[workout_reminder sync_reminder congratulations weekly_summary] 
+  validates :notification_type, inclusion: {
+    in: %w[workout_reminder sync_reminder congratulations weekly_summary]
   }
 
   scope :unread, -> { where(read: false) }

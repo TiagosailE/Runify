@@ -9,9 +9,9 @@ class DeviseCreateUsers < ActiveRecord::Migration[8.1]
       t.datetime :remember_created_at
       t.string :username
       t.integer :weight
-      t.integer :height  
+      t.integer :height
       t.date :birth_date
-      t.string :goal 
+      t.string :goal
       t.timestamps null: false
     end
 

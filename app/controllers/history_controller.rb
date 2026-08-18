@@ -2,7 +2,7 @@ class HistoryController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @filter = params[:filter] || 'all'
+    @filter = params[:filter] || "all"
     @activities = filter_activities(@filter)
     @stats = calculate_stats(@activities)
     @monthly_data = calculate_monthly_data
@@ -12,14 +12,14 @@ class HistoryController < ApplicationController
 
   def filter_activities(filter)
     activities = current_user.activities.order(start_date: :desc)
-    
+
     case filter
-    when 'week'
-      activities.where('start_date >= ?', 1.week.ago)
-    when 'month'
-      activities.where('start_date >= ?', 1.month.ago)
-    when 'year'
-      activities.where('start_date >= ?', 1.year.ago)
+    when "week"
+      activities.where("start_date >= ?", 1.week.ago)
+    when "month"
+      activities.where("start_date >= ?", 1.month.ago)
+    when "year"
+      activities.where("start_date >= ?", 1.year.ago)
     else
       activities
     end
@@ -35,13 +35,13 @@ class HistoryController < ApplicationController
   end
 
   def calculate_average_pace(activities)
-    return '--:--' if activities.empty?
-    
+    return "--:--" if activities.empty?
+
     total_distance_km = activities.sum(:distance) / 1000.0
     total_time = activities.sum(:moving_time)
-    
-    return '--:--' if total_distance_km.zero?
-    
+
+    return "--:--" if total_distance_km.zero?
+
     pace_seconds = (total_time / total_distance_km).to_i
     minutes = pace_seconds / 60
     seconds = pace_seconds % 60
@@ -50,22 +50,22 @@ class HistoryController < ApplicationController
 
   def calculate_monthly_data
     last_6_months = 6.times.map { |i| i.months.ago.beginning_of_month }
-    
+
     months_pt = {
-      'Jan' => 'Jan', 'Feb' => 'Fev', 'Mar' => 'Mar',
-      'Apr' => 'Abr', 'May' => 'Mai', 'Jun' => 'Jun',
-      'Jul' => 'Jul', 'Aug' => 'Ago', 'Sep' => 'Set',
-      'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
+      "Jan" => "Jan", "Feb" => "Fev", "Mar" => "Mar",
+      "Apr" => "Abr", "May" => "Mai", "Jun" => "Jun",
+      "Jul" => "Jul", "Aug" => "Ago", "Sep" => "Set",
+      "Oct" => "Out", "Nov" => "Nov", "Dec" => "Dez"
     }
-    
+
     last_6_months.reverse.map do |month|
       activities = current_user.activities.where(
         start_date: month..month.end_of_month
       )
-      
-      month_en = month.strftime('%b')
+
+      month_en = month.strftime("%b")
       month_pt = months_pt[month_en] || month_en
-      
+
       {
         month: month_pt,
         distance: (activities.sum(:distance) / 1000.0).round(1)
