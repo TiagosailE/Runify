@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-[#F5F5F5] dark:bg-gray-900 pb-24">
+  <%= render "shared/header" %>
+
+  <main class="px-6 py-6 max-w-lg mx-auto">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Registrar atividade</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        Sem Strava conectado? Registre a corrida manualmente.
+        <%= link_to "Prefere importar um arquivo GPX/TCX?", new_activity_import_path, class: "text-teal-500 font-medium" %>
+      </p>
+    </div>
+
+    <%= form_with url: activities_path, scope: :activity, method: :post, local: true, class: "space-y-5" do |f| %>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome (opcional)</label>
+        <%= f.text_field :name,
+            placeholder: "Ex: Corrida no parque",
+            class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data</label>
+        <%= f.date_field :start_date,
+            value: Date.current,
+            class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distância (km)</label>
+        <%= f.number_field :distance_km,
+            step: 0.01, min: 0.01,
+            placeholder: "Ex: 5.2",
+            class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo</label>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <%= f.number_field :duration_hours, min: 0, placeholder: "h",
+                class: "appearance-none block w-full px-3 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-base" %>
+            <p class="text-xs text-gray-400 text-center mt-1">horas</p>
+          </div>
+          <div>
+            <%= f.number_field :duration_minutes, min: 0, max: 59, placeholder: "m",
+                class: "appearance-none block w-full px-3 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-base" %>
+            <p class="text-xs text-gray-400 text-center mt-1">min</p>
+          </div>
+          <div>
+            <%= f.number_field :duration_seconds, min: 0, max: 59, placeholder: "s",
+                class: "appearance-none block w-full px-3 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-base" %>
+            <p class="text-xs text-gray-400 text-center mt-1">seg</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4">
+        <%= f.submit "Registrar atividade",
+            class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
+      </div>
+    <% end %>
+  </main>
+
+  <%= render "shared/footer" %>
+</div>

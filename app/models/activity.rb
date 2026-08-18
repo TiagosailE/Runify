@@ -1,5 +1,13 @@
 class Activity < ApplicationRecord
+  SOURCES = %w[strava manual import].freeze
+
   belongs_to :user
+
+  validates :distance, numericality: { greater_than: 0, message: "deve ser maior que zero" }
+  validates :duration, numericality: { greater_than: 0, only_integer: true, message: "deve ser maior que zero" }
+  validates :start_date, presence: { message: "é obrigatória" }
+  validates :sport_type, presence: { message: "é obrigatório" }
+  validates :source, inclusion: { in: SOURCES }
 
   def distance_km
     return 0 unless distance

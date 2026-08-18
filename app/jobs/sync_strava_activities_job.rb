@@ -31,7 +31,8 @@ class SyncStravaActivitiesJob < ApplicationJob
         moving_time: strava_activity.moving_time,
         average_speed: strava_activity.average_speed,
         start_date: strava_activity.start_date,
-        activity_data: strava_activity.to_h
+        activity_data: strava_activity.to_h,
+        source: "strava"
       )
 
       if activity.save
