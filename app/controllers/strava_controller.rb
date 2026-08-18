@@ -2,24 +2,9 @@ class StravaController < ApplicationController
   before_action :authenticate_user!, except: [ :callback ]
 
   def connect
+    state = SecureRandom.hex(16)
+    session[:strava_oauth_state] = state
     session[:strava_connecting_user_id] = current_user.id
-
-    if current_user.strava_integration&.active?
-      begin
-        access_token = current_user.strava_integration.access_token
-        conn = Faraday.new(url: "https://www.strava.com") do |f|
-          f.request :url_encoded
-          f.adapter Faraday.default_adapter
-        end
-        conn.post("/oauth/deauthorize") do |req|
-          req.headers["Authorization"] = "Bearer #{access_token}"
-        end
-        Rails.logger.info "Deauthorized previous Strava connection"
-      rescue => e
-        Rails.logger.warn "Could not deauthorize: #{e.message}"
-      end
-      current_user.strava_integration.update(active: false)
-    end
 
     oauth_client = Strava::OAuth::Client.new(
       client_id: ENV["STRAVA_CLIENT_ID"],
@@ -27,95 +12,79 @@ class StravaController < ApplicationController
     )
 
     redirect_url = oauth_client.authorize_url(
-      redirect_uri: strava_callback_url,
+      redirect_uri: ENV.fetch("STRAVA_REDIRECT_URI", strava_callback_url),
       approval_prompt: "force",
       response_type: "code",
       scope: "activity:read_all,profile:read_all",
-      state: "strava_connect"
+      state: state
     )
 
     redirect_to redirect_url, allow_other_host: true
   end
 
   def callback
-  code = params[:code]
-  user_id = session.delete(:strava_connecting_user_id)
-  user = User.find_by(id: user_id) || current_user
+    expected_state = session.delete(:strava_oauth_state)
+    user_id = session.delete(:strava_connecting_user_id)
+    user = User.find_by(id: user_id)
 
-  Rails.logger.info "=== STRAVA CALLBACK DEBUG ==="
-  Rails.logger.info "User ID: #{user&.id}"
-  Rails.logger.info "Code present: #{code.present?}"
-  Rails.logger.info "State: #{params[:state]}"
+    unless user && params[:state].present? && ActiveSupport::SecurityUtils.secure_compare(params[:state].to_s, expected_state.to_s)
+      flash[:toast] = { message: "Sessão expirada. Tente conectar novamente.", type: "error" }
+      redirect_to(user_signed_in? ? dashboard_path : new_user_session_path) and return
+    end
 
-  unless user
-    flash[:toast] = { message: "Sessão expirada. Faça login novamente.", type: "error" }
-    redirect_to new_user_session_path and return
+    if params[:error].present?
+      flash[:toast] = { message: "Conexão com o Strava cancelada.", type: "info" }
+      redirect_to dashboard_path and return
+    end
+
+    unless params[:code].present?
+      flash[:toast] = { message: "Código não recebido do Strava", type: "error" }
+      redirect_to dashboard_path and return
+    end
+
+    oauth_client = Strava::OAuth::Client.new(
+      client_id: ENV["STRAVA_CLIENT_ID"],
+      client_secret: ENV["STRAVA_CLIENT_SECRET"]
+    )
+
+    token_response = oauth_client.oauth_token(code: params[:code])
+    strava_athlete_id = token_response.athlete.id.to_s
+
+    existing_integration = StravaIntegration.find_by(strava_athlete_id: strava_athlete_id)
+
+    if existing_integration && existing_integration.user_id != user.id
+      redirect_to dashboard_path, flash: {
+        toast: { message: "Esta conta do Strava já está conectada a outro usuário do Runify.", type: "error" }
+      } and return
+    end
+
+    user.strava_integration&.destroy
+
+    user.create_strava_integration!(
+      strava_athlete_id: strava_athlete_id,
+      access_token: token_response.access_token,
+      refresh_token: token_response.refresh_token,
+      token_expires_at: Time.at(token_response.expires_at),
+      athlete_data: token_response.athlete.to_h
+    )
+
+    sync_result = SyncStravaActivitiesJob.new.sync_user_activities(user)
+    if sync_result[:error]
+      Rails.logger.warn "Strava connected but first sync failed for user #{user.id}: #{sync_result[:error].message}"
+    end
+
+    flash[:toast] = { message: "Strava conectado com sucesso!", type: "success" }
+    redirect_to dashboard_path
+
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error "Strava integration error: #{e.message}"
+    flash[:toast] = { message: "Erro ao conectar: #{e.message}", type: "error" }
+    redirect_to dashboard_path
+  rescue Strava::Errors::Fault, Faraday::Error => e
+    Rails.logger.error "Strava OAuth token exchange failed: #{e.message}"
+    flash[:toast] = { message: "Erro ao conectar com Strava. Tente novamente.", type: "error" }
+    redirect_to dashboard_path
   end
-
-  unless code
-    flash[:toast] = { message: "Código não recebido do Strava", type: "error" }
-    redirect_to dashboard_path and return
-  end
-
-  unless params[:state] == "strava_connect"
-    flash[:toast] = { message: "Requisição inválida", type: "error" }
-    redirect_to dashboard_path and return
-  end
-
-  oauth_client = Strava::OAuth::Client.new(
-    client_id: ENV["STRAVA_CLIENT_ID"],
-    client_secret: ENV["STRAVA_CLIENT_SECRET"]
-  )
-
-  token_response = oauth_client.oauth_token(code: code)
-
-  Rails.logger.info "Athlete ID from Strava: #{token_response.athlete.id}"
-
-  existing_integration = StravaIntegration.find_by(
-    strava_athlete_id: token_response.athlete.id.to_s,
-    active: true
-  )
-
-  Rails.logger.info "Existing integration found: #{existing_integration.present?}"
-  Rails.logger.info "Existing integration user_id: #{existing_integration&.user_id}"
-  Rails.logger.info "Current user_id: #{user.id}"
-  Rails.logger.info "Are different users? #{existing_integration && existing_integration.user_id != user.id}"
-
-  if existing_integration && existing_integration.user_id != user.id
-  Rails.logger.error "!!! BLOCKING: Strava account already connected to another user !!!"
-
-  redirect_to dashboard_path, flash: {
-    toast: { message: "Esta conta do Strava já está conectada a outro usuário do Runify.", type: "error" }
-  } and return
-  end
-
-  Rails.logger.info "Creating new integration..."
-
-  user.strava_integration&.destroy
-
-  user.create_strava_integration!(
-    strava_athlete_id: token_response.athlete.id.to_s,
-    access_token: token_response.access_token,
-    refresh_token: token_response.refresh_token,
-    token_expires_at: Time.at(token_response.expires_at),
-    athlete_data: token_response.athlete.to_h,
-    active: true
-  )
-
-  sync_activities(user)
-
-  flash[:toast] = { message: "Strava conectado com sucesso!", type: "success" }
-  redirect_to dashboard_path
-
-rescue ActiveRecord::RecordInvalid => e
-  Rails.logger.error "Strava integration error: #{e.message}"
-  flash[:toast] = { message: "Erro ao conectar: #{e.message}", type: "error" }
-  redirect_to dashboard_path
-rescue => e
-  Rails.logger.error "Strava callback error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
-  flash[:toast] = { message: "Erro ao conectar com Strava. Tente novamente.", type: "error" }
-  redirect_to dashboard_path
-end
 
   def disconnect
     if current_user.strava_integration
@@ -135,82 +104,19 @@ end
       redirect_to dashboard_path and return
     end
 
-    begin
-      activities = integration.fetch_recent_activities(per_page: 30)
-      new_count = 0
-      updated_count = 0
+    result = SyncStravaActivitiesJob.new.sync_user_activities(current_user)
 
-      activities.each do |strava_activity|
-        activity = current_user.activities.find_or_initialize_by(
-          strava_activity_id: strava_activity.id.to_s
-        )
-
-        is_new = activity.new_record?
-
-        activity.assign_attributes(
-          name: strava_activity.name,
-          sport_type: strava_activity.sport_type,
-          distance: strava_activity.distance,
-          duration: strava_activity.elapsed_time,
-          moving_time: strava_activity.moving_time,
-          average_speed: strava_activity.average_speed,
-          start_date: strava_activity.start_date,
-          activity_data: strava_activity.to_h
-        )
-
-        if activity.save
-          if is_new
-            XpService.award_xp(current_user, activity) if defined?(XpService)
-            new_count += 1
-          else
-            updated_count += 1
-          end
-        end
-      end
-
-      integration.update(last_sync_at: Time.current)
-
+    if result[:error]
+      flash[:toast] = { message: "Erro ao sincronizar: #{result[:error].message}", type: "error" }
+    else
       message = []
-      message << "#{new_count} novas" if new_count > 0
-      message << "#{updated_count} atualizadas" if updated_count > 0
-      message << "Nenhuma nova atividade" if new_count == 0 && updated_count == 0
+      message << "#{result[:new_count]} novas" if result[:new_count] > 0
+      message << "#{result[:updated_count]} atualizadas" if result[:updated_count] > 0
+      message << "Nenhuma nova atividade" if result[:new_count] == 0 && result[:updated_count] == 0
 
-      flash[:toast] = {
-        message: "Sincronizado! #{message.join(', ')}",
-        type: "success"
-      }
-      redirect_to dashboard_path
-
-    rescue => e
-      Rails.logger.error "Sync error: #{e.message}\n#{e.backtrace.join("\n")}"
-      flash[:toast] = {
-        message: "Erro ao sincronizar: #{e.message}",
-        type: "error"
-      }
-      redirect_to dashboard_path
-    end
-  end
-
-  private
-
-  def sync_activities(user)
-    integration = user.strava_integration
-    client = integration.strava_client
-    activities = client.athlete_activities(per_page: 10)
-
-    activities.each do |strava_activity|
-      user.activities.find_or_create_by(strava_activity_id: strava_activity.id.to_s) do |activity|
-        activity.name = strava_activity.name
-        activity.sport_type = strava_activity.sport_type
-        activity.distance = strava_activity.distance
-        activity.duration = strava_activity.elapsed_time
-        activity.moving_time = strava_activity.moving_time
-        activity.average_speed = strava_activity.average_speed
-        activity.start_date = strava_activity.start_date
-        activity.activity_data = strava_activity.to_h
-      end
+      flash[:toast] = { message: "Sincronizado! #{message.join(', ')}", type: "success" }
     end
 
-    integration.update(last_sync_at: Time.current)
+    redirect_to dashboard_path
   end
 end

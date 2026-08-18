@@ -1,8 +1,6 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
   user: one
-  strava_athlete_id: MyString
+  strava_athlete_id: "1000001"
   access_token:
   refresh_token:
   token_expires_at: 2025-12-29 20:38:03
@@ -12,7 +10,7 @@ one:
 
 two:
   user: two
-  strava_athlete_id: MyString
+  strava_athlete_id: "1000002"
   access_token:
   refresh_token:
   token_expires_at: 2025-12-29 20:38:03
