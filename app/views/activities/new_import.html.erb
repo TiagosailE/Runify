@@ -1,0 +1,31 @@
+<div class="min-h-screen bg-[#F5F5F5] dark:bg-gray-900 pb-24">
+  <%= render "shared/header" %>
+
+  <main class="px-6 py-6 max-w-lg mx-auto">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Importar atividade</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        Envie um arquivo <strong>.gpx</strong> ou <strong>.tcx</strong> exportado do seu relógio ou app de corrida.
+        <%= link_to "Prefere registrar manualmente?", new_activity_path, class: "text-teal-500 font-medium" %>
+      </p>
+    </div>
+
+    <%= form_with url: import_activities_path, method: :post, local: true, multipart: true, class: "space-y-5" do |f| %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center space-y-4">
+        <div class="w-16 h-16 bg-teal-100 dark:bg-teal-900/20 rounded-full flex items-center justify-center mx-auto">
+          <i class="fas fa-file-upload text-2xl text-teal-500"></i>
+        </div>
+        <%= file_field_tag :file, accept: ".gpx,.tcx",
+            class: "block w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:bg-teal-50 file:text-teal-600 dark:file:bg-teal-900/30 dark:file:text-teal-400 file:font-semibold" %>
+        <p class="text-xs text-gray-400">Só distância, duração e data são extraídas — o arquivo não fica salvo.</p>
+      </div>
+
+      <div class="pt-2">
+        <%= f.submit "Importar atividade",
+            class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
+      </div>
+    <% end %>
+  </main>
+
+  <%= render "shared/footer" %>
+</div>

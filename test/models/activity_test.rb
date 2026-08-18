@@ -1,7 +1,58 @@
 require "test_helper"
 
 class ActivityTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  def valid_attributes
+    {
+      user: users(:one),
+      name: "Corrida",
+      sport_type: "Run",
+      distance: 5000,
+      duration: 1500,
+      moving_time: 1500,
+      start_date: Time.current,
+      source: "manual"
+    }
+  end
+
+  test "valid with distance, duration, start_date and sport_type" do
+    activity = Activity.new(valid_attributes)
+    assert activity.valid?
+  end
+
+  test "invalid without a positive distance" do
+    activity = Activity.new(valid_attributes.merge(distance: 0))
+    assert_not activity.valid?
+    assert_includes activity.errors[:distance], "deve ser maior que zero"
+  end
+
+  test "invalid without a positive duration" do
+    activity = Activity.new(valid_attributes.merge(duration: nil))
+    assert_not activity.valid?
+    assert_includes activity.errors[:duration], "deve ser maior que zero"
+  end
+
+  test "invalid without start_date" do
+    activity = Activity.new(valid_attributes.merge(start_date: nil))
+    assert_not activity.valid?
+  end
+
+  test "invalid without sport_type" do
+    activity = Activity.new(valid_attributes.merge(sport_type: nil))
+    assert_not activity.valid?
+  end
+
+  test "invalid with a source outside the known list" do
+    activity = Activity.new(valid_attributes.merge(source: "made_up"))
+    assert_not activity.valid?
+  end
+
+  test "distance_km converts meters to kilometers" do
+    activity = Activity.new(valid_attributes.merge(distance: 5432))
+    assert_equal 5.43, activity.distance_km
+  end
+
+  test "pace_per_km formats minutes and seconds" do
+    activity = Activity.new(valid_attributes.merge(distance: 5000, moving_time: 1500))
+    assert_equal "5:00'", activity.pace_per_km
+  end
 end
