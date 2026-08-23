@@ -50,7 +50,12 @@ class SyncStravaActivitiesJob < ApplicationJob
 
     { new_count: new_count, updated_count: updated_count, error: nil }
   rescue => e
-    Rails.logger.error "Failed to sync Strava for user #{user.id}: #{e.message}"
+    # Strava::Errors::Fault#message so devolve o texto generico ("Forbidden");
+    # o detalhe de verdade (ex: Application Status Inactive, conta free sem
+    # acesso a API) vem em #errors, que o Rails.logger.error normal nao
+    # mostrava -- ficava invisivel no log toda vez que isso acontecia.
+    detail = (e.errors.inspect if e.respond_to?(:errors)) rescue nil
+    Rails.logger.error "Failed to sync Strava for user #{user.id}: #{e.message}#{" (#{detail})" if detail}"
     { new_count: 0, updated_count: 0, error: e }
   end
 end
