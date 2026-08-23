@@ -1,0 +1,72 @@
+databases:
+  - name: runify-db
+    databaseName: runify_production
+    user: runify
+    plan: basic-256mb
+    region: oregon
+
+services:
+  - type: web
+    name: runify
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: oregon
+    healthCheckPath: /up
+    envVars:
+      # Gerado localmente com `rm config/credentials.yml.enc && EDITOR=true
+      # bin/rails credentials:edit` -- cole o conteudo de config/master.key.
+      - key: RAILS_MASTER_KEY
+        sync: false
+
+      - key: RUNIFY_DATABASE_HOST
+        value:
+          fromDatabase:
+            name: runify-db
+            property: host
+      - key: RUNIFY_DATABASE_PORT
+        value:
+          fromDatabase:
+            name: runify-db
+            property: port
+      - key: RUNIFY_DATABASE_PASSWORD
+        value:
+          fromDatabase:
+            name: runify-db
+            property: password
+
+      # Roda o supervisor do Solid Queue dentro do mesmo processo do Puma
+      # (config/puma.rb ja tem o plugin condicional pronto) -- evita pagar
+      # um segundo servico so pra isso, dado o volume baixo de jobs.
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "true"
+
+      # Resend (e-mail transacional) -- precisa so da API key, ver
+      # config/initializers/resend.rb e app/mailers/application_mailer.rb.
+      - key: RESEND_API_KEY
+        sync: false
+
+      # Cloudflare R2 (Active Storage), ver config/storage.yml.
+      - key: CLOUDFLARE_R2_ACCESS_KEY_ID
+        sync: false
+      - key: CLOUDFLARE_R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: CLOUDFLARE_R2_ENDPOINT
+        sync: false
+      - key: CLOUDFLARE_R2_BUCKET
+        sync: false
+
+      # Strava (integracao opcional, ver docs/architecture.md).
+      - key: STRAVA_CLIENT_ID
+        sync: false
+      - key: STRAVA_CLIENT_SECRET
+        sync: false
+
+      # Plano gerado por IA (AiTrainingService/AiAdjustmentService).
+      - key: GEMINI_API_KEY
+        sync: false
+
+      # Senha do usuario de demo criado pelo seed.
+      - key: SEED_USER_PASSWORD
+        sync: false

@@ -6,6 +6,29 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
+# Cloudflare R2 (compativel com S3). Sem "public:", porque User#avatar_url
+# usa rails_blob_path (URL assinada via redirect do Active Storage), nao
+# um dominio publico/CDN -- nao precisa de "public: true" nem de dominio
+# customizado.
+cloudflare:
+  service: S3
+  # Fallback nao-vazio de proposito: ActiveStorage::Blob instancia esse
+  # servico no eager load (boot inteiro, nao so em upload/leitura de
+  # avatar) -- bucket "" faz Aws::S3::Bucket.new levantar ArgumentError e
+  # derrubar o app inteiro se a env var faltar. Com fallback, falta de
+  # config vira erro de autenticacao no upload (so a feature de avatar
+  # quebra), nao um app inteiro fora do ar.
+  access_key_id: <%= ENV.fetch("CLOUDFLARE_R2_ACCESS_KEY_ID", "unset") %>
+  secret_access_key: <%= ENV.fetch("CLOUDFLARE_R2_SECRET_ACCESS_KEY", "unset") %>
+  endpoint: <%= ENV.fetch("CLOUDFLARE_R2_ENDPOINT", "https://unset.r2.cloudflarestorage.com") %>
+  bucket: <%= ENV.fetch("CLOUDFLARE_R2_BUCKET", "unset") %>
+  region: auto
+  # R2 rejeita os checksums novos que o aws-sdk-s3 manda por padrao desde
+  # 2025 (erro "You can only specify one checksum at a time" / 501). Sem
+  # isso o upload falha sempre.
+  request_checksum_calculation: when_required
+  response_checksum_validation: when_required
+
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
 #   service: S3
