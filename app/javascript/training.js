@@ -63,12 +63,29 @@ window.confirmCompleteWorkout = async function() {
 
 document.addEventListener('turbo:load', () => {
   const modal = document.getElementById('complete-workout-modal');
-  
+
   if (modal) {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         window.hideCompleteWorkoutModal();
       }
     });
+  }
+
+  const completeButton = document.getElementById('complete-workout-button');
+  if (completeButton) {
+    completeButton.addEventListener('click', () => {
+      window.showCompleteWorkoutModal(completeButton.dataset.workoutId);
+    });
+  }
+
+  const cancelButton = document.getElementById('complete-workout-cancel');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', () => window.hideCompleteWorkoutModal());
+  }
+
+  const confirmButton = document.getElementById('complete-workout-confirm');
+  if (confirmButton) {
+    confirmButton.addEventListener('click', () => window.confirmCompleteWorkout());
   }
 });

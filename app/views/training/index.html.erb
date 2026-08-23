@@ -120,8 +120,9 @@
           </div>
 
           <% unless @today_workout.completed? %>
-            <button 
-              onclick="showCompleteWorkoutModal(<%= @today_workout.id %>)"
+            <button
+              id="complete-workout-button"
+              data-workout-id="<%= @today_workout.id %>"
               class="w-full mt-6 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-4 rounded-2xl transition-all duration-200 shadow-lg">
               <i class="fas fa-check-circle mr-2"></i>
               Concluir Treino
@@ -185,7 +186,7 @@
     </div>
   </div>
 
-<div id="complete-workout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" style="backdrop-filter: blur(4px);">
+<div id="complete-workout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
   <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
     <div class="text-center mb-6">
       <div class="w-16 h-16 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -196,15 +197,15 @@
     </div>
     
     <div class="flex gap-3">
-      <button 
+      <button
         type="button"
-        onclick="hideCompleteWorkoutModal()" 
+        id="complete-workout-cancel"
         class="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
         Não
       </button>
-      <button 
+      <button
         type="button"
-        onclick="confirmCompleteWorkout()" 
+        id="complete-workout-confirm"
         class="flex-1 py-3 px-4 bg-teal-500 hover:bg-teal-600 rounded-xl text-white font-semibold transition-colors shadow-lg">
         Sim
       </button>

@@ -2,7 +2,7 @@
   
   <%= render 'shared/header' %>
 
-  <style>
+  <style nonce="<%= content_security_policy_nonce %>">
     @keyframes pulse-frame {
       0%, 100% { opacity: 0.8; transform: scale(1); }
       50% { opacity: 1; transform: scale(1.02); }
@@ -92,7 +92,7 @@
           <p class="text-xs opacity-75 mb-2">Código do Pacer</p>
           <div class="flex items-center gap-2">
             <code class="bg-white/20 px-4 py-2 rounded-lg font-mono text-lg font-bold tracking-wider"><%= @squad.squad_code %></code>
-            <button onclick="window.copyToClipboard('<%= @squad.squad_code %>', 'Código copiado!')" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all">
+            <button id="pacer-copy-code-button" data-code="<%= @squad.squad_code %>" class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all">
               <i class="fas fa-copy"></i>
             </button>
           </div>

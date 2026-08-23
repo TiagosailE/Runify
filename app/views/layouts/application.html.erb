@@ -20,10 +20,10 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     
-    <script>
+    <%= javascript_tag nonce: true do %>
       const cookieDarkMode = document.cookie.includes('dark_mode=true');
       const html = document.documentElement;
-      
+
       if (cookieDarkMode) {
         html.classList.add('dark');
         localStorage.setItem('darkMode', 'true');
@@ -31,7 +31,7 @@
         html.classList.remove('dark');
         localStorage.setItem('darkMode', 'false');
       }
-    </script>
+    <% end %>
   </head>
 
   <body class="antialiased">
@@ -40,21 +40,21 @@
     <%= yield %>
 
     <% if flash[:toast].present? %>
-  <script>
-    (function() {
-      var message = '<%= j (flash[:toast][:message] || flash[:toast]["message"]) %>';
-      var type = '<%= (flash[:toast][:type] || flash[:toast]["type"] || "info") %>';
-      if (typeof window.showToast === 'function') {
-        window.showToast(message, type);
-      } else {
-        setTimeout(function() {
+      <%= javascript_tag nonce: true do %>
+        (function() {
+          var message = '<%= j (flash[:toast][:message] || flash[:toast]["message"]) %>';
+          var type = '<%= (flash[:toast][:type] || flash[:toast]["type"] || "info") %>';
           if (typeof window.showToast === 'function') {
             window.showToast(message, type);
+          } else {
+            setTimeout(function() {
+              if (typeof window.showToast === 'function') {
+                window.showToast(message, type);
+              }
+            }, 100);
           }
-        }, 100);
-      }
-    })();
-  </script>
-<% end %>
+        })();
+      <% end %>
+    <% end %>
   </body>
 </html>

@@ -13,3 +13,47 @@
 
 @tailwind components;
 @tailwind utilities;
+
+/* Toast notifications: CSS handles positioning/animation so toast.js never
+   sets inline styles, which the Content Security Policy blocks. */
+.toast-notification {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 40px);
+  width: 90%;
+  z-index: 99999;
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+.toast-notification.toast-closing {
+  animation: slideOutToTop 0.3s ease-in;
+}
+
+#toast-container > *:nth-child(1) { top: 20px; }
+#toast-container > *:nth-child(2) { top: 100px; }
+#toast-container > *:nth-child(3) { top: 180px; }
+#toast-container > *:nth-child(4) { top: 260px; }
+#toast-container > *:nth-child(5) { top: 340px; }
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100%);
+  }
+}
