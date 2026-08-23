@@ -11,8 +11,10 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    if resource.weight.nil? || resource.goal.nil?
+    if resource.weight.nil?
       onboarding_step1_path
+    elsif resource.goal.nil?
+      onboarding_step2_view_path
     else
       dashboard_path
     end
