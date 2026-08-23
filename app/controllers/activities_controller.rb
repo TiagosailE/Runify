@@ -1,6 +1,9 @@
 class ActivitiesController < ApplicationController
   before_action :authenticate_user!
 
+  rate_limit to: 20, within: 1.hour, only: [ :create, :import ], by: -> { current_user.id },
+    with: -> { redirect_to history_path, alert: "Muitas atividades registradas em pouco tempo. Tente novamente mais tarde." }
+
   def new
     @activity = current_user.activities.new(start_date: Time.current)
   end

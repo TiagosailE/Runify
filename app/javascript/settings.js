@@ -121,6 +121,32 @@ document.addEventListener('turbo:load', () => {
   }
 });
 
+document.addEventListener('turbo:load', () => {
+  const openDeleteButton = document.getElementById('delete-account-open-button');
+  if (openDeleteButton) {
+    openDeleteButton.addEventListener('click', () => window.showDeleteModal());
+  }
+
+  const cancelDeleteButton = document.getElementById('delete-account-cancel');
+  if (cancelDeleteButton) {
+    cancelDeleteButton.addEventListener('click', () => window.hideDeleteModal());
+  }
+
+  const copyButton = document.getElementById('pacer-copy-code-button');
+  if (copyButton) {
+    copyButton.addEventListener('click', () => {
+      window.copyToClipboard(copyButton.dataset.code, 'Código copiado!');
+    });
+  }
+
+  const historyFilter = document.getElementById('history-filter-select');
+  if (historyFilter) {
+    historyFilter.addEventListener('change', (e) => {
+      window.location.href = `?filter=${e.target.value}`;
+    });
+  }
+});
+
 window.copyToClipboard = function(text, elementText = 'Código copiado!') {
   navigator.clipboard.writeText(text).then(() => {
     if (typeof window.showToast === 'function') {

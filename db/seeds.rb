@@ -1,5 +1,11 @@
 week_start = Date.current.beginning_of_week(:monday)
 
+seed_password = if Rails.env.production?
+  ENV.fetch("SEED_USER_PASSWORD") { raise "SEED_USER_PASSWORD é obrigatório para rodar o seed em produção" }
+else
+  ENV.fetch("SEED_USER_PASSWORD", "password123")
+end
+
 puts 'Seeding demo data...'
 
 users_data = [
@@ -58,8 +64,8 @@ users = {}
 users_data.each do |attributes|
   user = User.find_or_initialize_by(email: attributes[:email])
   user.assign_attributes(attributes.except(:email))
-  user.password = 'password123' if user.new_record?
-  user.password_confirmation = 'password123' if user.new_record?
+  user.password = seed_password if user.new_record?
+  user.password_confirmation = seed_password if user.new_record?
   user.save!
   users[attributes[:email]] = user
 end
@@ -215,5 +221,9 @@ notifications_data.each do |attributes|
   notification.save!
 end
 
-puts "Demo user: #{demo_user.email} / password123"
+if Rails.env.production?
+  puts "Demo user: #{demo_user.email} (senha definida via SEED_USER_PASSWORD)"
+else
+  puts "Demo user: #{demo_user.email} / #{seed_password}"
+end
 puts 'Demo data seeded successfully.'

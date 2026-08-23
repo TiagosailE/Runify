@@ -27,7 +27,7 @@
           <label for="avatar-input" class="absolute bottom-0 right-0 bg-teal-500 text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-teal-600 transition-all">
             <i class="fas fa-camera"></i>
           </label>
-          <%= f.file_field :avatar, id: "avatar-input", class: "hidden", accept: "image/*", onchange: "previewAvatar(event)" %>
+          <%= f.file_field :avatar, id: "avatar-input", class: "hidden", accept: "image/*" %>
         </div>
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mt-4">
           <%= current_user.username || "Usuário" %>
@@ -134,9 +134,9 @@
     <% end %>
 
     <div class="pt-4">
-      <button 
+      <button
         type="button"
-        onclick="showLogoutModal()"
+        id="logout-open-button"
         class="w-full flex justify-center py-4 px-4 border-2 border-red-500 text-base font-semibold rounded-2xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none transition-all duration-200 cursor-pointer">
         Sair
       </button>
@@ -151,7 +151,7 @@
   <% end %>
 
   <!-- Modal de confirmação de logout -->
-<div id="logout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6" style="backdrop-filter: blur(4px);">
+<div id="logout-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
   <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
     <div class="text-center mb-6">
       <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -162,15 +162,15 @@
     </div>
     
     <div class="flex gap-3">
-      <button 
+      <button
         type="button"
-        onclick="hideLogoutModal()" 
+        id="logout-cancel"
         class="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
         Não
       </button>
-      <button 
+      <button
         type="button"
-        onclick="confirmLogout()" 
+        id="logout-confirm"
         class="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 rounded-xl text-white font-semibold transition-colors shadow-lg">
         Sim
       </button>
@@ -179,16 +179,3 @@
 </div>
 
 </div>
-
-<script>
-function previewAvatar(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('avatar-preview').src = e.target.result;
-    }
-    reader.readAsDataURL(file);
-  }
-}
-</script>
