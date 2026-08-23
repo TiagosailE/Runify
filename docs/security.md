@@ -165,15 +165,12 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
 
 1. **`SEED_USER_PASSWORD`** precisa existir no ambiente publicado antes do
    primeiro `db:seed` em produção.
-2. **`RAILS_MASTER_KEY`**: não está em nenhum `.env` deste ambiente de
-   trabalho, e `config/master.key` não existe em disco. Sem ela,
-   `config/credentials.yml.enc` (548 bytes, conteúdo desconhecido nesta
-   sessão) não decripta e o app não tem `secret_key_base` estável em
-   produção — os tokens do Strava já criptografados também dependem dessa
-   chave para continuar legíveis. Precisa ser resolvido antes do deploy:
-   ou o Tiago tem a chave original guardada em algum lugar, ou
-   `bin/rails credentials:edit` gera um par novo (e qualquer credencial já
-   guardada no arquivo antigo se perde).
+2. **`RAILS_MASTER_KEY`** — resolvido na entrega `chore/production-config`:
+   confirmado que `config/credentials.yml.enc` nunca tinha sido editado
+   desde o commit inicial (só o stub padrão do Rails), então o Tiago gerou
+   um par novo sem perder nada de valor. O conteúdo de `config/master.key`
+   (gitignorado, só em disco local) precisa ir na env var
+   `RAILS_MASTER_KEY` do painel do Render antes do primeiro deploy.
 3. **Verificação visual da CSP** — ver item 3.3. Abrir `/dashboard` e
    `/pacers/:id` autenticado, confirmar que cores de borda/sombra de tier e
    a barra de km aparecem, e olhar o console do navegador por qualquer

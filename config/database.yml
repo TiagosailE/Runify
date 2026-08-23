@@ -14,6 +14,8 @@ test:
 production:
   primary: &primary_production
     <<: *default
+    host: <%= ENV["RUNIFY_DATABASE_HOST"] %>
+    port: <%= ENV.fetch("RUNIFY_DATABASE_PORT", 5432) %>
     database: runify_production
     username: runify
     password: <%= ENV["RUNIFY_DATABASE_PASSWORD"] %>
