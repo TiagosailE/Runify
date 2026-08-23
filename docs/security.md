@@ -85,24 +85,39 @@ que já quebravam a política assim que ligada:
 
 ### 3.3 `style-src-attr 'unsafe-inline'` — aceito conscientemente
 
-Dezessete atributos `style="..."` sobrevivem em `home/index.html.erb`,
-`onboarding/step1`/`step2`/`step2_view.html.erb` e `pacers/index.html.erb`
-— cor de borda, largura de barra e sombra calculadas no servidor a partir
-de dados do usuário (`border_color`, `tier_data[:color]`, `bar_pct`), nunca
-de texto que o usuário digitou. `script-src` continua travado em `'self'`
-sem `unsafe-inline`, que é o vetor de XSS mais perigoso; permitir só
-`style-src-attr` limita o que um eventual HTML não escapado conseguiria
-fazer a alterar aparência, não executar script.
+Reduzido na reforma do módulo Pacers (2026-08-23): `pacers/index.html.erb`
+caiu de ~10 atributos `style="..."` para 1, `pacers/show.html.erb` de ~4
+para 1 — cor de borda, box-shadow e background por tier saíram de string
+Ruby montada à mão (`SquadMember#tier_data`/`#border_style`, o segundo
+removido por não ter uso) para classes CSS estáticas em
+`components/pacer_frames.css` (`.tier-<border_tier> .avatar-ring` etc.),
+carregadas via `<link>` de verdade, não `<style nonce>` inline.
 
-**Não verificado em navegador nesta rodada** — a ferramenta de automação
-usada para testar não conseguiu compor visualmente a página nesta sessão
-(problema da ferramenta, não confirmado como relacionado à CSP: mesmo
-removendo `frame-ancestors` a composição continuou falhando). Testado por
-`curl` que o HTML renderiza os 17 atributos corretamente e que o header
-`Content-Security-Policy` sai com `style-src-attr 'unsafe-inline'`; o que
-falta é abrir o dashboard e a tela de squads (`/pacers/:id`) num navegador
-de verdade e confirmar visualmente que as cores de borda e a barra de km
-aparecem. Ver item 5.
+18 atributos `style="..."` sobrevivem no total (contagem por ocorrência),
+em `home/index.html.erb` (12), `onboarding/step1`/`step2`/
+`step2_view.html.erb` (1 cada), `training/index.html.erb` (1),
+`pacers/index.html.erb` (1) e `pacers/show.html.erb` (1) — cor de borda,
+largura de barra e sombra calculadas no servidor a partir de dados do
+usuário (`border_color`, `bar_pct`), nunca de texto que o usuário digitou.
+`script-src` continua travado em `'self'` sem `unsafe-inline`, que é o
+vetor de XSS mais perigoso; permitir só `style-src-attr` limita o que um
+eventual HTML não escapado conseguiria fazer a alterar aparência, não
+executar script.
+
+**Não verificado em navegador nesta rodada, de novo** — o painel de
+navegador da automação continuou sem compor a página visualmente (mesmo
+sintoma registrado em `NOTES.md` desde 2026-08-23: tab reaberta, mesmo
+erro). Verificado por `curl` autenticado: HTML de `/pacers` e `/pacers/:id`
+renderiza as classes `tier-*`/`avatar-ring`/`level-badge` corretas, a nova
+stylesheet `components/pacer_frames.css` é servida via `<link>` (confirma
+que o glob `stylesheet_link_tag :app` do Propshaft pega qualquer `.css`
+novo em `app/assets/**` automaticamente, sem registro manual), o ícone de
+tier do membro aparece corrigido (testado subindo o nível do usuário demo
+pra 65 temporariamente, revertido depois) e nenhuma classe morta
+(`tier-challenger`/`grandmaster`/`master`) sobrou no CSS gerado. O que
+falta é abrir `/pacers` e `/pacers/:id` num navegador de verdade e
+confirmar visualmente que o brilho e o pulso das tiers ficaram bons — Tiago
+não deu esse retorno ainda.
 
 ### 3.4 Rate limiting
 

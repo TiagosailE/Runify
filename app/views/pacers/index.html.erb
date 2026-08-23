@@ -2,52 +2,6 @@
   
   <%= render 'shared/header' %>
 
-  <style nonce="<%= content_security_policy_nonce %>">
-    @keyframes pulse-frame {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.02); }
-    }
-
-    @keyframes rotate-frame {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .frame-container {
-      position: relative;
-      display: inline-block;
-    }
-
-    .frame-border {
-      position: absolute;
-      top: -10px;
-      left: -10px;
-      right: -10px;
-      bottom: -10px;
-      pointer-events: none;
-    }
-
-    .frame-icon {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      z-index: 10;
-    }
-
-    .tier-challenger .frame-border {
-      animation: rotate-frame 4s linear infinite;
-    }
-
-    .corner-tl { top: -10px; left: -10px; }
-    .corner-tr { top: -10px; right: -10px; }
-    .corner-bl { bottom: -10px; left: -10px; }
-    .corner-br { bottom: -10px; right: -10px; }
-  </style>
-
   <main class="px-6 py-6 space-y-6">
     
     <section>
@@ -105,50 +59,14 @@
               <div class="bg-[#2d3748] rounded-2xl p-5 shadow-sm hover:shadow-lg transition-all">
                 
                 <div class="flex items-center gap-4">
-                  
-                  <div class="frame-container tier-<%= member.border_tier %>">
-                    
-                    <svg class="frame-border" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <filter id="glow-index-<%= member.user.id %>">
-                          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                          <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                          </feMerge>
-                        </filter>
-                      </defs>
-                      
-                      <circle cx="60" cy="60" r="54" fill="none" stroke="<%= member.tier_data[:color] %>" stroke-width="3" opacity="0.3"/>
-                      <circle cx="60" cy="60" r="57" fill="none" stroke="<%= member.tier_data[:color] %>" stroke-width="2" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      
-                      <path d="M 60,6 L 66,18 L 54,18 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      <path d="M 114,60 L 102,66 L 102,54 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      <path d="M 60,114 L 66,102 L 54,102 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      <path d="M 6,60 L 18,66 L 18,54 Z" fill="<%= member.tier_data[:color] %>" filter="url(#glow-index-<%= member.user.id %>)"/>
-                      
-                      <% if member.level >= 30 %>
-                        <circle cx="60" cy="60" r="50" fill="none" stroke="<%= member.tier_data[:color] %>" stroke-width="1" opacity="0.5" stroke-dasharray="5,5"/>
-                      <% end %>
-                    </svg>
 
-                    <div class="w-24 h-24 rounded-full overflow-hidden border-3" style="border-color: <%= member.tier_data[:color] %>; box-shadow: <%= member.tier_data[:box_shadow] %>">
-                      <img src="<%= current_user.avatar_url %>" alt="<%= current_user.username %>" class="w-full h-full object-cover">
-                    </div>
-
-                    <% if member.level >= 10 && member.tier_data[:tier_icon] %>
-                      <div class="frame-icon corner-tl" style="color: <%= member.tier_data[:color] %>; text-shadow: <%= member.tier_data[:box_shadow] %>">
-                        <i class="fas fa-bolt"></i>
-                      </div>
-                      <div class="frame-icon corner-tr" style="color: <%= member.tier_data[:color] %>; text-shadow: <%= member.tier_data[:box_shadow] %>">
-                        <i class="fas fa-bolt"></i>
-                      </div>
-                    <% end %>
-
-                    <div class="absolute -bottom-2 -right-2 text-white text-sm font-bold rounded-full w-10 h-10 flex items-center justify-center border-3 border-[#2d3748] shadow-lg" style="background: <%= member.tier_data[:color] %>; box-shadow: <%= member.tier_data[:box_shadow] %>">
-                      <%= member.level %>
-                    </div>
-                  </div>
+                  <%= render "pacers/avatar_frame",
+                        member: member,
+                        avatar_url: current_user.avatar_url,
+                        avatar_alt: current_user.username,
+                        filter_id: "glow-index-#{squad.id}",
+                        size: :lg,
+                        badge_context: :index %>
 
                   <div class="flex-1 min-w-0">
                     <h4 class="text-lg font-bold text-white mb-1 truncate">
