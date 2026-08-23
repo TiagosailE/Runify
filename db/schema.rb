@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_18_210711) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_160923) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -202,6 +202,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_210711) do
     t.datetime "updated_at", null: false
     t.integer "week_number"
     t.jsonb "workout_details"
+    t.string "workout_format", default: "continuous", null: false
     t.string "workout_type"
     t.index ["scheduled_date"], name: "index_workouts_on_scheduled_date"
     t.index ["status"], name: "index_workouts_on_status"

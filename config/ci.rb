@@ -9,10 +9,10 @@ CI.run do
   step "Security: Importmap vulnerability audit", "bin/importmap audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
 
-  # Piso abaixo da cobertura medida em 2026-08-18 (50%), so para travar
-  # regressao. Suba conforme os servicos (ai_training, ai_adjustment, xp,
-  # notification) ganharem teste de verdade -- eles estao a 0% hoje.
-  step "Tests: Rails", "COVERAGE_MIN=48 bin/rails test"
+  # Piso abaixo da cobertura medida em 2026-08-23 (75,7%, depois dos testes
+  # da geracao de treino). Suba conforme a cobertura subir de verdade --
+  # ainda faltam XpService e NotificationService, a 0% hoje.
+  step "Tests: Rails", "COVERAGE_MIN=70 bin/rails test"
   step "Tests: System", "bin/rails test:system"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
 

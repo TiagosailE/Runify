@@ -88,13 +88,25 @@
           
           <div class="space-y-4">
             
-            <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Distância</p>
-              <div class="flex items-center gap-2">
-                <i class="fas fa-route text-teal-500"></i>
-                <p class="text-lg font-bold text-gray-900 dark:text-white"><%= @today_workout.distance_km %> km</p>
+            <%# Em caminhada/corrida a distância é consequência, não prescrição:
+                mostrar "0 km" e um pace numérico ali seria informação falsa. %>
+            <% if @today_workout.run_walk? %>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Formato</p>
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-shoe-prints text-teal-500"></i>
+                  <p class="text-lg font-bold text-gray-900 dark:text-white">Caminhada e corrida</p>
+                </div>
               </div>
-            </div>
+            <% else %>
+              <div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Distância</p>
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-route text-teal-500"></i>
+                  <p class="text-lg font-bold text-gray-900 dark:text-white"><%= @today_workout.distance_km %> km</p>
+                </div>
+              </div>
+            <% end %>
 
             <div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Duração estimada</p>
@@ -108,9 +120,28 @@
               <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Pace alvo</p>
               <div class="flex items-center gap-2">
                 <i class="fas fa-tachometer-alt text-purple-500"></i>
-                <p class="text-lg font-bold text-gray-900 dark:text-white"><%= @today_workout.pace %> /km</p>
+                <p class="text-lg font-bold text-gray-900 dark:text-white">
+                  <%= @today_workout.run_walk? ? @today_workout.pace : "#{@today_workout.pace} /km" %>
+                </p>
               </div>
             </div>
+
+            <% if @today_workout.steps.any? %>
+              <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Blocos:</p>
+                <div class="space-y-1">
+                  <% @today_workout.steps.each do |step| %>
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                      <i class="fas <%= step['activity'] == 'run' ? 'fa-person-running text-teal-500' : 'fa-person-walking text-orange-500' %> w-4"></i>
+                      <span>
+                        <%= "#{step['repeat']}x " if step['repeat'].to_i > 1 %><%= step['label'] || (step['activity'] == 'run' ? 'Corrida' : 'Caminhada') %>
+                        — <%= step['seconds'].to_i >= 60 ? "#{(step['seconds'].to_i / 60.0).round(1).to_s.sub('.0', '')}min" : "#{step['seconds']}s" %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
 
             <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
               <p class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Instruções:</p>

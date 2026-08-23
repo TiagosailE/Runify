@@ -1,12 +1,15 @@
-require "net/http"
-require "json"
-
+# Ajusta a carga das semanas seguintes com base no feedback do atleta.
+#
+# Mesma divisao de responsabilidade da geracao: a IA sugere a direcao e a
+# intensidade do ajuste, mas o resultado passa pelo teto do TrainingEnvelope
+# antes de virar treino -- senao aumentos sucessivos compõem sem limite.
 class AiAdjustmentService
-  GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"
+  MAX_ADJUSTMENT_PERCENT = 20
 
   def initialize(user, training_plan)
     @user = user
     @training_plan = training_plan
+    @envelope = TrainingEnvelope.new(user)
   end
 
   def analyze_and_adjust
@@ -18,9 +21,12 @@ class AiAdjustmentService
 
     return if completed_workouts.empty?
 
-    prompt = build_adjustment_prompt(completed_workouts, current_week)
-    response = call_gemini_api(prompt)
-    apply_adjustments(response, current_week)
+    adjustment_data = GeminiClient.generate_json(
+      build_adjustment_prompt(completed_workouts, current_week),
+      response_schema: response_schema,
+      max_output_tokens: 4096
+    )
+    apply_adjustments(adjustment_data, current_week)
   rescue => e
     Rails.logger.error "Erro em AiAdjustmentService: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
@@ -85,75 +91,34 @@ class AiAdjustmentService
       - Se há observações de dor/lesão: Reduzir carga e sugerir descanso
       - Considerar progressão gradual (regra dos 10% máximo)
 
-      ### FORMATO DE RESPOSTA
+      ### IMPORTANTE
 
-      Retorne APENAS este JSON válido:
-
-      ```json
-      {
-        "analysis": "Análise técnica do desempenho da semana passada (máximo 80 palavras)",
-        "adjustment_type": "increase|decrease|maintain",
-        "adjustment_percentage": 10,
-        "reasoning": "Justificativa clara do ajuste baseado nos dados",
-        "recommendations": [
-          "Primeira recomendação específica",
-          "Segunda recomendação específica"
-        ],
-        "red_flags": []
-      }
-      ```
-
-      **IMPORTANTE:**
-      - `adjustment_type` deve ser: "increase", "decrease" ou "maintain"
-      - `adjustment_percentage` deve ser um número entre -20 e 20
-      - `red_flags` deve conter alertas como "possível overtraining", "risco de lesão" se aplicável
-      - Seja conservador: sempre priorize saúde sobre performance
+      - `adjustment_percentage` é sempre positivo: quem define a direção é `adjustment_type`.
+      - "maintain" significa manter a carga como está, sem aumento nenhum.
+      - `red_flags` deve conter alertas como "possível overtraining" ou "risco de lesão" quando aplicável.
+      - Seja conservador: priorize saúde sobre performance.
     PROMPT
   end
 
-  def call_gemini_api(prompt)
-    uri = URI("#{GEMINI_API_URL}?key=#{ENV['GEMINI_API_KEY']}")
-
-    request = Net::HTTP::Post.new(uri)
-    request["Content-Type"] = "application/json"
-
-    request.body = {
-      contents: [ {
-        parts: [ {
-          text: prompt
-        } ]
-      } ],
-      generationConfig: {
-        temperature: 0.3,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 4096,
-        responseMimeType: "application/json"
-      }
-    }.to_json
-
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, read_timeout: 60) do |http|
-      http.request(request)
-    end
-
-    parsed = JSON.parse(response.body)
-
-    if parsed["error"]
-      raise "Erro da API Gemini: #{parsed['error']['message']}"
-    end
-
-    parsed
+  def response_schema
+    {
+      type: "OBJECT",
+      properties: {
+        analysis: { type: "STRING" },
+        adjustment_type: { type: "STRING", enum: [ "increase", "decrease", "maintain" ] },
+        adjustment_percentage: { type: "INTEGER", minimum: 0, maximum: MAX_ADJUSTMENT_PERCENT },
+        reasoning: { type: "STRING" },
+        recommendations: { type: "ARRAY", items: { type: "STRING" } },
+        red_flags: { type: "ARRAY", items: { type: "STRING" } }
+      },
+      required: [ "analysis", "adjustment_type", "adjustment_percentage", "reasoning" ]
+    }
   end
 
-  def apply_adjustments(gemini_response, current_week)
-    content = gemini_response.dig("candidates", 0, "content", "parts", 0, "text")
-    return unless content
-
-    clean_content = content.gsub(/```json|```/m, "").strip
-    adjustment_data = JSON.parse(clean_content)
-
+  def apply_adjustments(adjustment_data, current_week)
     adjustment_type = adjustment_data["adjustment_type"]
-    percentage = adjustment_data["adjustment_percentage"].to_f / 100.0
+    percentage = adjustment_data["adjustment_percentage"].to_f.abs.clamp(0, MAX_ADJUSTMENT_PERCENT) / 100.0
+    factor = adjustment_factor(adjustment_type, percentage)
 
     remaining_workouts = @training_plan.workouts.where("week_number >= ? AND status = ?", current_week, "pending")
 
@@ -163,20 +128,14 @@ class AiAdjustmentService
       original_distance = workout.distance
       original_duration = workout.duration
 
-      case adjustment_type
-      when "increase"
-        workout.distance = (workout.distance * (1 + percentage)).round(2)
-        workout.duration = (workout.duration * (1 + percentage)).to_i
-      when "decrease"
-        workout.distance = (workout.distance * (1 - percentage.abs)).round(2)
-        workout.duration = (workout.duration * (1 - percentage.abs)).to_i
-      when "maintain"
-        workout.distance = (workout.distance * 1.05).round(2)
-        workout.duration = (workout.duration * 1.05).to_i
+      if workout.distance.present?
+        # Teto do envelope para a semana daquele treino: sem isso, aumentos
+        # sucessivos de 10% compõem sem limite semana após semana.
+        ceiling = @envelope.max_single_run_km_for_week(workout.week_number)
+        workout.distance = (workout.distance * factor).round(2).clamp(1.0, ceiling)
       end
 
-      workout.distance = [ workout.distance, 1.0 ].max
-      workout.duration = [ workout.duration, 600 ].max
+      workout.duration = [ (workout.duration * factor).to_i, 600 ].max if workout.duration.present?
 
       workout.workout_details = (workout.workout_details || {}).merge({
         "ai_adjustment" => {
@@ -208,9 +167,16 @@ class AiAdjustmentService
     end
 
     true
-  rescue JSON::ParserError => e
-    Rails.logger.error "Erro ao fazer parse do JSON de ajuste: #{e.message}"
-    false
+  end
+
+  # "maintain" mantinha a carga multiplicando por 1.05, ou seja, aumentava 5%
+  # toda semana em que a IA pedia justamente para NAO aumentar.
+  def adjustment_factor(adjustment_type, percentage)
+    case adjustment_type
+    when "increase" then 1 + percentage
+    when "decrease" then 1 - percentage
+    else 1.0
+    end
   end
 
   def format_pace(speed_m_s)
