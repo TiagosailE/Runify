@@ -1,4 +1,11 @@
 class SyncStravaActivitiesJob < ApplicationJob
+  # O botao "Sincronizar" da home traz so as ultimas atividades -- e o mesmo
+  # numero que a home exibe em "Suas N ultimas atividades"
+  # (User#recent_activities). A varredura em background continua puxando uma
+  # janela maior, porque ali o objetivo e nao deixar buraco no historico.
+  MANUAL_SYNC_LIMIT = 2
+  BACKGROUND_SYNC_LIMIT = 30
+
   queue_as :default
 
   def perform(user_id = nil)
@@ -11,11 +18,11 @@ class SyncStravaActivitiesJob < ApplicationJob
     end
   end
 
-  def sync_user_activities(user)
+  def sync_user_activities(user, limit: BACKGROUND_SYNC_LIMIT)
     return { new_count: 0, updated_count: 0, error: nil } unless user.strava_connected?
 
     integration = user.strava_integration
-    activities = integration.fetch_recent_activities(per_page: 30)
+    activities = integration.fetch_recent_activities(per_page: limit)
     new_count = 0
     updated_count = 0
 

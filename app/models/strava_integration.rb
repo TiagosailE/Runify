@@ -27,13 +27,6 @@ class StravaIntegration < ApplicationRecord
     false
   end
 
-  # Interruptor manual: com a app desativada no Strava, oferecer o botao de
-  # conectar so gera erro para o usuario. Desligar esconde a integracao sem
-  # remover o codigo, entao basta religar se um dia houver assinatura.
-  def self.integration_enabled?
-    ENV.fetch("STRAVA_ENABLED", "true") != "false"
-  end
-
   def token_expired?
     token_expires_at.present? && token_expires_at < Time.current
   end
