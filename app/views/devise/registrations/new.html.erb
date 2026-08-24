@@ -70,8 +70,19 @@
 
       </div>
 
+      <div class="flex items-start gap-3 pt-2">
+        <%= f.check_box :terms_accepted,
+            class: "mt-1 w-5 h-5 rounded border-gray-300 text-teal-500 focus:ring-teal-500 cursor-pointer flex-shrink-0" %>
+        <label for="user_terms_accepted" class="text-sm text-gray-600 cursor-pointer">
+          Li e aceito a
+          <%= link_to "Política de Privacidade", privacy_policy_path, target: "_blank", class: "text-teal-600 font-medium underline" %>
+          e os
+          <%= link_to "Termos de Uso", terms_of_use_path, target: "_blank", class: "text-teal-600 font-medium underline" %>.
+        </label>
+      </div>
+
       <div class="text-center pt-2">
-        <%= link_to "Já tem uma conta? Entre Aqui.", new_session_path(resource_name), 
+        <%= link_to "Já tem uma conta? Entre Aqui.", new_session_path(resource_name),
             class: "text-base text-teal-500 hover:text-teal-600 font-medium" %>
       </div>
 

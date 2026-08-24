@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_23_160923) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_112623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -180,6 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_160923) do
     t.string "reset_password_token"
     t.string "running_experience"
     t.integer "running_experience_years"
+    t.datetime "terms_accepted_at"
     t.datetime "updated_at", null: false
     t.string "username"
     t.decimal "weekly_mileage", precision: 5, scale: 2

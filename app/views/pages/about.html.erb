@@ -1,0 +1,49 @@
+<div class="min-h-screen bg-[#F5F5F5] pb-16">
+  <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
+    <div class="max-w-2xl mx-auto flex items-center gap-4">
+      <%= link_to (user_signed_in? ? settings_path : root_path), class: "text-gray-500 hover:text-gray-700" do %>
+        <i class="fas fa-arrow-left text-lg"></i>
+      <% end %>
+      <h1 class="text-lg font-bold text-gray-900">Sobre o Runify</h1>
+    </div>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-6 py-8 space-y-6">
+    <div class="bg-white rounded-2xl p-6 shadow-sm text-center space-y-3">
+      <h2 class="text-3xl font-bold text-gray-900">
+        Runi<span class="text-teal-500">fy</span>
+      </h2>
+      <p class="text-sm text-gray-600">Treinos personalizados com inteligência artificial</p>
+    </div>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h3 class="text-base font-bold text-gray-900">O que é</h3>
+      <p class="text-sm text-gray-700">
+        O Runify é um app para corredores amadores: onboarding com dados físicos e
+        objetivo, geração de plano de treino por IA, registro de atividades
+        (manual, importado ou via Strava), progresso, e um lado social com grupos
+        de corrida (Pacers) e sistema de XP.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h3 class="text-base font-bold text-gray-900">Por que existe</h3>
+      <p class="text-sm text-gray-700">
+        É o Trabalho de Conclusão de Curso de Tiago Santos. Diferente de uma demo de
+        portfólio, o Runify vai ao ar com usuários reais para coletar dados de uso
+        de verdade — por isso a atenção com segurança e privacidade em
+        <%= link_to "Política de Privacidade", privacy_policy_path, class: "text-teal-600 font-medium" %>
+        e
+        <%= link_to "Termos de Uso", terms_of_use_path, class: "text-teal-600 font-medium" %>.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h3 class="text-base font-bold text-gray-900">Contato</h3>
+      <p class="text-sm text-gray-700">
+        Dúvidas, sugestões ou problemas:
+        <a href="mailto:tiagosantos.eli@gmail.com" class="text-teal-600 font-medium">tiagosantos.eli@gmail.com</a>.
+      </p>
+    </section>
+  </main>
+</div>

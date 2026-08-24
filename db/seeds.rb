@@ -64,8 +64,11 @@ users = {}
 users_data.each do |attributes|
   user = User.find_or_initialize_by(email: attributes[:email])
   user.assign_attributes(attributes.except(:email))
-  user.password = seed_password if user.new_record?
-  user.password_confirmation = seed_password if user.new_record?
+  if user.new_record?
+    user.password = seed_password
+    user.password_confirmation = seed_password
+    user.terms_accepted = true
+  end
   user.save!
   users[attributes[:email]] = user
 end

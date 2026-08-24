@@ -9,7 +9,8 @@ class TrainingEnvelopeTest < ActiveSupport::TestCase
       {
         email: "envelope-#{SecureRandom.hex(4)}@example.com",
         password: "password123",
-        username: "Teste"
+        username: "Teste",
+        terms_accepted: true
       }.merge(attrs)
     )
   end

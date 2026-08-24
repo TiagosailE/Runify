@@ -1,0 +1,129 @@
+<div class="min-h-screen bg-[#F5F5F5] pb-16">
+  <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
+    <div class="max-w-2xl mx-auto flex items-center gap-4">
+      <%= link_to (user_signed_in? ? settings_path : root_path), class: "text-gray-500 hover:text-gray-700" do %>
+        <i class="fas fa-arrow-left text-lg"></i>
+      <% end %>
+      <h1 class="text-lg font-bold text-gray-900">Política de Privacidade</h1>
+    </div>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-6 py-8 space-y-6">
+    <p class="text-sm text-gray-500">Última atualização: 24 de agosto de 2026</p>
+
+    <div class="bg-teal-50 border border-teal-200 rounded-2xl p-5 text-sm text-teal-900">
+      <p>
+        O Runify é o Trabalho de Conclusão de Curso do Tiago Santos. Esta política
+        explica, sem juridiquês, quais dados o app coleta, para quê, com quem eles
+        são compartilhados e quais direitos você tem sobre eles — nos termos da
+        Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+      </p>
+    </div>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">1. Quais dados coletamos</h2>
+      <ul class="text-sm text-gray-700 space-y-2 list-disc pl-5">
+        <li><strong>Cadastro:</strong> nome de usuário, e-mail e senha (a senha nunca é armazenada em texto puro).</li>
+        <li><strong>Perfil físico:</strong> peso, altura, data de nascimento, nível e anos de experiência de corrida, quilometragem semanal, melhores tempos em 5km/10km/meia maratona.</li>
+        <li><strong>Objetivo e saúde:</strong> seu objetivo de treino e histórico de lesões relatado por você — este último é tratado como <strong>dado sensível</strong> pela LGPD (Art. 5º, II), porque se relaciona à sua saúde.</li>
+        <li><strong>Atividades:</strong> distância, duração, ritmo e tipo de cada corrida — seja registrada manualmente, importada de um arquivo GPX/TCX, ou sincronizada da sua conta do Strava, se você conectar uma.</li>
+        <li><strong>Foto de perfil</strong> (opcional).</li>
+        <li><strong>Dados de uso:</strong> XP, nível, participação em Pacers (grupos), treinos concluídos.</li>
+      </ul>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">2. Para que usamos</h2>
+      <ul class="text-sm text-gray-700 space-y-2 list-disc pl-5">
+        <li>Gerar e ajustar seu plano de treino personalizado.</li>
+        <li>Mostrar seu histórico, progresso e estatísticas dentro do app.</li>
+        <li>Funcionalidades sociais (Pacers/squads), se você optar por participar.</li>
+        <li>Comunicação essencial: confirmação de conta, recuperação de senha.</li>
+        <li>
+          <strong>Pesquisa acadêmica do TCC:</strong> dados de uso podem ser analisados de
+          forma agregada e anonimizada (sem identificar você individualmente) para a
+          avaliação do trabalho de conclusão de curso.
+        </li>
+      </ul>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">3. Base legal</h2>
+      <p class="text-sm text-gray-700">
+        Tratamos a maior parte dos seus dados com base na <strong>execução de
+        contrato</strong> (Art. 7º, V da LGPD) — são os dados necessários para o app
+        funcionar, que você nos entrega ao criar uma conta. Para o histórico de lesões
+        (dado sensível de saúde), a base é o seu <strong>consentimento explícito</strong>
+        (Art. 7º, I e Art. 11), dado no momento do cadastro. Você pode retirar esse
+        consentimento a qualquer momento excluindo sua conta ou simplesmente não
+        preenchendo esse campo.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">4. Com quem compartilhamos</h2>
+      <p class="text-sm text-gray-700 mb-2">
+        Não vendemos seus dados. Alguns fornecedores processam parte deles porque o
+        app depende desses serviços para funcionar:
+      </p>
+      <ul class="text-sm text-gray-700 space-y-2 list-disc pl-5">
+        <li>
+          <strong>Google (Gemini API):</strong> seu perfil físico, objetivo, histórico
+          de lesões e atividades recentes são enviados para gerar o plano de treino
+          por inteligência artificial. É o único terceiro que recebe o dado sensível
+          de saúde.
+        </li>
+        <li>
+          <strong>Strava:</strong> se você conectar sua conta, trocamos dados de
+          autenticação e lemos suas atividades — sujeito também à política de
+          privacidade do próprio Strava.
+        </li>
+        <li><strong>Cloudflare (R2):</strong> armazena sua foto de perfil, se você enviar uma.</li>
+        <li><strong>Resend:</strong> envia e-mails essenciais (recuperação de senha).</li>
+        <li><strong>Render:</strong> hospeda a aplicação e o banco de dados.</li>
+      </ul>
+      <p class="text-sm text-gray-700 mt-2">
+        Todos esses fornecedores têm servidores fora do Brasil. Usamos apenas o
+        necessário de cada um para a funcionalidade que eles prestam.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">5. Por quanto tempo guardamos</h2>
+      <p class="text-sm text-gray-700">
+        Enquanto sua conta existir. Ao excluir sua conta pelas Configurações, seus
+        dados são apagados permanentemente do nosso banco — não é um "arquivamento",
+        é remoção de verdade. Dados já processados por terceiros durante o uso do
+        app (ex: uma chamada já feita à IA) não podem ser retroativamente apagados
+        dos servidores desses terceiros; consulte a política de privacidade deles
+        para isso.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">6. Seus direitos</h2>
+      <p class="text-sm text-gray-700 mb-2">A LGPD (Art. 18) garante que você pode, a qualquer momento:</p>
+      <ul class="text-sm text-gray-700 space-y-2 list-disc pl-5">
+        <li><strong>Acessar</strong> seus dados — estão sempre visíveis no seu perfil.</li>
+        <li><strong>Corrigir</strong> dados incompletos ou desatualizados — edite seu perfil quando quiser.</li>
+        <li>
+          <strong>Baixar uma cópia</strong> de tudo o que temos sobre você, em formato
+          legível — em Configurações → "Baixar meus dados".
+        </li>
+        <li>
+          <strong>Excluir</strong> sua conta e todos os dados associados — em
+          Configurações → "Excluir Conta". Ação permanente e imediata.
+        </li>
+        <li>Pedir informação sobre com quem compartilhamos seus dados (seção 4 acima).</li>
+      </ul>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">7. Contato</h2>
+      <p class="text-sm text-gray-700">
+        Dúvidas sobre esta política ou sobre seus dados: escreva para
+        <a href="mailto:tiagosantos.eli@gmail.com" class="text-teal-600 font-medium">tiagosantos.eli@gmail.com</a>.
+      </p>
+    </section>
+  </main>
+</div>

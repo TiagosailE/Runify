@@ -8,7 +8,8 @@ class AiAdjustmentServiceTest < ActiveSupport::TestCase
       username: "Teste",
       running_experience: "intermediate",
       weekly_mileage: 30,
-      preferred_training_days: [ 1, 3, 5 ]
+      preferred_training_days: [ 1, 3, 5 ],
+      terms_accepted: true
     )
 
     @plan = @user.training_plans.create!(
