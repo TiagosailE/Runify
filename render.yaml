@@ -57,13 +57,7 @@ services:
       - key: CLOUDFLARE_R2_BUCKET
         sync: false
 
-      # Strava (integracao opcional, ver docs/architecture.md). Desligada
-      # porque a aplicacao esta Inactive do lado do Strava -- eles passaram a
-      # exigir assinatura paga do dono da conta. Com a flag em "false" o app
-      # nao oferece um botao de conectar que so daria erro; o import de
-      # GPX/TCX cobre o mesmo caso de uso. Religar se houver assinatura.
-      - key: STRAVA_ENABLED
-        value: "false"
+      # Strava (integracao opcional, ver docs/architecture.md).
       - key: STRAVA_CLIENT_ID
         sync: false
       - key: STRAVA_CLIENT_SECRET

@@ -51,4 +51,29 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
     result = SyncStravaActivitiesJob.new.sync_user_activities(user)
     assert_equal({ new_count: 0, updated_count: 0, error: nil }, result)
   end
+
+  # O botao "Sincronizar" da home pede so as ultimas atividades; a varredura
+  # em background continua puxando a janela maior, para nao deixar buraco no
+  # historico.
+  test "sync_user_activities repassa o limite pedido para a API do Strava" do
+    user = users(:one)
+    StravaIntegration.create!(
+      user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
+      token_expires_at: 1.day.from_now, active: true
+    )
+
+    requested = []
+    fake_api = Object.new
+    fake_api.define_singleton_method(:athlete_activities) do |*_args, **kwargs|
+      requested << kwargs[:per_page]
+      []
+    end
+
+    Strava::Api::Client.stub :new, fake_api do
+      SyncStravaActivitiesJob.new.sync_user_activities(user, limit: SyncStravaActivitiesJob::MANUAL_SYNC_LIMIT)
+      SyncStravaActivitiesJob.new.sync_user_activities(user)
+    end
+
+    assert_equal [ 2, SyncStravaActivitiesJob::BACKGROUND_SYNC_LIMIT ], requested
+  end
 end
