@@ -1,0 +1,65 @@
+# Tradução das mensagens padrão do Devise (flash/validação). Espelha
+# devise.en.yml -- mesmo conjunto de chaves, mudou uma chave lá, muda aqui.
+pt-BR:
+  devise:
+    confirmations:
+      confirmed: "Seu e-mail foi confirmado com sucesso."
+      send_instructions: "Você receberá um e-mail com instruções para confirmar seu e-mail em alguns minutos."
+      send_paranoid_instructions: "Se o seu e-mail existir em nossa base de dados, você receberá um e-mail com instruções para confirmar seu e-mail em alguns minutos."
+    failure:
+      already_authenticated: "Você já está autenticado."
+      inactive: "Sua conta ainda não foi ativada."
+      invalid: "%{authentication_keys} ou senha inválidos."
+      locked: "Sua conta está bloqueada."
+      last_attempt: "Você tem mais uma tentativa antes que sua conta seja bloqueada."
+      not_found_in_database: "%{authentication_keys} ou senha inválidos."
+      timeout: "Sua sessão expirou. Faça login novamente para continuar."
+      unauthenticated: "Você precisa fazer login ou se cadastrar antes de continuar."
+      unconfirmed: "Você precisa confirmar seu e-mail antes de continuar."
+    mailer:
+      confirmation_instructions:
+        subject: "Instruções de confirmação"
+      reset_password_instructions:
+        subject: "Instruções para redefinir senha"
+      unlock_instructions:
+        subject: "Instruções para desbloqueio"
+      email_changed:
+        subject: "E-mail alterado"
+      password_change:
+        subject: "Senha alterada"
+    omniauth_callbacks:
+      failure: "Não foi possível autenticar você a partir de %{kind} porque \"%{reason}\"."
+      success: "Autenticado com sucesso a partir da conta %{kind}."
+    passwords:
+      no_token: "Você não pode acessar esta página sem vir de um e-mail de redefinição de senha. Se você veio de um e-mail de redefinição de senha, certifique-se de ter usado a URL completa fornecida."
+      send_instructions: "Você receberá um e-mail com instruções sobre como redefinir sua senha em alguns minutos."
+      send_paranoid_instructions: "Se o seu e-mail existir em nossa base de dados, você receberá um link de recuperação de senha em seu e-mail em alguns minutos."
+      updated: "Sua senha foi alterada com sucesso. Você está autenticado agora."
+      updated_not_active: "Sua senha foi alterada com sucesso."
+    registrations:
+      destroyed: "Até logo! Sua conta foi cancelada com sucesso. Esperamos vê-lo novamente em breve."
+      signed_up: "Bem-vindo! Você se cadastrou com sucesso."
+      signed_up_but_inactive: "Você se cadastrou com sucesso. No entanto, não foi possível fazer login porque sua conta ainda não foi ativada."
+      signed_up_but_locked: "Você se cadastrou com sucesso. No entanto, não foi possível fazer login porque sua conta está bloqueada."
+      signed_up_but_unconfirmed: "Uma mensagem com um link de confirmação foi enviada para o seu e-mail. Siga o link para ativar sua conta."
+      update_needs_confirmation: "Você atualizou sua conta com sucesso, mas precisamos verificar seu novo e-mail. Verifique seu e-mail e siga o link de confirmação para confirmar seu novo endereço."
+      updated: "Sua conta foi atualizada com sucesso."
+      updated_but_not_signed_in: "Sua conta foi atualizada com sucesso, mas como sua senha foi alterada, você precisa fazer login novamente."
+    sessions:
+      signed_in: "Logado com sucesso."
+      signed_out: "Você saiu com sucesso."
+      already_signed_out: "Você já tinha saído."
+    unlocks:
+      send_instructions: "Você receberá um e-mail com instruções para desbloquear sua conta em alguns minutos."
+      send_paranoid_instructions: "Se a sua conta existir, você receberá um e-mail com instruções para desbloqueá-la em alguns minutos."
+      unlocked: "Sua conta foi desbloqueada com sucesso. Faça login para continuar."
+  errors:
+    messages:
+      already_confirmed: "já foi confirmado, tente fazer login"
+      confirmation_period_expired: "precisa ser confirmado dentro de %{period}, solicite um novo"
+      expired: "expirou, solicite um novo"
+      not_found: "não encontrado"
+      not_locked: "não estava bloqueado"
+      not_saved:
+        one: "1 erro impediu que este %{resource} fosse salvo:"
+        other: "%{count} erros impediram que este %{resource} fosse salvo:"
