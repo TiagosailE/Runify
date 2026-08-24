@@ -10,6 +10,30 @@ class StravaIntegration < ApplicationRecord
 
   REFRESH_BUFFER = 1.minute
 
+  # O Strava devolve 403 com este codigo quando a APLICACAO (nao o token)
+  # esta desativada do lado deles -- hoje isso acontece quando o dono da
+  # conta nao tem assinatura paga. O OAuth continua funcionando: da para
+  # renovar o token normalmente e mesmo assim tomar 403 em todo endpoint de
+  # dados, o que torna o erro dificil de diagnosticar sem olhar este campo.
+  APP_INACTIVE_CODE = "Inactive"
+
+  def self.app_inactive_error?(error)
+    return false unless error.respond_to?(:errors)
+
+    Array(error.errors).any? do |detail|
+      detail.is_a?(Hash) && detail["resource"] == "Application" && detail["code"] == APP_INACTIVE_CODE
+    end
+  rescue StandardError
+    false
+  end
+
+  # Interruptor manual: com a app desativada no Strava, oferecer o botao de
+  # conectar so gera erro para o usuario. Desligar esconde a integracao sem
+  # remover o codigo, entao basta religar se um dia houver assinatura.
+  def self.integration_enabled?
+    ENV.fetch("STRAVA_ENABLED", "true") != "false"
+  end
+
   def token_expired?
     token_expires_at.present? && token_expires_at < Time.current
   end
