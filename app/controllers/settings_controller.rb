@@ -46,6 +46,29 @@ class SettingsController < ApplicationController
     }
   end
 
+  # Direito de portabilidade (LGPD Art. 18, V). Exclui deliberadamente
+  # credenciais e segredos operacionais (senha, tokens do Strava) -- isso
+  # nao e "dado sobre o titular" no sentido que a LGPD protege, e expor
+  # token de acesso de terceiro seria falha de seguranca, nao transparencia.
+  def export_data
+    data = {
+      exported_at: Time.current.iso8601,
+      account: current_user.as_json(
+        except: %w[encrypted_password reset_password_token reset_password_sent_at remember_created_at]
+      ),
+      activities: current_user.activities.as_json,
+      training_plans: current_user.training_plans.as_json(include: :workouts),
+      squads: current_user.squads.as_json(only: [ :id, :name, :squad_code ]),
+      achievements: current_user.achievements.as_json(only: [ :id, :name, :description ]),
+      strava_connected: current_user.strava_connected?
+    }
+
+    send_data JSON.pretty_generate(data),
+      filename: "runify-meus-dados-#{Date.today.iso8601}.json",
+      type: "application/json",
+      disposition: "attachment"
+  end
+
   def delete_account
     current_user.destroy
     flash[:toast] = { message: "Conta excluída com sucesso.", type: "success" }

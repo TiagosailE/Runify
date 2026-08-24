@@ -1,0 +1,100 @@
+<div class="min-h-screen bg-[#F5F5F5] pb-16">
+  <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
+    <div class="max-w-2xl mx-auto flex items-center gap-4">
+      <%= link_to (user_signed_in? ? settings_path : root_path), class: "text-gray-500 hover:text-gray-700" do %>
+        <i class="fas fa-arrow-left text-lg"></i>
+      <% end %>
+      <h1 class="text-lg font-bold text-gray-900">Termos de Uso</h1>
+    </div>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-6 py-8 space-y-6">
+    <p class="text-sm text-gray-500">Última atualização: 24 de agosto de 2026</p>
+
+    <div class="bg-orange-50 border border-orange-200 rounded-2xl p-5 text-sm text-orange-900">
+      <p>
+        <i class="fas fa-triangle-exclamation mr-1"></i>
+        <strong>O Runify não é um profissional de saúde.</strong> Os planos gerados
+        pela IA são sugestões automatizadas, não substituem orientação médica ou de
+        um educador físico. Consulte um profissional antes de iniciar qualquer
+        programa de treino, especialmente se você tem alguma condição de saúde.
+      </p>
+    </div>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">1. O que é o Runify</h2>
+      <p class="text-sm text-gray-700">
+        O Runify é um aplicativo de treino para corredores amadores, desenvolvido
+        como Trabalho de Conclusão de Curso por Tiago Santos. Ao criar uma conta,
+        você concorda com estes termos e com a
+        <%= link_to "Política de Privacidade", privacy_policy_path, class: "text-teal-600 font-medium" %>.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">2. Sua conta</h2>
+      <ul class="text-sm text-gray-700 space-y-2 list-disc pl-5">
+        <li>Você é responsável por manter sua senha em segurança e por tudo que acontece na sua conta.</li>
+        <li>Uma conta é de uso pessoal — não compartilhe suas credenciais.</li>
+        <li>As informações que você fornece (peso, altura, histórico) devem ser verdadeiras, na medida do seu conhecimento — planos de treino são calculados a partir delas.</li>
+      </ul>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">3. Planos gerados por Inteligência Artificial</h2>
+      <p class="text-sm text-gray-700">
+        Os treinos são gerados por um modelo de IA (Gemini, da Google) a partir do
+        seu perfil e histórico. Embora o Runify tenha limites automáticos para
+        evitar sugestões fisicamente absurdas ou perigosas, nenhum sistema
+        automatizado é infalível. Interrompa qualquer treino que cause dor, tontura
+        ou desconforto anormal, e procure orientação médica se necessário.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">4. Integrações de terceiros</h2>
+      <p class="text-sm text-gray-700">
+        Conectar sua conta do Strava é opcional e sujeito também aos termos de uso
+        do Strava. O Runify não controla a disponibilidade dessas integrações
+        externas.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">5. Uso aceitável</h2>
+      <p class="text-sm text-gray-700">
+        Não use o Runify para fins ilegais, para tentar acessar contas de outras
+        pessoas, ou para sobrecarregar deliberadamente o serviço. Contas usadas de
+        forma abusiva podem ser suspensas.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">6. Contexto acadêmico</h2>
+      <p class="text-sm text-gray-700">
+        O Runify está sendo usado para coleta de dados de um Trabalho de Conclusão
+        de Curso. Isso não muda seus direitos como usuário — os mesmos direitos de
+        acesso, correção e exclusão da
+        <%= link_to "Política de Privacidade", privacy_policy_path, class: "text-teal-600 font-medium" %>
+        se aplicam integralmente.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">7. Encerramento</h2>
+      <p class="text-sm text-gray-700">
+        Você pode excluir sua conta a qualquer momento em Configurações. É uma
+        ação permanente e imediata — todos os seus dados são removidos do banco.
+      </p>
+    </section>
+
+    <section class="bg-white rounded-2xl p-6 shadow-sm space-y-3">
+      <h2 class="text-base font-bold text-gray-900">8. Alterações e contato</h2>
+      <p class="text-sm text-gray-700">
+        Estes termos podem mudar conforme o app evolui. Mudanças relevantes serão
+        comunicadas dentro do app. Dúvidas:
+        <a href="mailto:tiagosantos.eli@gmail.com" class="text-teal-600 font-medium">tiagosantos.eli@gmail.com</a>.
+      </p>
+    </section>
+  </main>
+</div>

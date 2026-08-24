@@ -7,6 +7,11 @@ Rails.application.routes.draw do
 
   root "welcome#index"
 
+  # Páginas públicas (acessíveis sem login, inclusive a partir do cadastro)
+  get "privacidade", to: "pages#privacy", as: :privacy_policy
+  get "termos", to: "pages#terms", as: :terms_of_use
+  get "sobre", to: "pages#about", as: :about_page
+
   get "dashboard", to: "home#index", as: :dashboard
 
   get "profile", to: "profile#index", as: :profile
@@ -55,6 +60,7 @@ Rails.application.routes.draw do
   post "settings/toggle_theme", to: "settings#toggle_theme", as: :toggle_theme_settings
   post "settings/toggle_notifications", to: "settings#toggle_notifications", as: :toggle_notifications_settings
   get "settings/get_settings_state", to: "settings#get_settings_state", as: :get_settings_state
+  get "settings/export_data", to: "settings#export_data", as: :export_data_settings
   delete "settings/delete_account", to: "settings#delete_account", as: :delete_account_settings
 
   # Training

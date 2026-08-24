@@ -55,6 +55,21 @@ class User < ApplicationRecord
     message: "deve estar entre 0 e #{MAX_WEEKLY_MILEAGE_KM}km por semana"
   }
 
+  # Checkbox de consentimento no cadastro (LGPD). Virtual de proposito: o que
+  # fica no banco e terms_accepted_at (quando aceitou), nao um boolean --
+  # timestamp e a evidencia que importa se algum dia precisar provar consentimento.
+  attr_accessor :terms_accepted
+  # allow_nil e allow_blank default pra true no AcceptanceValidator do Rails
+  # -- a checagem so roda se o campo NAO for nil, entao sem isso um POST sem
+  # o parametro (via curl, ou form adulterado) passa batido sem consentimento
+  # nenhum. Precisa dos dois em false pra ser obrigatorio de verdade.
+  validates :terms_accepted, acceptance: {
+    allow_nil: false,
+    allow_blank: false,
+    message: "é obrigatório aceitar a Política de Privacidade e os Termos de Uso"
+  }, on: :create
+  before_create :record_terms_acceptance
+
   validates :running_experience, inclusion: {
     in: %w[beginner intermediate advanced],
     allow_nil: true
@@ -148,5 +163,11 @@ class User < ApplicationRecord
     return nil if avg_speed.zero?
 
     (1000.0 / (avg_speed * 60)).round(2)
+  end
+
+  private
+
+  def record_terms_acceptance
+    self.terms_accepted_at = Time.current
   end
 end

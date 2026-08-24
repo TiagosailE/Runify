@@ -83,36 +83,51 @@
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Sobre</h2>
       
       <div class="bg-white rounded-2xl shadow-sm divide-y">
-        <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50">
+        <%= link_to privacy_policy_path, class: "flex items-center justify-between p-4 hover:bg-gray-50" do %>
           <div class="flex items-center gap-3">
             <i class="fas fa-shield-alt text-gray-700"></i>
             <span class="text-gray-900">Política de Privacidade</span>
           </div>
           <i class="fas fa-chevron-right text-gray-400"></i>
-        </a>
-        
-        <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50">
+        <% end %>
+
+        <%= link_to terms_of_use_path, class: "flex items-center justify-between p-4 hover:bg-gray-50" do %>
           <div class="flex items-center gap-3">
             <i class="fas fa-file-alt text-gray-700"></i>
             <span class="text-gray-900">Termos de Uso</span>
           </div>
           <i class="fas fa-chevron-right text-gray-400"></i>
-        </a>
-        
-        <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50">
+        <% end %>
+
+        <%= link_to about_page_path, class: "flex items-center justify-between p-4 hover:bg-gray-50" do %>
           <div class="flex items-center gap-3">
             <i class="fas fa-info-circle text-gray-700"></i>
             <span class="text-gray-900">Sobre o Runify</span>
           </div>
           <i class="fas fa-chevron-right text-gray-400"></i>
-        </a>
+        <% end %>
       </div>
     </section>
 
     <section>
-      <button id="delete-account-open-button" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
-        Excluir Conta
-      </button>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Seus dados</h2>
+
+      <div class="space-y-3">
+        <%= link_to export_data_settings_path, class: "flex items-center justify-between bg-white rounded-2xl p-4 shadow-sm hover:bg-gray-50" do %>
+          <div class="flex items-center gap-3">
+            <i class="fas fa-download text-teal-500"></i>
+            <div>
+              <p class="font-semibold text-gray-900">Baixar meus dados</p>
+              <p class="text-xs text-gray-500">Uma cópia de tudo que temos sobre você, em JSON</p>
+            </div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400"></i>
+        <% end %>
+
+        <button id="delete-account-open-button" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
+          Excluir Conta
+        </button>
+      </div>
     </section>
 
   </main>
