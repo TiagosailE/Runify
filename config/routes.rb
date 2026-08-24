@@ -47,11 +47,9 @@ Rails.application.routes.draw do
   # Histórico
   get "history", to: "history#index", as: :history
 
-  # Atividades (registro manual + import de GPX/TCX)
+  # Atividades (registro manual)
   get "activities/new", to: "activities#new", as: :new_activity
   post "activities", to: "activities#create", as: :activities
-  get "activities/import", to: "activities#new_import", as: :new_activity_import
-  post "activities/import", to: "activities#import", as: :import_activities
   delete "activities/:id", to: "activities#destroy", as: :activity
 
   # Configurações

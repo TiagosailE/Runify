@@ -24,7 +24,7 @@ sensível (histórico de lesões, Art. 5º, II).
 | Cadastro (e-mail, senha, username) | Execução de contrato (Art. 7º, V) | Necessário para a conta existir. |
 | Perfil físico (peso, altura, idade, experiência) | Execução de contrato (Art. 7º, V) | Necessário para gerar o plano de treino, a função central do app. |
 | Histórico de lesões | Consentimento explícito (Art. 7º, I + Art. 11) | Dado sensível de saúde — exige base própria, não cabe em "execução de contrato". |
-| Atividades (manual/GPX/Strava) | Execução de contrato (Art. 7º, V) | O usuário fornece deliberadamente para acompanhar progresso. |
+| Atividades (manual/Strava) | Execução de contrato (Art. 7º, V) | O usuário fornece deliberadamente para acompanhar progresso. |
 | Uso agregado para o TG | Legítimo interesse acadêmico, sempre anonimizado | Não identifica o titular individualmente. |
 
 ## 3. Consentimento — implementação

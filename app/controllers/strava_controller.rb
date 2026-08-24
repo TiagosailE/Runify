@@ -112,12 +112,11 @@ class StravaController < ApplicationController
     if result[:error]
       # "Forbidden" sozinho nao diz nada para quem esta usando o app. Quando
       # a causa e a aplicacao desativada no Strava, nao ha nada que o usuario
-      # possa fazer aqui -- o import de GPX resolve o mesmo problema, entao e
-      # para la que ele deve ser mandado.
+      # possa fazer aqui -- registrar a atividade manualmente resolve o mesmo
+      # problema, entao e para la que ele deve ser mandado.
       flash[:toast] = if StravaIntegration.app_inactive_error?(result[:error])
-        { message: "A integração com o Strava está indisponível no momento. Use " \
-                   "\"Importar arquivo\" para trazer suas atividades (exporte o GPX " \
-                   "pelo site do Strava).",
+        { message: "A integração com o Strava está indisponível no momento. " \
+                   "Registre suas atividades manualmente enquanto isso.",
           type: "warning" }
       else
         { message: "Erro ao sincronizar: #{result[:error].message}", type: "error" }

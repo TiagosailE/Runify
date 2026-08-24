@@ -15,35 +15,19 @@ guarda o payload bruto independente da origem, e os campos normalizados
 (`distance`, `duration`, `sport_type` etc.) são o contrato comum:
 
 - **Strava** (opcional, best-effort) — descrito abaixo.
-- **Manual / import GPX-TCX** — fonte principal para a coleta de dados do
-  TG, já que a conta de desenvolvedor do Strava tem capacidade de só 1
-  atleta simultâneo no nível gratuito (ver `PROGRESS.md`).
+- **Manual** — fonte principal para a coleta de dados do TG, já que a
+  conta de desenvolvedor do Strava tem capacidade limitada de atletas
+  simultâneos no nível gratuito (ver `PROGRESS.md`).
 
-`Activity.source` marca a origem (`strava` / `manual` / `import`) — é
-metadado para a análise de dados do TG, nada no app se comporta diferente
-por causa dele.
+`Activity.source` marca a origem (`strava` / `manual`) — é metadado para a
+análise de dados do TG, nada no app se comporta diferente por causa dele.
 
-## Registro manual e import de GPX/TCX
+## Registro manual de atividade
 
-`ActivitiesController` (`/activities/new`, `/activities/import`) cobre as
-duas entradas, ambas terminando em `history_path`:
-
-- **Manual**: formulário pede nome (opcional), data, distância (km) e
-  tempo (h/m/s) separados. `sport_type` é sempre `"Run"` — o produto é
-  focado em corrida, não expõe seletor de modalidade.
-- **Import**: aceita `.gpx`/`.tcx`, delega a extração para
-  `ActivityFileParser`. O arquivo é lido em memória e descartado — só os
-  campos derivados (distância, duração, data, nome/esporte quando
-  disponíveis) viram `Activity`. Nenhum arquivo bruto fica salvo.
-  - GPX: distância por Haversine entre `<trkpt>` consecutivos; duração do
-    primeiro ao último `<time>`.
-  - TCX: soma `<DistanceMeters>`/`<TotalTimeSeconds>` de cada `<Lap>` —
-    mais preciso que recalcular do zero, já que o próprio dispositivo já
-    fez essa conta.
-  - Sem distinção de tempo "em movimento" vs. elapsed em nenhum dos dois
-    casos (`moving_time` = `duration`) — simplificação deliberada, dado
-    que nem entrada manual nem a maioria dos exports GPX trazem essa
-    distinção de forma confiável.
+`ActivitiesController` (`/activities/new`) cobre a entrada manual,
+terminando em `history_path`: formulário pede nome (opcional), data,
+distância (km) e tempo (h/m/s) separados. `sport_type` é sempre `"Run"` —
+o produto é focado em corrida, não expõe seletor de modalidade.
 
 Tanto o registro manual quanto o Strava chamam `XpService.award_xp` na
 criação — a gamificação não distingue de onde a atividade veio.

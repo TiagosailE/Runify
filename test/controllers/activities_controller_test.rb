@@ -46,48 +46,6 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "should get new_import" do
-    get new_activity_import_url
-    assert_response :success
-  end
-
-  test "import creates an activity from a valid GPX file" do
-    assert_difference "users(:one).activities.count", 1 do
-      post import_activities_url, params: {
-        file: fixture_file_upload("sample.gpx", "application/gpx+xml")
-      }
-    end
-
-    assert_redirected_to history_path
-    activity = users(:one).activities.order(:created_at).last
-    assert_equal "import", activity.source
-  end
-
-  test "import rejects a file without a .gpx or .tcx extension" do
-    assert_no_difference "Activity.count" do
-      post import_activities_url, params: {
-        file: fixture_file_upload("invalid.gpx", "text/plain", original_filename: "notes.txt")
-      }
-    end
-
-    assert_redirected_to new_activity_import_path
-  end
-
-  test "import rejects a file it cannot parse" do
-    assert_no_difference "Activity.count" do
-      post import_activities_url, params: {
-        file: fixture_file_upload("invalid.gpx", "application/gpx+xml")
-      }
-    end
-
-    assert_redirected_to new_activity_import_path
-  end
-
-  test "import requires a file" do
-    post import_activities_url
-    assert_redirected_to new_activity_import_path
-  end
-
   test "destroy removes the caller's activity" do
     activity = users(:one).activities.create!(
       name: "A apagar", sport_type: "Run", distance: 1000, duration: 300,

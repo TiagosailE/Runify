@@ -510,7 +510,6 @@ DEPENDENCIES
   jbuilder
   kamal
   minitest (< 6)
-  nokogiri
   pg (~> 1.1)
   propshaft
   puma (>= 5.0)
