@@ -25,7 +25,11 @@ class User < ApplicationRecord
   MAX_HALF_MARATHON_TIME_SECONDS = 21600
   MAX_WEEKLY_MILEAGE_KM = 300
 
-  validates :age, numericality: { greater_than_or_equal_to: 12, less_than_or_equal_to: 120, allow_nil: true, message: "deve estar entre 12 e 120 anos" }
+  # Piso temporario em 18 anos [E]: o Tiago decidiu restringir a maiores de
+  # idade por enquanto (tratamento de dado de menor exige consentimento
+  # parental especifico, LGPD Art. 14, que o app ainda nao implementa) --
+  # pretende abrir para menores de idade depois, quando esse fluxo existir.
+  validates :age, numericality: { greater_than_or_equal_to: 18, less_than_or_equal_to: 120, allow_nil: true, message: "deve ser maior de idade (18 anos) -- o Runify ainda não oferece o fluxo de consentimento para menores" }
   validates :weight, numericality: { greater_than: 30, less_than_or_equal_to: 300, allow_nil: true, message: "deve estar entre 30kg e 300kg" }
   validates :height, numericality: { greater_than: 100, less_than_or_equal_to: 250, allow_nil: true, message: "deve estar entre 100cm e 250cm" }
   validates :goal, length: { maximum: 500, allow_nil: true, message: "não pode exceder 500 caracteres" }

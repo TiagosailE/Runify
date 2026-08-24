@@ -60,4 +60,20 @@ class UserTest < ActiveSupport::TestCase
 
     assert user.valid?, user.errors.full_messages.inspect
   end
+
+  # Piso temporario [E]: Runify restrito a maiores de 18 por enquanto --
+  # tratamento de dado de menor exige consentimento parental (LGPD Art. 14),
+  # que o app ainda nao implementa.
+  test "rejeita menor de 18 anos" do
+    user = build_user(birth_date: 16.years.ago.to_date)
+
+    assert_not user.valid?
+    assert user.errors[:age].any?
+  end
+
+  test "aceita maior de 18 anos" do
+    user = build_user(birth_date: 20.years.ago.to_date)
+
+    assert user.valid?, user.errors.full_messages.inspect
+  end
 end

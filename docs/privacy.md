@@ -83,22 +83,23 @@ internacional):
 | Eliminação | `SettingsController#delete_account` — já existia antes desta entrega, `current_user.destroy` de verdade, não soft-delete |
 | Revogação de consentimento | Excluir a conta (o núcleo do app depende da IA, então não há um "desligar IA e continuar usando" que faça sentido de produto) |
 
-## 6. Gaps conhecidos, não resolvidos nesta entrega
+## 6. Decisões `[E]` do Tiago sobre os gaps encontrados (2026-08-24)
 
-- **`User` permite idade de 12 a 120 anos** (`app/models/user.rb`), sem
-  nenhum fluxo de consentimento parental. LGPD Art. 14 exige tratamento
-  diferenciado para dado de criança/adolescente (consentimento específico
-  de responsável legal para menores de 12; "melhor interesse" para
-  adolescentes). Isso é uma decisão de produto/escopo, não algo que esta
-  entrega decidiu mudar sozinha — o piso de 12 anos já existia antes desta
-  sessão. Vale o Tiago decidir se sobe o piso (ex: 18 anos, mais simples de
-  justificar) ou implementa consentimento parental de verdade.
-- **Comitê de Ética em Pesquisa (CEP) / Plataforma Brasil**: pesquisa com
-  seres humanos pode exigir submissão a um CEP, independente do nível do
-  curso, com prazo mínimo de 30 dias antes da reunião do comitê. Isso é
-  institucional — depende do curso/orientador do Tiago, não é algo que
-  código resolve. Flagado a ele diretamente; não verificado se já foi
-  perguntado ao orientador.
+- **Comitê de Ética (CEP) / Plataforma Brasil**: já submetido pelo Tiago
+  antes desta sessão. Decisão dele: seguir como se já tivesse sido aceito,
+  dado o prazo curto até setembro/outubro. Não é algo que este projeto
+  rastreia ou verifica em código — decisão institucional, registrada aqui
+  só para constar que foi perguntado e respondido.
+- **Idade mínima**: restrita a **18 anos** por decisão explícita do Tiago —
+  "o projeto é para maiores de 18 anos, porém posteriormente vou deixar
+  aberto para menores idades". Implementado (`User` valida `age >= 18`,
+  antes era 12) com o piso antigo comentado no código como temporário.
+  Quando ele quiser reabrir para menores, vai precisar implementar o fluxo
+  de consentimento parental (LGPD Art. 14) antes de só baixar o número de
+  volta — abrir a idade sem esse fluxo reintroduziria o gap original.
+
+## 7. Outro gap conhecido
+
 - **Sem versionamento de política**: se o texto de `/privacidade` mudar no
   futuro, não há mecanismo para saber quem aceitou qual versão. Aceitável
   para o escopo de um TCC; se o projeto crescer, `terms_accepted_at` teria
