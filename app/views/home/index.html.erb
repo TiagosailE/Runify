@@ -9,8 +9,16 @@
           <h2 class="text-lg font-semibold text-gray-900">
             Suas <%= current_user.recent_activities.count %> últimas atividades
           </h2>
-          <%= button_to sync_strava_path, method: :post, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
-            <i class="fas fa-sync-alt"></i> Sincronizar
+          <%# Com a integração desligada o sync só devolveria erro; o import
+              faz o mesmo trabalho e funciona. %>
+          <% if StravaIntegration.integration_enabled? %>
+            <%= button_to sync_strava_path, method: :post, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
+              <i class="fas fa-sync-alt"></i> Sincronizar
+            <% end %>
+          <% else %>
+            <%= link_to new_activity_import_path, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
+              <i class="fas fa-file-arrow-up"></i> Importar
+            <% end %>
           <% end %>
         </div>
         <% if current_user.recent_activities.any? %>
@@ -56,7 +64,7 @@
           </div>
         <% end %>
       </section>
-    <% else %>
+    <% elsif StravaIntegration.integration_enabled? %>
       <section>
         <div class="bg-white rounded-2xl p-6 shadow-sm text-center space-y-4">
           <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
@@ -68,6 +76,31 @@
             <i class="fab fa-strava mr-2"></i>Conectar com Strava
           <% end %>
           <p class="text-xs text-gray-400">Para conectar uma conta diferente da última usada neste navegador, saia primeiro em strava.com</p>
+        </div>
+      </section>
+
+    <%# Com a integração desligada, oferecer "Conectar com Strava" só levaria
+        a erro. O import de GPX resolve o mesmo problema e funciona hoje --
+        inclusive com os arquivos exportados do próprio Strava. %>
+    <% else %>
+      <section>
+        <div class="bg-white rounded-2xl p-6 shadow-sm text-center space-y-4">
+          <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto">
+            <i class="fas fa-file-arrow-up text-2xl text-teal-500"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">Registre suas corridas</h3>
+          <p class="text-gray-600 text-sm">
+            Adicione uma corrida manualmente ou importe um arquivo GPX/TCX — inclusive
+            os que você exporta do próprio Strava.
+          </p>
+          <div class="flex gap-3">
+            <%= link_to new_activity_path, class: "flex-1 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-2xl transition-all shadow-lg text-sm" do %>
+              <i class="fas fa-plus mr-2"></i>Registrar
+            <% end %>
+            <%= link_to new_activity_import_path, class: "flex-1 bg-white border border-teal-500 text-teal-600 hover:bg-teal-50 font-semibold py-3 px-4 rounded-2xl transition-all text-sm" do %>
+              <i class="fas fa-file-arrow-up mr-2"></i>Importar
+            <% end %>
+          </div>
         </div>
       </section>
     <% end %>

@@ -36,4 +36,65 @@ class StravaIntegrationTest < ActiveSupport::TestCase
       assert_equal 123, activities.first.id
     end
   end
+
+  # Erro real capturado da API em 2026-08-23: o OAuth continua funcionando
+  # (o refresh de token passa) e mesmo assim TODO endpoint de dados devolve
+  # 403 com este corpo, porque a aplicacao esta desativada no Strava. Sem
+  # olhar este campo o erro chega como um "Forbidden" indiagnosticavel.
+  class FakeFault < StandardError
+    attr_reader :errors
+
+    def initialize(errors)
+      @errors = errors
+      super("Forbidden")
+    end
+  end
+
+  test "reconhece o erro de aplicação desativada" do
+    error = FakeFault.new([ { "resource" => "Application", "field" => "Status", "code" => "Inactive" } ])
+
+    assert StravaIntegration.app_inactive_error?(error)
+  end
+
+  test "não confunde outro 403 com aplicação desativada" do
+    error = FakeFault.new([ { "resource" => "Athlete", "field" => "access_token", "code" => "invalid" } ])
+
+    assert_not StravaIntegration.app_inactive_error?(error)
+  end
+
+  test "erro sem detalhes não quebra a classificação" do
+    assert_not StravaIntegration.app_inactive_error?(StandardError.new("boom"))
+    assert_not StravaIntegration.app_inactive_error?(FakeFault.new(nil))
+  end
+
+  # A flag e controlada explicitamente nos dois testes: o .env da maquina
+  # tambem e carregado em teste, entao depender do ambiente faria o
+  # resultado mudar conforme quem roda.
+  def with_strava_enabled(value)
+    original = ENV["STRAVA_ENABLED"]
+    had_key = ENV.key?("STRAVA_ENABLED")
+
+    value.nil? ? ENV.delete("STRAVA_ENABLED") : ENV["STRAVA_ENABLED"] = value
+    yield
+  ensure
+    had_key ? ENV["STRAVA_ENABLED"] = original : ENV.delete("STRAVA_ENABLED")
+  end
+
+  test "integração fica ligada quando a flag não está definida" do
+    with_strava_enabled(nil) do
+      assert StravaIntegration.integration_enabled?
+    end
+  end
+
+  test "STRAVA_ENABLED=false desliga a integração" do
+    with_strava_enabled("false") do
+      assert_not StravaIntegration.integration_enabled?
+    end
+  end
+
+  test "qualquer outro valor mantém a integração ligada" do
+    with_strava_enabled("true") do
+      assert StravaIntegration.integration_enabled?
+    end
+  end
 end

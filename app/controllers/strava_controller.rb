@@ -107,7 +107,17 @@ class StravaController < ApplicationController
     result = SyncStravaActivitiesJob.new.sync_user_activities(current_user)
 
     if result[:error]
-      flash[:toast] = { message: "Erro ao sincronizar: #{result[:error].message}", type: "error" }
+      # "Forbidden" sozinho nao diz nada para quem esta usando o app. Quando
+      # a causa e a aplicacao desativada no Strava, nao ha nada que o usuario
+      # possa fazer na sincronizacao -- mas o import de GPX funciona e
+      # resolve o mesmo problema, entao e para la que ele deve ser mandado.
+      flash[:toast] = if StravaIntegration.app_inactive_error?(result[:error])
+        { message: "A integração com o Strava está indisponível. Use \"Importar arquivo\" " \
+                   "para trazer suas atividades (exporte o GPX pelo site do Strava).",
+          type: "warning" }
+      else
+        { message: "Erro ao sincronizar: #{result[:error].message}", type: "error" }
+      end
     else
       message = []
       message << "#{result[:new_count]} novas" if result[:new_count] > 0
