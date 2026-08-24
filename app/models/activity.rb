@@ -1,5 +1,5 @@
 class Activity < ApplicationRecord
-  SOURCES = %w[strava manual import].freeze
+  SOURCES = %w[strava manual].freeze
 
   belongs_to :user
 

@@ -67,6 +67,3 @@ gem "dotenv-rails", "~> 3.2"
 gem "gemini-ai", "~> 4.3"
 
 gem "active_storage_validations", "~> 3.0"
-
-# Parser de arquivos GPX/TCX importados manualmente (import de atividade)
-gem "nokogiri"

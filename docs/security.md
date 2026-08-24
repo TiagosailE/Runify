@@ -126,9 +126,9 @@ Não havia nenhum. `rate_limit` nativo do Rails 8 (sem gem nova) entrou em:
 - Login (`Users::SessionsController`): 10 tentativas / 3 minutos.
 - Cadastro (`Users::RegistrationsController`): 5 / hora.
 - Recuperação de senha (`Users::PasswordsController`): 5 / 15 minutos.
-- Criação/import de atividade (`ActivitiesController`): 20 / hora, por
-  usuário (não por IP) — protege contra farm de XP e bloat de banco via
-  o formulário de registro manual, não contra força bruta de credencial.
+- Criação de atividade (`ActivitiesController`): 20 / hora, por usuário
+  (não por IP) — protege contra farm de XP e bloat de banco via o
+  formulário de registro manual, não contra força bruta de credencial.
 
 Exigiu gerar os controllers do Devise (`app/controllers/users/`) porque a
 gem não expõe ponto de customização sem isso — `devise_for` foi reapontado
