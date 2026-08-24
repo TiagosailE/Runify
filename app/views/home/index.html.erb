@@ -3,70 +3,72 @@
 
   <main class="px-4 py-6 space-y-8 max-w-lg mx-auto">
 
-    <% if current_user.strava_connected? %>
+    <% if current_user.recent_activities.any? %>
       <section>
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-gray-900">
             Suas <%= current_user.recent_activities.count %> últimas atividades
           </h2>
-          <%= button_to sync_strava_path, method: :post, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
-            <i class="fas fa-sync-alt"></i> Sincronizar
+          <% if current_user.strava_connected? %>
+            <%= button_to sync_strava_path, method: :post, class: "text-sm text-teal-500 hover:text-teal-600 font-medium flex items-center gap-1" do %>
+              <i class="fas fa-sync-alt"></i> Sincronizar
+            <% end %>
           <% end %>
         </div>
-        <% if current_user.recent_activities.any? %>
-          <div class="space-y-4">
-            <% current_user.recent_activities.each do |activity| %>
-              <div class="relative bg-[#2EC4B6]/[0.08] rounded-2xl p-5 shadow-md overflow-visible">
-                <svg class="absolute bottom-8 -right-5 w-24 h-3 text-[#FF6A3D] transform -rotate-2 pointer-events-none"
-                     viewBox="0 0 100 10" fill="currentColor" preserveAspectRatio="none">
-                  <path d="M0 5 L95 3 A 2 2 0 0 1 95 7 Z" />
-                </svg>
-                <div class="relative z-10 flex justify-between items-start">
-                  <div class="flex flex-col space-y-2">
-                    <p class="text-xs text-gray-500 font-medium">
-                      <%= activity.start_date&.strftime("%d/%m/%Y") || activity.created_at.strftime("%d/%m/%Y") %>
-                    </p>
-                    <h3 class="text-sm font-bold text-gray-800 leading-tight pr-4">
-                      <%= activity.name %>
-                    </h3>
-                    <div class="flex gap-5">
-                      <div>
-                        <p class="text-[#FF6A3D] font-bold text-base leading-none"><%= activity.duration_formatted %></p>
-                        <p class="text-gray-400 text-xs mt-1">Tempo</p>
-                      </div>
-                      <div>
-                        <p class="text-[#E9C46A] font-bold text-base leading-none"><%= activity.pace_per_km %></p>
-                        <p class="text-gray-400 text-xs mt-1">Pace</p>
-                      </div>
+        <div class="space-y-4">
+          <% current_user.recent_activities.each do |activity| %>
+            <div class="relative bg-[#2EC4B6]/[0.08] rounded-2xl p-5 shadow-md overflow-visible">
+              <svg class="absolute bottom-8 -right-5 w-24 h-3 text-[#FF6A3D] transform -rotate-2 pointer-events-none"
+                   viewBox="0 0 100 10" fill="currentColor" preserveAspectRatio="none">
+                <path d="M0 5 L95 3 A 2 2 0 0 1 95 7 Z" />
+              </svg>
+              <div class="relative z-10 flex justify-between items-start">
+                <div class="flex flex-col space-y-2">
+                  <p class="text-xs text-gray-500 font-medium">
+                    <%= activity.start_date&.strftime("%d/%m/%Y") || activity.created_at.strftime("%d/%m/%Y") %>
+                  </p>
+                  <h3 class="text-sm font-bold text-gray-800 leading-tight pr-4">
+                    <%= activity.name %>
+                  </h3>
+                  <div class="flex gap-5">
+                    <div>
+                      <p class="text-[#FF6A3D] font-bold text-base leading-none"><%= activity.duration_formatted %></p>
+                      <p class="text-gray-400 text-xs mt-1">Tempo</p>
+                    </div>
+                    <div>
+                      <p class="text-[#E9C46A] font-bold text-base leading-none"><%= activity.pace_per_km %></p>
+                      <p class="text-gray-400 text-xs mt-1">Pace</p>
                     </div>
                   </div>
-                  <div class="flex items-baseline gap-1 pt-1">
-                    <span class="text-3xl font-extrabold text-gray-900 tracking-tight"><%= activity.distance_km %></span>
-                    <span class="text-base font-bold text-gray-900">Km</span>
-                  </div>
+                </div>
+                <div class="flex items-baseline gap-1 pt-1">
+                  <span class="text-3xl font-extrabold text-gray-900 tracking-tight"><%= activity.distance_km %></span>
+                  <span class="text-base font-bold text-gray-900">Km</span>
                 </div>
               </div>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
-            <i class="fas fa-running text-4xl text-gray-300 mb-3"></i>
-            <p class="text-gray-500">Nenhuma atividade encontrada</p>
-            <p class="text-sm text-gray-400 mt-2">Faça uma corrida e sincronize novamente</p>
-          </div>
-        <% end %>
+            </div>
+          <% end %>
+        </div>
       </section>
     <% else %>
       <section>
         <div class="bg-white rounded-2xl p-6 shadow-sm text-center space-y-4">
           <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
-            <i class="fas fa-link text-2xl text-orange-500"></i>
+            <i class="fas fa-running text-2xl text-orange-500"></i>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">Conecte seu Strava</h3>
-          <p class="text-gray-600 text-sm">Conecte sua conta do Strava para importar suas atividades e receber treinos personalizados</p>
-          <%= link_to strava_connect_path, data: { turbo: false }, class: "inline-block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-2xl transition-all shadow-lg text-sm" do %>
-            <i class="fab fa-strava mr-2"></i>Conectar com Strava
-          <% end %>
+          <h3 class="text-lg font-bold text-gray-900">Registre suas corridas</h3>
+          <p class="text-gray-600 text-sm">Registre manualmente, importe um arquivo GPX/TCX ou conecte o Strava para acompanhar seu progresso</p>
+          <div class="flex flex-col gap-2">
+            <%= link_to new_activity_path, class: "inline-block w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-2xl transition-all shadow-lg text-sm" do %>
+              <i class="fas fa-plus mr-2"></i>Registrar atividade
+            <% end %>
+            <%= link_to new_activity_import_path, class: "inline-block w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-2xl transition-all text-sm" do %>
+              <i class="fas fa-file-import mr-2"></i>Importar GPX/TCX
+            <% end %>
+            <%= link_to strava_connect_path, data: { turbo: false }, class: "inline-block w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-2xl transition-all text-sm" do %>
+              <i class="fab fa-strava mr-2 text-orange-500"></i>Conectar com Strava
+            <% end %>
+          </div>
           <p class="text-xs text-gray-400">Para conectar uma conta diferente da última usada neste navegador, saia primeiro em strava.com</p>
         </div>
       </section>

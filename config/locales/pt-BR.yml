@@ -1,0 +1,98 @@
+# Mensagens padrão do Rails (ActiveModel/ActiveRecord) em português. Strings
+# de view/flash/toast continuam direto em português no código (ver
+# NOTES.md) -- isto cobre só o que o próprio framework gera (validação sem
+# `message:` customizada, ex: confirmação de senha do Devise).
+pt-BR:
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      accepted: "deve ser aceito"
+      blank: "não pode ficar em branco"
+      confirmation: "não é igual a %{attribute}"
+      empty: "não pode ficar vazio"
+      equal_to: "deve ser igual a %{count}"
+      even: "deve ser par"
+      exclusion: "não está disponível"
+      greater_than: "deve ser maior que %{count}"
+      greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+      in: "deve estar em %{count}"
+      inclusion: "não está incluído na lista"
+      invalid: "não é válido"
+      less_than: "deve ser menor que %{count}"
+      less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+      model_invalid: "A validação falhou: %{errors}"
+      not_a_number: "não é um número"
+      not_an_integer: "não é um número inteiro"
+      odd: "deve ser ímpar"
+      other_than: "deve ser diferente de %{count}"
+      present: "deve ficar em branco"
+      required: "deve existir"
+      taken: "já está em uso"
+      too_long:
+        one: "é muito longo (máximo: 1 caractere)"
+        other: "é muito longo (máximo: %{count} caracteres)"
+      too_short:
+        one: "é muito curto (mínimo: 1 caractere)"
+        other: "é muito curto (mínimo: %{count} caracteres)"
+      wrong_length:
+        one: "não possui o tamanho esperado (1 caractere)"
+        other: "não possui o tamanho esperado (%{count} caracteres)"
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "A validação falhou: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "Não é possível excluir o registro pois existe um(a) %{record} dependente"
+          has_many: "Não é possível excluir o registro pois existem %{record} dependentes"
+    models:
+      user: "usuário"
+      activity: "atividade"
+      workout: "treino"
+      training_plan: "plano de treino"
+      squad: "squad"
+      squad_member: "membro do squad"
+      notification: "notificação"
+      achievement: "conquista"
+      strava_integration: "integração com o Strava"
+    attributes:
+      user:
+        email: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirmação de senha"
+        current_password: "Senha atual"
+        username: "Usuário"
+        age: "Idade"
+        birth_date: "Data de nascimento"
+        weight: "Peso"
+        height: "Altura"
+        goal: "Objetivo"
+        best_5k_time: "Melhor tempo nos 5km"
+        best_10k_time: "Melhor tempo nos 10km"
+        best_half_marathon_time: "Melhor tempo na meia maratona"
+        weekly_mileage: "Quilometragem semanal"
+        running_experience: "Experiência com corrida"
+        running_experience_years: "Anos de experiência com corrida"
+        terms_accepted: "Aceite dos termos"
+      activity:
+        name: "Nome"
+        distance: "Distância"
+        duration: "Duração"
+        start_date: "Data"
+        sport_type: "Modalidade"
+        source: "Origem"
+      workout:
+        status: "Status"
+        workout_format: "Formato do treino"
+        week_number: "Semana"
+        day_of_week: "Dia da semana"
+        distance: "Distância"
+        duration: "Duração"
+      squad:
+        name: "Nome"
+        squad_code: "Código do squad"
+      notification:
+        notification_type: "Tipo de notificação"
+      training_plan:
+        status: "Status"
+      strava_integration:
+        strava_athlete_id: "ID do atleta no Strava"

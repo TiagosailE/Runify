@@ -16,36 +16,22 @@
       </h2>
       
       <p class="text-gray-600 mb-6">
-        Nossa IA vai analisar suas atividades no Strava e criar um plano personalizado baseado no seu objetivo.
+        Nossa IA vai analisar seu perfil e suas atividades registradas para criar um plano personalizado baseado no seu objetivo.
       </p>
 
-      <% if current_user.strava_connected? %>
-        
-        <%= button_to generate_training_path, 
-            method: :post, 
-            form: { data: { action: "turbo:submit-start->loading#submit" } },
-            class: "w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-200 shadow-lg mb-3" do %>
-          
-          <i class="fas fa-magic mr-2"></i>
-          Gerar Plano com IA
-          
-        <% end %>
-        
-        <p class="text-xs text-gray-500">
-          Isso pode levar alguns segundos
-        </p>
-      <% else %>
-        <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
-          <p class="text-sm text-orange-800 mb-3">
-            <i class="fas fa-exclamation-circle mr-1"></i>
-            Conecte seu Strava primeiro
-          </p>
-          <%= link_to strava_connect_path, data: { turbo: false }, class: "inline-block w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition-all" do %>
-            <i class="fab fa-strava mr-2"></i>
-            Conectar Strava
-          <% end %>
-        </div>
+      <%= button_to generate_training_path,
+          method: :post,
+          form: { data: { action: "turbo:submit-start->loading#submit" } },
+          class: "w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-200 shadow-lg mb-3" do %>
+
+        <i class="fas fa-magic mr-2"></i>
+        Gerar Plano com IA
+
       <% end %>
+
+      <p class="text-xs text-gray-500">
+        Isso pode levar alguns segundos
+      </p>
     </div>
 
   </main>
