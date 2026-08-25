@@ -10,7 +10,7 @@ class Squad < ApplicationRecord
 
   def active?
     return true if challenge_end.nil?
-    challenge_end >= Date.today
+    challenge_end >= Date.current
   end
 
   def leaderboard

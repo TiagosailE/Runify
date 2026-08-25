@@ -8,7 +8,7 @@ class WorkoutReminderJob < ApplicationJob
 
       current_week = training_plan.current_week
       today_workouts = training_plan.workouts_for_week(current_week)
-                                   .select { |w| w.scheduled_date == Date.today && w.pending? }
+                                   .select { |w| w.scheduled_date == Date.current && w.pending? }
 
       today_workouts.each do |workout|
         NotificationService.send_workout_reminder(user, workout)

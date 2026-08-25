@@ -1,25 +1,58 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "workoutId"]
-  
+  static targets = ["modal", "workoutId", "notes"]
+
   connect() {
     this.currentWorkoutId = null
+    this.selectedDifficulty = null
   }
 
   async completeWorkout(event) {
     const button = event.currentTarget
     const workoutId = button.dataset.workoutId
-    this.currentWorkoutId = workoutId
 
     if (!confirm('Marcar este treino como concluído?')) {
       return
     }
 
-    button.disabled = true
-    const originalContent = button.innerHTML
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...'
-    
+    await this.performComplete(workoutId, button)
+  }
+
+  openCompleteModal(event) {
+    const button = event.currentTarget
+    this.currentWorkoutId = button.dataset.workoutId
+
+    const modal = document.getElementById('complete-workout-modal')
+    if (modal) {
+      modal.classList.remove('hidden')
+    }
+  }
+
+  cancelComplete() {
+    const modal = document.getElementById('complete-workout-modal')
+    if (modal) {
+      modal.classList.add('hidden')
+    }
+  }
+
+  async confirmComplete() {
+    const modal = document.getElementById('complete-workout-modal')
+    if (modal) {
+      modal.classList.add('hidden')
+    }
+
+    await this.performComplete(this.currentWorkoutId, document.getElementById('complete-workout-button'))
+  }
+
+  async performComplete(workoutId, button) {
+    this.currentWorkoutId = workoutId
+
+    if (button) {
+      button.disabled = true
+    }
+    const originalContent = button?.innerHTML
+
     try {
       const response = await fetch(`/training/${workoutId}/complete`, {
         method: 'POST',
@@ -37,21 +70,21 @@ export default class extends Controller {
         }
         this.showFeedbackModal()
       } else {
-        if (typeof window.showToast === 'function') {
-          window.showToast('Erro ao completar treino', 'error')
-        } else {
-          alert('Erro ao completar treino')
-        }
-        button.disabled = false
-        button.innerHTML = originalContent
+        this.handleCompleteError(button, originalContent)
       }
     } catch (error) {
       console.error('Error completing workout:', error)
-      if (typeof window.showToast === 'function') {
-        window.showToast('Erro ao completar treino', 'error')
-      } else {
-        alert('Erro ao completar treino')
-      }
+      this.handleCompleteError(button, originalContent)
+    }
+  }
+
+  handleCompleteError(button, originalContent) {
+    if (typeof window.showToast === 'function') {
+      window.showToast('Erro ao completar treino', 'error')
+    } else {
+      alert('Erro ao completar treino')
+    }
+    if (button) {
       button.disabled = false
       button.innerHTML = originalContent
     }
@@ -78,13 +111,32 @@ export default class extends Controller {
       currentTarget: button,
       preventDefault: () => {}
     }
-    
+
     this.completeWorkout(simulatedEvent)
   }
 
-  async submitFeedback(event) {
-    const difficulty = event.currentTarget.dataset.difficulty
-    
+  selectDifficulty(event) {
+    const button = event.currentTarget
+    this.selectedDifficulty = button.dataset.difficulty
+
+    document.querySelectorAll('.difficulty-option').forEach((el) => {
+      el.classList.remove('border-teal-500', 'bg-teal-50', 'dark:bg-teal-900/20')
+    })
+    button.classList.add('border-teal-500', 'bg-teal-50', 'dark:bg-teal-900/20')
+  }
+
+  async submitFeedback() {
+    if (!this.selectedDifficulty) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Escolha uma opção de dificuldade', 'warning')
+      } else {
+        alert('Escolha uma opção de dificuldade')
+      }
+      return
+    }
+
+    const notes = this.hasNotesTarget ? this.notesTarget.value.trim() : ''
+
     try {
       const response = await fetch(`/training/${this.currentWorkoutId}/feedback`, {
         method: 'POST',
@@ -92,30 +144,38 @@ export default class extends Controller {
           'Content-Type': 'application/json',
           'X-CSRF-Token': this.csrfToken
         },
-        body: JSON.stringify({ difficulty })
+        body: JSON.stringify({ difficulty: this.selectedDifficulty, notes })
       })
 
       const data = await response.json()
 
-      if (response.ok && data.success) {
-        this.closeFeedback()
-
-        if (typeof window.showToast === 'function') {
-          window.showToast('Feedback enviado! Obrigado!', 'success')
-        }
-        
-        setTimeout(() => {
-          window.location.reload()
-        }, 800)
+      if (response.ok && data.success && typeof window.showToast === 'function') {
+        window.showToast('Feedback enviado! Obrigado!', 'success')
       }
     } catch (error) {
       console.error('Error submitting feedback:', error)
+    } finally {
       this.closeFeedback()
-      window.location.reload()
+      setTimeout(() => {
+        window.location.reload()
+      }, 800)
     }
   }
 
+  skipFeedback() {
+    this.closeFeedback()
+    window.location.reload()
+  }
+
   showFeedbackModal() {
+    this.selectedDifficulty = null
+    if (this.hasNotesTarget) {
+      this.notesTarget.value = ''
+    }
+    document.querySelectorAll('.difficulty-option').forEach((el) => {
+      el.classList.remove('border-teal-500', 'bg-teal-50', 'dark:bg-teal-900/20')
+    })
+
     const modal = document.getElementById('feedback-modal')
     if (modal) {
       modal.classList.remove('hidden')

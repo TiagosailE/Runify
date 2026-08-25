@@ -102,7 +102,7 @@ class User < ApplicationRecord
 
   def age
     return nil unless birth_date
-    ((Date.today - birth_date).to_i / 365)
+    ((Date.current - birth_date).to_i / 365)
   end
 
   def avatar_url

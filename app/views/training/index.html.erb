@@ -16,7 +16,7 @@
 
       <div class="grid grid-cols-7 gap-2">
         <% 
-          today = Date.today
+          today = Date.current
           week_start = today.beginning_of_week(:monday)
         %>
         <% ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].each_with_index do |day_name, index| %>
@@ -36,7 +36,7 @@
                 class="workout-day w-12 h-12 rounded-full flex items-center justify-center font-semibold text-sm transition-all shadow-md
                   <%= if workout.completed?
                     'bg-teal-500 text-white ring-2 ring-teal-300'
-                  elsif day_date == Date.today
+                  elsif day_date == Date.current
                     'bg-[#FF6A3D] text-white ring-2 ring-orange-300 animate-pulse'
                   else
                     'bg-[#FF6A3D] text-white'
@@ -154,6 +154,7 @@
             <button
               id="complete-workout-button"
               data-workout-id="<%= @today_workout.id %>"
+              data-action="click->training#openCompleteModal"
               class="w-full mt-6 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-4 px-4 rounded-2xl transition-all duration-200 shadow-lg">
               <i class="fas fa-check-circle mr-2"></i>
               Concluir Treino
@@ -174,7 +175,7 @@
       <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Próximos Treinos</h3>
       
       <div class="space-y-3">
-        <% @week_workouts.select { |w| w.scheduled_date > Date.today && !w.completed? }.first(3).each do |workout| %>
+        <% @week_workouts.select { |w| w.scheduled_date > Date.current && !w.completed? }.first(3).each do |workout| %>
           <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
             <div class="text-center min-w-[50px]">
               <p class="text-xs text-gray-500 dark:text-gray-400"><%= day_name_pt(workout.scheduled_date) %></p>
@@ -196,22 +197,37 @@
   <div id="feedback-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm">
       <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Como foi o treino?</h3>
-      
+
       <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Sua avaliação ajuda a IA a ajustar os próximos treinos</p>
-      
-      <div class="space-y-3 mb-6">
-        <button data-difficulty="facil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all">
-          <p class="font-semibold text-gray-900 dark:text-white">😊 Fácil</p>
+
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <button type="button" data-difficulty="facil" data-action="click->training#selectDifficulty" class="difficulty-option py-3 px-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all text-center">
+          <p class="text-2xl mb-1">😊</p>
+          <p class="text-xs font-semibold text-gray-900 dark:text-white">Fácil</p>
         </button>
-        <button data-difficulty="medio" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all">
-          <p class="font-semibold text-gray-900 dark:text-white">😐 Médio</p>
+        <button type="button" data-difficulty="medio" data-action="click->training#selectDifficulty" class="difficulty-option py-3 px-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all text-center">
+          <p class="text-2xl mb-1">😐</p>
+          <p class="text-xs font-semibold text-gray-900 dark:text-white">Médio</p>
         </button>
-        <button data-difficulty="dificil" data-action="click->training#submitFeedback" class="w-full py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-          <p class="font-semibold text-gray-900 dark:text-white">😰 Difícil</p>
+        <button type="button" data-difficulty="dificil" data-action="click->training#selectDifficulty" class="difficulty-option py-3 px-2 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-center">
+          <p class="text-2xl mb-1">😰</p>
+          <p class="text-xs font-semibold text-gray-900 dark:text-white">Difícil</p>
         </button>
       </div>
 
-      <button data-action="click->training#closeFeedback" class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Observações (opcional)</label>
+      <textarea
+        data-training-target="notes"
+        rows="3"
+        maxlength="500"
+        placeholder="Ex: senti dor no joelho, pace ficou mais fácil que o esperado..."
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm mb-4"></textarea>
+
+      <button type="button" data-action="click->training#submitFeedback" class="w-full py-3 px-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-xl transition-colors mb-2">
+        Enviar feedback
+      </button>
+
+      <button data-action="click->training#skipFeedback" class="w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
         Pular
       </button>
     </div>
@@ -231,12 +247,14 @@
       <button
         type="button"
         id="complete-workout-cancel"
+        data-action="click->training#cancelComplete"
         class="flex-1 py-3 px-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
         Não
       </button>
       <button
         type="button"
         id="complete-workout-confirm"
+        data-action="click->training#confirmComplete"
         class="flex-1 py-3 px-4 bg-teal-500 hover:bg-teal-600 rounded-xl text-white font-semibold transition-colors shadow-lg">
         Sim
       </button>

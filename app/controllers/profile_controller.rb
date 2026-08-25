@@ -9,7 +9,7 @@ class ProfileController < ApplicationController
 
     if profile_params[:age].present? && profile_params[:age].to_i > 0
       age = profile_params[:age].to_i
-      update_params[:birth_date] = Date.today - age.years
+      update_params[:birth_date] = Date.current - age.years
     end
 
     if profile_params[:avatar].present?
