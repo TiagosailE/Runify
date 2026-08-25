@@ -180,3 +180,21 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
 5. **GitHub**: 2FA na conta e *secret scanning* — o repo é privado hoje,
    mas nada impede tornar público depois (como o Rota Velho Chico), e vale
    ligar antes independente disso.
+6. **`SENTRY_DSN`** — precisa de conta na Sentry (não posso criar contas) e
+   o DSN do projeto colado no painel do Render antes do primeiro deploy com
+   monitoramento ativo. Sem essa env var o SDK fica inativo (ver item 6
+   abaixo) — não derruba a app, só não reporta nada.
+
+## 6. Monitoramento de erro (2026-08-24)
+
+Não existia nenhum — um erro 500 em produção só aparecia se alguém abrisse
+o log do Render manualmente ou um usuário reportasse. Com testes reais
+começando sem o Tiago olhando a tela o tempo todo, isso significava bug
+rodando batido por dias sem ninguém saber.
+
+`sentry-ruby` + `sentry-rails` adicionados, `config/initializers/sentry.rb`
+lê `SENTRY_DSN` do ambiente. `enabled_environments: %w[production]` — em
+dev/test o SDK não inicializa de verdade, então nenhum erro de
+desenvolvimento local vaza pra conta da Sentry. `traces_sample_rate: 0.0`
+(sem tracing de performance) — o volume de usuário deste TG não justifica
+gastar a cota gratuita da Sentry com isso, só error tracking importa aqui.

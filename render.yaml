@@ -70,3 +70,8 @@ services:
       # Senha do usuario de demo criado pelo seed.
       - key: SEED_USER_PASSWORD
         sync: false
+
+      # Monitoramento de erro (config/initializers/sentry.rb). Sem isso
+      # definido, o SDK fica inativo -- nao derruba a app, so nao reporta.
+      - key: SENTRY_DSN
+        sync: false

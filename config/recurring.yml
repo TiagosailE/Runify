@@ -24,3 +24,6 @@ production:
   weekly_summary:
     class: WeeklySummaryJob
     schedule: "0 18 * * 0"
+  weekly_ai_analysis:
+    class: WeeklyAiAnalysisJob
+    schedule: "0 6 * * 1"

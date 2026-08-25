@@ -12,18 +12,5 @@ module Runify
     config.i18n.default_locale = :"pt-BR"
 
     config.active_job.queue_adapter = :async
-
-    config.after_initialize do
-      if defined?(Rails::Server)
-        Thread.new do
-          loop do
-            if Time.current.monday? && Time.current.hour == 6
-              WeeklyAiAnalysisJob.perform_later
-            end
-            sleep 1.hour
-          end
-        end
-      end
-    end
   end
 end
