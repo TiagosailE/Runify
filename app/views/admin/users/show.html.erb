@@ -1,0 +1,195 @@
+<% content_for :title, "#{@user.email} · Runify Admin" %>
+
+<div class="mb-5">
+  <%= link_to "← Voltar para usuários", admin_users_path, class: "text-sm text-gray-500 hover:text-gray-800" %>
+</div>
+
+<div class="rounded-xl border border-gray-200 bg-white p-5 mb-5">
+  <div class="flex flex-wrap items-start gap-4">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-900">
+        <%= @user.username.presence || "(sem nome)" %>
+        <% if @user.admin? %>
+          <span class="ml-1 rounded bg-teal-100 px-2 py-0.5 text-xs font-normal text-teal-800">admin</span>
+        <% end %>
+      </h1>
+      <p class="text-sm text-gray-600"><%= @user.email %></p>
+    </div>
+
+    <dl class="ml-auto grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
+      <div>
+        <dt class="text-xs uppercase tracking-wide text-gray-500">ID</dt>
+        <dd class="text-gray-900"><%= @user.id %></dd>
+      </div>
+      <div>
+        <dt class="text-xs uppercase tracking-wide text-gray-500">Cadastro</dt>
+        <dd class="text-gray-900"><%= @user.created_at.strftime("%d/%m/%Y %H:%M") %></dd>
+      </div>
+      <div>
+        <dt class="text-xs uppercase tracking-wide text-gray-500">Aceite dos termos</dt>
+        <dd class="text-gray-900">
+          <%= @user.terms_accepted_at&.strftime("%d/%m/%Y %H:%M") || "—" %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+</div>
+
+<div class="grid gap-5 lg:grid-cols-2">
+  <section class="rounded-xl border border-gray-200 bg-white p-5">
+    <h2 class="mb-1 font-semibold text-gray-900">Onboarding</h2>
+    <p class="mb-3 text-xs text-gray-500">
+      Só o preenchimento é exibido; o valor de cada campo não aparece no painel.
+    </p>
+
+    <ul class="space-y-1 text-sm">
+      <% @onboarding.each do |label, filled| %>
+        <li class="flex items-center gap-2">
+          <% if filled %>
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+          <% else %>
+            <i class="fa-regular fa-circle text-amber-500"></i>
+          <% end %>
+          <span class="<%= filled ? "text-gray-700" : "text-amber-700" %>"><%= label %></span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section class="rounded-xl border border-gray-200 bg-white p-5">
+    <h2 class="mb-3 font-semibold text-gray-900">Treino</h2>
+
+    <% if @active_plan %>
+      <dl class="space-y-1 text-sm">
+        <div class="flex justify-between"><dt class="text-gray-500">Plano ativo</dt><dd class="text-gray-900">#<%= @active_plan.id %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Semanas</dt><dd class="text-gray-900"><%= @active_plan.total_weeks %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Semana atual</dt><dd class="text-gray-900"><%= @active_plan.current_week %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Início</dt><dd class="text-gray-900"><%= @active_plan.start_date&.strftime("%d/%m/%Y") || "—" %></dd></div>
+      </dl>
+    <% else %>
+      <p class="text-sm text-gray-500">Sem plano ativo.</p>
+    <% end %>
+
+    <dl class="mt-3 space-y-1 border-t border-gray-100 pt-3 text-sm">
+      <div class="flex justify-between"><dt class="text-gray-500">Planos no total</dt><dd class="text-gray-900"><%= @plans_count %></dd></div>
+      <% %w[pending completed skipped].each do |status| %>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Treinos <%= status %></dt>
+          <dd class="text-gray-900"><%= @workout_counts.fetch(status, 0) %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </section>
+
+  <section class="rounded-xl border border-gray-200 bg-white p-5">
+    <h2 class="mb-3 font-semibold text-gray-900">Atividades</h2>
+    <dl class="space-y-1 text-sm">
+      <div class="flex justify-between"><dt class="text-gray-500">Total</dt><dd class="text-gray-900"><%= @activities_count %></dd></div>
+      <% @activity_sources.each do |source, count| %>
+        <div class="flex justify-between"><dt class="text-gray-500">Origem <%= source %></dt><dd class="text-gray-900"><%= count %></dd></div>
+      <% end %>
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Última</dt>
+        <dd class="text-gray-900"><%= @last_activity&.start_date&.strftime("%d/%m/%Y") || "—" %></dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-gray-500">Notificações não lidas</dt>
+        <dd class="text-gray-900"><%= @unread_notifications %></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="rounded-xl border border-gray-200 bg-white p-5">
+    <h2 class="mb-3 font-semibold text-gray-900">Strava</h2>
+
+    <% if @strava %>
+      <dl class="space-y-1 text-sm">
+        <div class="flex justify-between"><dt class="text-gray-500">Athlete</dt><dd class="text-gray-900"><%= @strava.strava_athlete_id %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Ativa</dt><dd class="text-gray-900"><%= @strava.active? ? "sim" : "não" %></dd></div>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Token</dt>
+          <dd class="<%= @strava.token_expired? ? "text-red-700" : "text-gray-900" %>">
+            <%= @strava.token_expired? ? "expirado" : "válido" %>
+          </dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Última sincronização</dt>
+          <dd class="text-gray-900"><%= @strava.last_sync_at&.strftime("%d/%m/%Y %H:%M") || "—" %></dd>
+        </div>
+      </dl>
+    <% else %>
+      <p class="text-sm text-gray-500">Não conectado.</p>
+    <% end %>
+
+    <h3 class="mb-2 mt-4 border-t border-gray-100 pt-3 font-semibold text-gray-900">Pacers</h3>
+    <% if @squad_members.any? %>
+      <ul class="space-y-1 text-sm">
+        <% @squad_members.each do |member| %>
+          <li class="flex justify-between">
+            <span class="text-gray-700">
+              <%= member.squad.name %>
+              <% if member.squad.owner_id == @user.id %>
+                <span class="ml-1 rounded bg-gray-200 px-1.5 py-0.5 text-xs text-gray-700">dono</span>
+              <% end %>
+            </span>
+            <span class="text-gray-500">nível <%= member.level %> · <%= member.experience_points %> XP</span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-gray-500">Não participa de nenhum Pacer.</p>
+    <% end %>
+  </section>
+</div>
+
+<section class="mt-5 rounded-xl border border-gray-200 bg-white p-5">
+  <h2 class="mb-1 font-semibold text-gray-900">Ações de suporte</h2>
+  <p class="mb-4 text-xs text-gray-500">
+    Todas são reversíveis e ficam registradas em Auditoria. Excluir conta e editar
+    dados do usuário não estão disponíveis aqui de propósito.
+  </p>
+
+  <div class="flex flex-wrap gap-3">
+    <%= button_to "Enviar redefinição de senha",
+          send_password_reset_admin_user_path(@user),
+          method: :post,
+          form: { data: { turbo_confirm: "Enviar e-mail de redefinição de senha para #{@user.email}?" } },
+          class: "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 hover:bg-gray-50 cursor-pointer" %>
+
+    <%= button_to "Cancelar plano ativo",
+          cancel_training_plan_admin_user_path(@user),
+          method: :post,
+          disabled: @active_plan.nil?,
+          form: { data: { turbo_confirm: "Cancelar o plano ativo? O usuário poderá gerar um novo." } },
+          class: "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 hover:bg-gray-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" %>
+
+    <%= button_to "Desconectar Strava",
+          disconnect_strava_admin_user_path(@user),
+          method: :delete,
+          disabled: @strava.nil?,
+          form: { data: { turbo_confirm: "Desconectar o Strava deste usuário? Ele poderá reconectar sozinho." } },
+          class: "rounded-lg border border-red-300 bg-white px-3 py-2 text-sm text-red-700 hover:bg-red-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40" %>
+  </div>
+</section>
+
+<section class="mt-5 rounded-xl border border-gray-200 bg-white p-5">
+  <h2 class="mb-3 font-semibold text-gray-900">Auditoria deste usuário</h2>
+
+  <% if @audit_logs.any? %>
+    <ul class="divide-y divide-gray-100 text-sm">
+      <% @audit_logs.each do |log| %>
+        <li class="flex flex-wrap items-baseline gap-x-2 py-2">
+          <span class="text-gray-900"><%= log.action_label %></span>
+          <% if log.details.present? %>
+            <span class="text-gray-500">(<%= log.details %>)</span>
+          <% end %>
+          <span class="ml-auto text-xs text-gray-500">
+            <%= log.admin.email %> · <%= log.created_at.strftime("%d/%m/%Y %H:%M") %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-sm text-gray-500">Nenhuma ação administrativa registrada.</p>
+  <% end %>
+</section>

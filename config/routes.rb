@@ -74,5 +74,19 @@ Rails.application.routes.draw do
   get "onboarding/step2", to: "onboarding#step2_view", as: :onboarding_step2_view
   post "onboarding/complete", to: "onboarding#complete", as: :onboarding_complete
 
+  # Painel administrativo (suporte). Acesso exige users.admin = true --
+  # concedido so por `bin/rails admin:grant[email]`, nunca por tela.
+  namespace :admin do
+    root "users#index"
+    resources :users, only: [ :index, :show ] do
+      member do
+        delete :disconnect_strava
+        post :cancel_training_plan
+        post :send_password_reset
+      end
+    end
+    resources :audit_logs, only: [ :index ]
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

@@ -75,6 +75,12 @@ end
 
 demo_user = users.fetch('demo@runify.app')
 
+# O usuario demo vira admin fora de producao para que o painel de suporte
+# possa ser aberto localmente sem passo extra. Em producao o acesso e
+# concedido so por `bin/rails "admin:grant[email]"` -- a senha do demo e
+# previsivel demais para carregar esse privilegio no ar.
+demo_user.update!(admin: true) unless Rails.env.production?
+
 training_plan = demo_user.training_plans.find_or_initialize_by(goal: 'Plano demo Runify')
 training_plan.assign_attributes(
   goal: 'Plano demo Runify',
