@@ -75,11 +75,26 @@ end
 
 demo_user = users.fetch('demo@runify.app')
 
-# O usuario demo vira admin fora de producao para que o painel de suporte
-# possa ser aberto localmente sem passo extra. Em producao o acesso e
-# concedido so por `bin/rails "admin:grant[email]"` -- a senha do demo e
-# previsivel demais para carregar esse privilegio no ar.
-demo_user.update!(admin: true) unless Rails.env.production?
+# Os tres usuarios de demonstracao sao corredores comuns. Conta de admin nao
+# navega o app (ApplicationController#confine_admin_to_panel), entao marcar o
+# demo como admin tiraria justamente a conta usada para testar as telas.
+users.each_value { |user| user.update!(admin: false) if user.admin? }
+
+# Conta separada, so para abrir o painel localmente sem passo extra. Fora de
+# producao apenas: em producao o acesso e concedido por
+# `bin/rails "admin:grant[email]"`, e uma senha de seed e previsivel demais
+# para carregar esse privilegio no ar.
+unless Rails.env.production?
+  admin_user = User.find_or_initialize_by(email: 'admin@runify.app')
+  if admin_user.new_record?
+    admin_user.username = 'Admin Runify'
+    admin_user.password = seed_password
+    admin_user.password_confirmation = seed_password
+    admin_user.terms_accepted = true
+  end
+  admin_user.admin = true
+  admin_user.save!
+end
 
 training_plan = demo_user.training_plans.find_or_initialize_by(goal: 'Plano demo Runify')
 training_plan.assign_attributes(
@@ -234,5 +249,6 @@ if Rails.env.production?
   puts "Demo user: #{demo_user.email} (senha definida via SEED_USER_PASSWORD)"
 else
   puts "Demo user: #{demo_user.email} / #{seed_password}"
+  puts "Admin user: admin@runify.app / #{seed_password} (so painel, nao navega o app)"
 end
 puts 'Demo data seeded successfully.'

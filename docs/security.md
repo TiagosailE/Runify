@@ -251,12 +251,28 @@ Dois caminhos, os dois condicionados a `admin?`:
   onboarding: uma conta administrativa não precisa ter peso e objetivo
   preenchidos, e sem essa ordem ficaria presa no passo 1 sem nunca chegar ao
   painel.
-- **Configurações.** Um item "Painel de suporte" aparece em `/settings`
-  **apenas** para administrador (`if current_user.admin?`), para o caminho de
-  volta depois de usar o app normalmente.
+- **Nenhum outro.** Não há link para `/admin` em tela alguma do app, e o
+  painel não tem caminho de volta para o app — o único botão do cabeçalho
+  encerra a sessão.
 
-O painel, por sua vez, tem uma seta para o dashboard no cabeçalho. Nenhum dos
-dois expõe a existência de `/admin` para quem não é administrador.
+### 7.1.2 A conta de administrador é exclusiva do painel
+
+`ApplicationController#confine_admin_to_panel` devolve qualquer requisição de
+um usuário `admin?` para `/admin`, exceto: controllers do Devise (sem isso o
+administrador não conseguiria sair), o próprio namespace `admin/`, e o
+`PagesController` (privacidade/termos/sobre são documentos públicos, não
+funcionalidade de corredor).
+
+Na prática: dashboard, treino, Pacers, histórico, perfil, configurações e
+onboarding ficam inacessíveis para quem é administrador. A conta não é um
+usuário comum com um poder a mais — é uma conta de outro tipo.
+
+Isso tem uma consequência operacional que precisa ser respeitada: **a conta
+de administrador não pode ser a mesma que a pessoa usa para correr.**
+Conceder `admin` à conta pessoal de alguém tira dessa pessoa o acesso ao app.
+Por isso o seed passou a criar `admin@runify.app` separado (fora de produção
+apenas) em vez de marcar o usuário demo — o demo precisa continuar sendo um
+corredor comum para que as telas do app possam ser testadas.
 
 ### 7.2 O que o painel deliberadamente não faz
 

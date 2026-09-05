@@ -62,6 +62,49 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to onboarding_step1_path
   end
 
+  # --- Conta de admin nao navega o app --------------------------------------
+
+  test "admin e devolvido ao painel ao tentar abrir o dashboard" do
+    sign_in @admin
+    get dashboard_path
+
+    assert_redirected_to admin_root_path
+    assert_equal "Esta conta é exclusiva do painel administrativo.", flash[:alert]
+  end
+
+  test "admin e devolvido ao painel em qualquer tela do app" do
+    sign_in @admin
+
+    [ settings_path, training_index_path, pacers_path, profile_path, history_path, onboarding_step1_path ].each do |path|
+      get path
+      assert_redirected_to admin_root_path, "#{path} deveria devolver o admin ao painel"
+    end
+  end
+
+  test "admin continua conseguindo sair" do
+    sign_in @admin
+    delete destroy_user_session_path
+
+    assert_response :redirect
+    assert_not_equal admin_root_path, response.location
+    get admin_users_path
+    assert_redirected_to new_user_session_path
+  end
+
+  test "admin continua lendo as paginas publicas" do
+    sign_in @admin
+    get privacy_policy_path
+
+    assert_response :success
+  end
+
+  test "usuario comum nao e afetado pela trava" do
+    sign_in users(:one)
+    get dashboard_path
+
+    assert_response :success
+  end
+
   test "admin abre a ficha de um usuario" do
     sign_in @admin
     get admin_user_path(@user)

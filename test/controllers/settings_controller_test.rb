@@ -10,21 +10,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "usuario comum nao ve o atalho do painel administrativo" do
-    get settings_url
-
-    assert_response :success
-    assert_no_match "Painel de suporte", response.body
-  end
-
-  test "admin ve o atalho do painel administrativo" do
-    sign_in users(:admin)
-    get settings_url
-
-    assert_response :success
-    assert_match "Painel de suporte", response.body
-    assert_select "a[href=?]", admin_root_path
-  end
 
   test "should get update_password" do
     post update_password_settings_url, params: {

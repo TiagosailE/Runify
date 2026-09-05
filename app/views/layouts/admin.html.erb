@@ -25,10 +25,14 @@
     <div class="min-h-screen bg-[#F5F5F5] pb-16">
       <header class="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-sm border-b sticky top-0 z-50 transition-colors duration-300">
         <div class="flex items-center justify-between px-6 py-4">
-          <%= link_to dashboard_path,
-                class: "text-gray-600 dark:text-gray-200 hover:text-teal-500 transition-colors",
-                title: "Voltar ao app" do %>
-            <i class="fas fa-arrow-left text-xl"></i>
+          <%# Nao ha caminho de volta para o app: a conta de administrador e
+              exclusiva do painel (ver ApplicationController#confine_admin_to_panel).
+              A unica saida e encerrar a sessao. %>
+          <%= button_to destroy_user_session_path,
+                method: :delete,
+                class: "text-gray-600 dark:text-gray-200 hover:text-teal-500 transition-colors cursor-pointer",
+                title: "Sair" do %>
+            <i class="fas fa-arrow-right-from-bracket text-xl"></i>
           <% end %>
 
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
