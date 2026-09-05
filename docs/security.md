@@ -241,6 +241,23 @@ não está em nenhum `permit` do Devise nem do `ProfileController`, então não 
 caminho de atribuição em massa. No seed, o usuário demo vira admin **fora de
 produção** apenas — a senha dele é previsível demais para carregar isso no ar.
 
+### 7.1.1 Como se entra no painel
+
+Dois caminhos, os dois condicionados a `admin?`:
+
+- **Login.** `ApplicationController#after_sign_in_path_for` devolve
+  `admin_root_path` quando o usuário é administrador — entrar com a conta de
+  suporte já é entrar no modo de suporte. A checagem vem **antes** das de
+  onboarding: uma conta administrativa não precisa ter peso e objetivo
+  preenchidos, e sem essa ordem ficaria presa no passo 1 sem nunca chegar ao
+  painel.
+- **Configurações.** Um item "Painel de suporte" aparece em `/settings`
+  **apenas** para administrador (`if current_user.admin?`), para o caminho de
+  volta depois de usar o app normalmente.
+
+O painel, por sua vez, tem uma seta para o dashboard no cabeçalho. Nenhum dos
+dois expõe a existência de `/admin` para quem não é administrador.
+
 ### 7.2 O que o painel deliberadamente não faz
 
 - **Não exibe peso, altura, data de nascimento nem histórico de lesão.** A
@@ -295,6 +312,8 @@ não pode bloquear `SettingsController#delete_account` — o que aconteceria com
   o painel não consegue responder "quando esse usuário entrou pela última
   vez". Ligar `:trackable` é uma migration e uma decisão de privacidade
   própria (passa a registrar IP), deixada para quando houver necessidade real.
-- **Painel sempre em tema claro.** O layout `admin.html.erb` não carrega o
-  script de dark mode, então os overrides `!important` de
-  `app/assets/tailwind/application.css` não se aplicam ali.
+- **Sem confirmação de segundo fator para as ações.** O `turbo_confirm` de
+  cada botão é proteção contra clique errado, não contra sessão sequestrada.
+  Para o escopo de um administrador único num app de 30 usuários, o rate limit
+  de login e a sessão do Devise são a defesa; se um dia houver mais de um
+  administrador, reconsiderar.

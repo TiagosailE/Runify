@@ -12,51 +12,67 @@
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <%# Mesmo script do layout principal: o painel segue o tema que o usuario
+        escolheu no app, em vez de ser uma ilha sempre clara. %>
+    <%= javascript_tag nonce: true do %>
+      const cookieDarkMode = document.cookie.includes('dark_mode=true');
+      document.documentElement.classList.toggle('dark', cookieDarkMode);
+    <% end %>
   </head>
 
-  <%# Sem o script de dark mode do layout principal de proposito: o painel e
-      sempre claro, e sem a classe `dark` no <html> os overrides `!important`
-      de app/assets/tailwind/application.css nao pegam aqui. %>
-  <body class="antialiased bg-gray-100 min-h-screen">
-    <header class="bg-gray-900 text-white">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
-        <%= link_to admin_root_path, class: "font-semibold tracking-tight" do %>
-          Runify <span class="text-teal-400">· Admin</span>
+  <body class="antialiased font-poppins">
+    <div class="min-h-screen bg-[#F5F5F5] pb-16">
+      <header class="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-sm border-b sticky top-0 z-50 transition-colors duration-300">
+        <div class="flex items-center justify-between px-6 py-4">
+          <%= link_to dashboard_path,
+                class: "text-gray-600 dark:text-gray-200 hover:text-teal-500 transition-colors",
+                title: "Voltar ao app" do %>
+            <i class="fas fa-arrow-left text-xl"></i>
+          <% end %>
+
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Runi<span class="text-teal-500">fy</span>
+          </h1>
+
+          <span class="text-[10px] font-bold uppercase tracking-widest text-teal-500 border border-teal-500 rounded-full px-2 py-1">
+            admin
+          </span>
+        </div>
+
+        <nav class="flex gap-2 px-6 pb-3">
+          <% [ [ "Usuários", "fa-users", admin_users_path, "users" ],
+               [ "Auditoria", "fa-clock-rotate-left", admin_audit_logs_path, "audit_logs" ] ].each do |label, icon, path, name| %>
+            <% active = controller_name == name %>
+            <%= link_to path, class: "text-sm font-semibold px-4 py-2 rounded-full transition-colors #{active ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}" do %>
+              <i class="fas <%= icon %> mr-1.5"></i><%= label %>
+            <% end %>
+          <% end %>
+        </nav>
+      </header>
+
+      <main class="px-4 py-6 space-y-6 max-w-2xl mx-auto">
+        <% if flash[:notice].present? %>
+          <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-teal-500 flex items-start gap-3">
+            <i class="fas fa-circle-check text-teal-500 mt-0.5"></i>
+            <p class="text-sm text-gray-700"><%= flash[:notice] %></p>
+          </div>
         <% end %>
 
-        <nav class="flex items-center gap-4 text-sm">
-          <%= link_to "Usuários", admin_users_path,
-                class: "hover:text-teal-300 #{'text-teal-300' if controller_name == 'users'}" %>
-          <%= link_to "Auditoria", admin_audit_logs_path,
-                class: "hover:text-teal-300 #{'text-teal-300' if controller_name == 'audit_logs'}" %>
-        </nav>
+        <% if flash[:alert].present? %>
+          <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-orange-400 flex items-start gap-3">
+            <i class="fas fa-triangle-exclamation text-orange-400 mt-0.5"></i>
+            <p class="text-sm text-gray-700"><%= flash[:alert] %></p>
+          </div>
+        <% end %>
 
-        <div class="ml-auto flex items-center gap-4 text-sm text-gray-300">
-          <span class="hidden sm:inline"><%= current_user.email %></span>
-          <%= link_to "Voltar ao app", dashboard_path, class: "hover:text-white" %>
-        </div>
-      </div>
-    </header>
+        <%= yield %>
 
-    <main class="max-w-6xl mx-auto px-4 py-6">
-      <% if flash[:notice].present? %>
-        <div class="mb-4 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          <i class="fa-solid fa-circle-check mr-1"></i><%= flash[:notice] %>
-        </div>
-      <% end %>
-
-      <% if flash[:alert].present? %>
-        <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
-          <i class="fa-solid fa-triangle-exclamation mr-1"></i><%= flash[:alert] %>
-        </div>
-      <% end %>
-
-      <%= yield %>
-    </main>
-
-    <footer class="max-w-6xl mx-auto px-4 pb-8 text-xs text-gray-500">
-      Painel de suporte. Não exibe peso, altura, data de nascimento nem histórico de lesão —
-      ver <code>docs/privacy.md</code>. Toda ação de escrita fica registrada em Auditoria.
-    </footer>
+        <p class="text-xs text-gray-400 text-center px-4 pt-2">
+          Painel de suporte. Não exibe peso, altura, data de nascimento nem histórico de lesão.
+          Toda ação fica registrada em Auditoria.
+        </p>
+      </main>
+    </div>
   </body>
 </html>

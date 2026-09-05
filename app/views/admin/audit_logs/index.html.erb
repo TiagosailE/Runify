@@ -1,45 +1,52 @@
 <% content_for :title, "Auditoria · Runify Admin" %>
 
-<div class="mb-5 flex items-center gap-3">
-  <h1 class="text-xl font-semibold text-gray-900">Auditoria</h1>
-  <span class="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700"><%= @audit_logs.size %></span>
-</div>
+<section>
+  <div class="flex items-center justify-between mb-1">
+    <h2 class="text-lg font-semibold text-gray-900">
+      <i class="fas fa-clock-rotate-left text-teal-500 mr-2"></i>Auditoria
+    </h2>
+    <span class="text-sm text-gray-500"><%= @audit_logs.size %> ações</span>
+  </div>
+  <p class="text-xs text-gray-500 mb-4">
+    Ações de escrita do painel, da mais recente para a mais antiga (últimas 200).
+    Abrir a ficha de alguém não gera registro — o painel não expõe dado pessoal.
+  </p>
 
-<p class="mb-4 text-sm text-gray-600">
-  Ações de escrita feitas pelo painel administrativo, da mais recente para a mais antiga
-  (últimas 200). Leitura de ficha não é registrada — o painel não expõe dado pessoal.
-</p>
+  <div class="space-y-3">
+    <% @audit_logs.each do |log| %>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p class="font-bold text-gray-900 text-sm"><%= log.action_label %></p>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-      <tr>
-        <th class="px-4 py-3">Quando</th>
-        <th class="px-4 py-3">Administrador</th>
-        <th class="px-4 py-3">Usuário afetado</th>
-        <th class="px-4 py-3">Ação</th>
-        <th class="px-4 py-3">Detalhe</th>
-      </tr>
-    </thead>
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-user text-gray-400 mr-1"></i>
+              <%= link_to log.target_user.email, admin_user_path(log.target_user),
+                    class: "text-teal-500 hover:text-teal-600 font-medium" %>
+            </p>
 
-    <tbody class="divide-y divide-gray-100">
-      <% @audit_logs.each do |log| %>
-        <tr class="hover:bg-gray-50">
-          <td class="px-4 py-3 whitespace-nowrap text-gray-600"><%= log.created_at.strftime("%d/%m/%Y %H:%M") %></td>
-          <td class="px-4 py-3 text-gray-600"><%= log.admin.email %></td>
-          <td class="px-4 py-3">
-            <%= link_to log.target_user.email, admin_user_path(log.target_user), class: "text-teal-700 hover:underline" %>
-          </td>
-          <td class="px-4 py-3 text-gray-900"><%= log.action_label %></td>
-          <td class="px-4 py-3 text-gray-500"><%= log.details.presence || "—" %></td>
-        </tr>
-      <% end %>
+            <p class="text-xs text-gray-400 mt-0.5">
+              por <%= log.admin.email %><%= " · #{log.details}" if log.details.present? %>
+            </p>
+          </div>
 
-      <% if @audit_logs.empty? %>
-        <tr>
-          <td colspan="5" class="px-4 py-8 text-center text-gray-500">Nenhuma ação registrada ainda.</td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+          <span class="text-xs text-gray-400 flex-shrink-0 whitespace-nowrap">
+            <%= log.created_at.strftime("%d/%m/%y %H:%M") %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @audit_logs.empty? %>
+      <div class="bg-white rounded-2xl p-6 shadow-sm text-center space-y-3">
+        <div class="w-16 h-16 bg-teal-500/10 rounded-full flex items-center justify-center mx-auto">
+          <i class="fas fa-clock-rotate-left text-2xl text-teal-500"></i>
+        </div>
+        <h3 class="text-base font-bold text-gray-900">Nenhuma ação registrada ainda</h3>
+        <p class="text-sm text-gray-500">
+          Quando você usar alguma ação de suporte, ela aparece aqui.
+        </p>
+      </div>
+    <% end %>
+  </div>
+</section>

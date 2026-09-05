@@ -44,7 +44,22 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     get admin_users_path
 
     assert_response :success
-    assert_select "table"
+    assert_match @user.email, response.body
+    assert_select "a[href=?]", admin_user_path(@user)
+  end
+
+  # --- Entrada no painel ----------------------------------------------------
+
+  test "login de admin cai direto no painel" do
+    post user_session_path, params: { user: { email: @admin.email, password: "password123" } }
+
+    assert_redirected_to admin_root_path
+  end
+
+  test "login de usuario comum segue o fluxo normal de onboarding" do
+    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
+
+    assert_redirected_to onboarding_step1_path
   end
 
   test "admin abre a ficha de um usuario" do

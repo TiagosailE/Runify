@@ -11,6 +11,12 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
+    # Administrador cai direto no painel: entrar com a conta de admin ja e
+    # entrar no modo admin. Vem antes das checagens de onboarding de proposito
+    # -- uma conta de suporte nao precisa ter peso e objetivo preenchidos, e
+    # sem isso ela ficaria presa no passo 1 sem nunca chegar ao painel.
+    return admin_root_path if resource.admin?
+
     if resource.weight.nil?
       onboarding_step1_path
     elsif resource.goal.nil?
