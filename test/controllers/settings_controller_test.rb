@@ -10,6 +10,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+
   test "should get update_password" do
     post update_password_settings_url, params: {
       current_password: "password123",

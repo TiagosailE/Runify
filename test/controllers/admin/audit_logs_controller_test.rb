@@ -39,6 +39,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     get admin_audit_logs_path
 
     assert_response :success
-    assert_match "Nenhuma ação registrada ainda.", response.body
+    assert_match "Nenhuma ação registrada ainda", response.body
   end
 end

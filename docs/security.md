@@ -241,6 +241,39 @@ não está em nenhum `permit` do Devise nem do `ProfileController`, então não 
 caminho de atribuição em massa. No seed, o usuário demo vira admin **fora de
 produção** apenas — a senha dele é previsível demais para carregar isso no ar.
 
+### 7.1.1 Como se entra no painel
+
+Dois caminhos, os dois condicionados a `admin?`:
+
+- **Login.** `ApplicationController#after_sign_in_path_for` devolve
+  `admin_root_path` quando o usuário é administrador — entrar com a conta de
+  suporte já é entrar no modo de suporte. A checagem vem **antes** das de
+  onboarding: uma conta administrativa não precisa ter peso e objetivo
+  preenchidos, e sem essa ordem ficaria presa no passo 1 sem nunca chegar ao
+  painel.
+- **Nenhum outro.** Não há link para `/admin` em tela alguma do app, e o
+  painel não tem caminho de volta para o app — o único botão do cabeçalho
+  encerra a sessão.
+
+### 7.1.2 A conta de administrador é exclusiva do painel
+
+`ApplicationController#confine_admin_to_panel` devolve qualquer requisição de
+um usuário `admin?` para `/admin`, exceto: controllers do Devise (sem isso o
+administrador não conseguiria sair), o próprio namespace `admin/`, e o
+`PagesController` (privacidade/termos/sobre são documentos públicos, não
+funcionalidade de corredor).
+
+Na prática: dashboard, treino, Pacers, histórico, perfil, configurações e
+onboarding ficam inacessíveis para quem é administrador. A conta não é um
+usuário comum com um poder a mais — é uma conta de outro tipo.
+
+Isso tem uma consequência operacional que precisa ser respeitada: **a conta
+de administrador não pode ser a mesma que a pessoa usa para correr.**
+Conceder `admin` à conta pessoal de alguém tira dessa pessoa o acesso ao app.
+Por isso o seed passou a criar `admin@runify.app` separado (fora de produção
+apenas) em vez de marcar o usuário demo — o demo precisa continuar sendo um
+corredor comum para que as telas do app possam ser testadas.
+
 ### 7.2 O que o painel deliberadamente não faz
 
 - **Não exibe peso, altura, data de nascimento nem histórico de lesão.** A
@@ -295,6 +328,8 @@ não pode bloquear `SettingsController#delete_account` — o que aconteceria com
   o painel não consegue responder "quando esse usuário entrou pela última
   vez". Ligar `:trackable` é uma migration e uma decisão de privacidade
   própria (passa a registrar IP), deixada para quando houver necessidade real.
-- **Painel sempre em tema claro.** O layout `admin.html.erb` não carrega o
-  script de dark mode, então os overrides `!important` de
-  `app/assets/tailwind/application.css` não se aplicam ali.
+- **Sem confirmação de segundo fator para as ações.** O `turbo_confirm` de
+  cada botão é proteção contra clique errado, não contra sessão sequestrada.
+  Para o escopo de um administrador único num app de 30 usuários, o rate limit
+  de login e a sessão do Devise são a defesa; se um dia houver mais de um
+  administrador, reconsiderar.
