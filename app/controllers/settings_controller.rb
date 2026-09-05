@@ -64,7 +64,7 @@ class SettingsController < ApplicationController
     }
 
     send_data JSON.pretty_generate(data),
-      filename: "runify-meus-dados-#{Date.today.iso8601}.json",
+      filename: "runify-meus-dados-#{Date.current.iso8601}.json",
       type: "application/json",
       disposition: "attachment"
   end

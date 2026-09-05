@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :owned_squads, class_name: "Squad", foreign_key: "owner_id", dependent: :destroy
   has_many :user_achievements, dependent: :destroy
   has_many :achievements, through: :user_achievements
+  has_many :admin_actions, class_name: "AdminAuditLog", foreign_key: "admin_id", dependent: :destroy
+  has_many :received_admin_actions, class_name: "AdminAuditLog", foreign_key: "target_user_id", dependent: :destroy
 
   # Pisos ancorados em recorde mundial (5km 12:35, 10km 26:11, meia 56:42) e
   # tetos no limite do que ainda e uma prova concluida. Dado fora disso nao e
@@ -102,7 +104,7 @@ class User < ApplicationRecord
 
   def age
     return nil unless birth_date
-    ((Date.today - birth_date).to_i / 365)
+    ((Date.current - birth_date).to_i / 365)
   end
 
   def avatar_url

@@ -8,7 +8,7 @@ class TrainingPlan < ApplicationRecord
 
   def current_week
     return 0 unless start_date
-    ((Date.today - start_date).to_i / 7) + 1
+    ((Date.current - start_date).to_i / 7) + 1
   end
 
   def workouts_for_week(week_number)

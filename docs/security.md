@@ -15,9 +15,19 @@ README (que resume as decisões de engenharia).
 | Sessão do usuário | Autenticação via Devise; sequestro de sessão expõe todo o histórico de treino e dados pessoais. |
 | Disponibilidade da conta | Um usuário só tem uma conta; login/cadastro/recuperação de senha são alvo natural de força bruta. |
 
-Um ator: o **usuário autenticado**. Não existe papel de administrador nem
-painel interno — cada usuário só acessa os próprios dados, sempre a partir
-de `current_user`.
+Dois atores:
+
+- **O usuário autenticado** — acessa só os próprios dados, sempre a partir de
+  `current_user`. É o caso de todas as telas do app.
+- **O administrador** (`users.admin = true`, introduzido em 2026-09-04) —
+  acessa o painel de suporte em `/admin`, que lê dado operacional de qualquer
+  usuário e executa três ações de escrita sobre a conta deles. Ver seção 7.
+
+Até 2026-09-04 havia um ator só; o painel foi adicionado porque os testes com
+usuários reais do TG precisam de um caminho de suporte que não seja abrir
+console de produção. A ampliação é deliberada e vem com limite de escopo
+explícito — o painel **não** lê peso, altura, data de nascimento nem histórico
+de lesão.
 
 ## 2. Controles que já vinham do desenho
 
@@ -139,6 +149,10 @@ em `config/routes.rb`.
 `filter_parameters` cobria e-mail e senha, mas não `weight`, `height`,
 `birth_date` — iam inteiros pro log em toda submissão de onboarding/cadastro.
 
+**Complemento em 2026-09-04:** `injury_history` também estava de fora, apesar
+de ser o dado mais sensível do app (saúde, Art. 11 da LGPD). Adicionado à
+lista.
+
 ### 3.6 Senha de demonstração fixa no repositório
 
 `db/seeds.rb` tinha `password123` escrito no arquivo. Como o app vai ao ar
@@ -198,3 +212,89 @@ dev/test o SDK não inicializa de verdade, então nenhum erro de
 desenvolvimento local vaza pra conta da Sentry. `traces_sample_rate: 0.0`
 (sem tracing de performance) — o volume de usuário deste TG não justifica
 gastar a cota gratuita da Sentry com isso, só error tracking importa aqui.
+
+## 7. Painel administrativo (2026-09-04)
+
+Um segundo ator, adicionado porque suporte a participante real durante os
+testes do TG não pode depender de console de produção.
+
+### 7.1 Como alguém vira administrador
+
+Coluna booleana `users.admin`, `default: false, null: false`. Não há gem de
+autorização: existe um papel só e um administrador previsto, então `Pundit`
+seria peso morto. A checagem é um `before_action` em
+`Admin::BaseController` (`current_user&.admin?`); quem não passa é
+redirecionado ao dashboard com toast, nunca vê conteúdo do painel.
+
+**Não existe tela que promova alguém a administrador.** O acesso é concedido
+só por rake:
+
+```
+bin/rails "admin:grant[email@exemplo.com]"
+bin/rails "admin:revoke[email@exemplo.com]"
+bin/rails admin:list
+```
+
+O motivo é concreto: uma tela de promoção transforma qualquer falha de sessão
+ou CSRF dentro do painel em escalada de privilégio permanente. `admin` também
+não está em nenhum `permit` do Devise nem do `ProfileController`, então não há
+caminho de atribuição em massa. No seed, o usuário demo vira admin **fora de
+produção** apenas — a senha dele é previsível demais para carregar isso no ar.
+
+### 7.2 O que o painel deliberadamente não faz
+
+- **Não exibe peso, altura, data de nascimento nem histórico de lesão.** A
+  ficha mostra só se cada campo do onboarding *está preenchido*, nunca o
+  valor. Diagnóstico de suporte ("travou no onboarding", "não gera plano",
+  "Strava não conecta") não precisa desses dados, e exibir o que não se
+  precisa ver é custo puro — de banca, de TCLE e de conversa com participante.
+- **Não edita dado do usuário.** Não há formulário de edição no painel.
+- **Não exclui conta.** `user.destroy` é destrutivo em cascata: leva junto
+  atividades, planos, treinos, notificações, conquistas **e os Pacers que o
+  usuário criou, com os membros de outras pessoas dentro** (`user.rb` →
+  `owned_squads dependent: :destroy` → `squad.rb` → `squad_members`). Um botão
+  de excluir no painel seria uma forma silenciosa de derrubar o grupo de
+  terceiros. O caminho de exclusão continua sendo o do próprio titular, em
+  Configurações.
+- **Não permite entrar como o usuário** (impersonation).
+
+### 7.3 As três ações de escrita
+
+Todas reversíveis, nenhuma destrutiva:
+
+| Ação | O que faz | Por que é segura |
+|---|---|---|
+| Enviar redefinição de senha | `send_reset_password_instructions` | O e-mail vai pro próprio usuário; o admin nunca vê nem define a senha. Falha de entrega vira aviso na tela, não erro 500. |
+| Cancelar plano ativo | `status: "cancelled"` | Não apaga nada; devolve ao usuário a tela de gerar plano novo e preserva o histórico. |
+| Desconectar Strava | `destroy` da `StravaIntegration` | Mesmo caminho que o botão "Desconectar" da tela do próprio usuário; ele reconecta sozinho. |
+
+### 7.4 Trilha de auditoria
+
+`admin_audit_logs` (admin, usuário afetado, ação, detalhe, timestamp) — a
+primeira tabela de auditoria do projeto. Antes disso nada no sistema
+registrava quem fez o quê; com um ator capaz de agir sobre a conta de
+terceiros num contexto de pesquisa com TCLE, isso deixou de ser aceitável.
+
+Só ações de **escrita** são registradas. Abrir a ficha de alguém não gera
+registro, e isso é coerente com 7.2: o painel não expõe dado pessoal, então
+leitura não é um ato que precise de prestação de contas.
+
+As duas chaves estrangeiras usam `on_delete: :cascade`, com
+`dependent: :destroy` espelhado no model. Duas razões: a trilha sobre um
+usuário some quando ele exerce o direito de eliminação (Art. 18 VI), e a FK
+não pode bloquear `SettingsController#delete_account` — o que aconteceria com
+`restrict`.
+
+### 7.5 Limites conhecidos
+
+- **Sem paginação.** A listagem devolve todos os usuários; a auditoria, as
+  200 mais recentes. Com a meta de até 30 participantes isso não é problema
+  hoje, e nenhuma gem de paginação foi adicionada por isso. Se o número
+  crescer de verdade, é aqui que se mexe primeiro.
+- **Sem `last_sign_in_at`.** O Devise não usa `:trackable` neste projeto, então
+  o painel não consegue responder "quando esse usuário entrou pela última
+  vez". Ligar `:trackable` é uma migration e uma decisão de privacidade
+  própria (passa a registrar IP), deixada para quando houver necessidade real.
+- **Painel sempre em tema claro.** O layout `admin.html.erb` não carrega o
+  script de dark mode, então os overrides `!important` de
+  `app/assets/tailwind/application.css` não se aplicam ali.

@@ -98,6 +98,47 @@ internacional):
   de consentimento parental (LGPD Art. 14) antes de só baixar o número de
   volta — abrir a idade sem esse fluxo reintroduziria o gap original.
 
+## 6.1 Acesso administrativo (2026-09-04)
+
+Até esta data o app tinha um ator só: cada usuário via apenas os próprios
+dados. O painel de suporte em `/admin` cria um segundo — necessário porque
+os testes com participantes reais precisam de um caminho de correção que não
+seja abrir console de produção às 22h.
+
+O escopo do acesso foi limitado de propósito, e o limite é o que torna a
+mudança defensável perante o TCLE:
+
+- **O painel não exibe dado pessoal sensível.** Peso, altura, data de
+  nascimento e `injury_history` **não aparecem em tela nenhuma do painel**. A
+  ficha do usuário mostra apenas se cada campo do onboarding está preenchido
+  (✓/✗), nunca o valor. Isso mantém o `injury_history` — o único dado do Art.
+  11 coletado pelo app — acessível somente ao próprio titular e ao Gemini
+  (§4), como já estava documentado.
+- **O que o administrador vê** é dado operacional: e-mail, nome de usuário,
+  data de cadastro, `terms_accepted_at`, se há plano de treino ativo e em que
+  semana, contagem de treinos por status, contagem de atividades e sua origem,
+  estado da conexão Strava, Pacers de que participa, notificações não lidas.
+- **O que o administrador pode fazer**: enviar e-mail de redefinição de senha,
+  cancelar o plano de treino ativo e desconectar o Strava. Nada mais. Não há
+  edição de dados, não há exclusão de conta pelo painel e não há acesso à
+  conta do usuário (impersonation).
+- **Toda ação de escrita é registrada** em `admin_audit_logs` (quem, sobre
+  quem, o quê, quando), consultável em `/admin/audit_logs`. Leitura de ficha
+  não gera registro, coerente com o painel não expor dado pessoal.
+- **A trilha some com o titular**: as FKs usam `on_delete: :cascade`, então
+  exercer o direito de eliminação (§5) apaga também os registros de auditoria
+  sobre aquela pessoa.
+- **`injury_history` entrou no `filter_parameters`** nesta mesma entrega —
+  estava de fora, então ia em claro para o log da aplicação a cada submissão
+  de onboarding. Ver `security.md` §3.5.
+
+**Pendente do lado do Tiago:** o texto de `/privacidade` e `/termos` visível
+aos usuários, e o TCLE entregue aos participantes, ainda descrevem o app sem
+esse segundo ator. Antes dos testes com usuários reais, os dois precisam dizer
+que existe acesso administrativo, qual o escopo dele e que ações de suporte
+ficam registradas. Isso é redação para revisão dele (e, se for o caso, da
+orientadora) — não escrevi o texto público por conta própria.
+
 ## 7. Outro gap conhecido
 
 - **Sem versionamento de política**: se o texto de `/privacidade` mudar no

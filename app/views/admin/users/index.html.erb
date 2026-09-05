@@ -1,0 +1,80 @@
+<% content_for :title, "Usuários · Runify Admin" %>
+
+<div class="flex flex-wrap items-center gap-3 mb-5">
+  <h1 class="text-xl font-semibold text-gray-900">Usuários</h1>
+  <span class="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700"><%= @users.size %></span>
+
+  <%= form_with url: admin_users_path, method: :get, class: "ml-auto flex items-center gap-2" do %>
+    <%= text_field_tag :q, @query, placeholder: "Buscar por e-mail ou nome",
+          class: "w-64 rounded-lg border border-gray-300 px-3 py-1.5 text-sm" %>
+    <%= submit_tag "Buscar", class: "rounded-lg bg-gray-900 px-3 py-1.5 text-sm text-white cursor-pointer" %>
+    <% if @query.present? %>
+      <%= link_to "Limpar", admin_users_path, class: "text-sm text-gray-500 hover:text-gray-800" %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+      <tr>
+        <th class="px-4 py-3">Usuário</th>
+        <th class="px-4 py-3">Cadastro</th>
+        <th class="px-4 py-3">Onboarding</th>
+        <th class="px-4 py-3">Plano ativo</th>
+        <th class="px-4 py-3">Atividades</th>
+        <th class="px-4 py-3">Strava</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-gray-100">
+      <% @users.each do |user| %>
+        <% onboarding_done = user.weight.present? && user.goal.present? %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <div class="font-medium text-gray-900">
+              <%= user.username.presence || "(sem nome)" %>
+              <% if user.admin? %>
+                <span class="ml-1 rounded bg-teal-100 px-1.5 py-0.5 text-xs font-normal text-teal-800">admin</span>
+              <% end %>
+            </div>
+            <div class="text-xs text-gray-500"><%= user.email %></div>
+          </td>
+
+          <td class="px-4 py-3 text-gray-600"><%= user.created_at.strftime("%d/%m/%Y") %></td>
+
+          <td class="px-4 py-3">
+            <% if onboarding_done %>
+              <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800">completo</span>
+            <% else %>
+              <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800">incompleto</span>
+            <% end %>
+          </td>
+
+          <td class="px-4 py-3 text-gray-600">
+            <%= @active_plan_user_ids.include?(user.id) ? "sim" : "—" %>
+          </td>
+
+          <td class="px-4 py-3 text-gray-600"><%= @activity_counts.fetch(user.id, 0) %></td>
+
+          <td class="px-4 py-3 text-gray-600">
+            <%= @strava_user_ids.include?(user.id) ? "conectado" : "—" %>
+          </td>
+
+          <td class="px-4 py-3 text-right">
+            <%= link_to "Ver", admin_user_path(user), class: "text-teal-700 hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+
+      <% if @users.empty? %>
+        <tr>
+          <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+            Nenhum usuário encontrado<%= " para “#{@query}”" if @query.present? %>.
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

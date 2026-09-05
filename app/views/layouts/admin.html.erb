@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Runify · Admin" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <%# Sem o script de dark mode do layout principal de proposito: o painel e
+      sempre claro, e sem a classe `dark` no <html> os overrides `!important`
+      de app/assets/tailwind/application.css nao pegam aqui. %>
+  <body class="antialiased bg-gray-100 min-h-screen">
+    <header class="bg-gray-900 text-white">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
+        <%= link_to admin_root_path, class: "font-semibold tracking-tight" do %>
+          Runify <span class="text-teal-400">· Admin</span>
+        <% end %>
+
+        <nav class="flex items-center gap-4 text-sm">
+          <%= link_to "Usuários", admin_users_path,
+                class: "hover:text-teal-300 #{'text-teal-300' if controller_name == 'users'}" %>
+          <%= link_to "Auditoria", admin_audit_logs_path,
+                class: "hover:text-teal-300 #{'text-teal-300' if controller_name == 'audit_logs'}" %>
+        </nav>
+
+        <div class="ml-auto flex items-center gap-4 text-sm text-gray-300">
+          <span class="hidden sm:inline"><%= current_user.email %></span>
+          <%= link_to "Voltar ao app", dashboard_path, class: "hover:text-white" %>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <% if flash[:notice].present? %>
+        <div class="mb-4 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <i class="fa-solid fa-circle-check mr-1"></i><%= flash[:notice] %>
+        </div>
+      <% end %>
+
+      <% if flash[:alert].present? %>
+        <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <i class="fa-solid fa-triangle-exclamation mr-1"></i><%= flash[:alert] %>
+        </div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-4 pb-8 text-xs text-gray-500">
+      Painel de suporte. Não exibe peso, altura, data de nascimento nem histórico de lesão —
+      ver <code>docs/privacy.md</code>. Toda ação de escrita fica registrada em Auditoria.
+    </footer>
+  </body>
+</html>

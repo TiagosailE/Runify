@@ -15,7 +15,7 @@ class DailyNotificationsJob < ApplicationJob
     return unless training_plan
 
     today_workout = training_plan.workouts.find_by(
-      scheduled_date: Date.today,
+      scheduled_date: Date.current,
       status: "pending"
     )
 

@@ -197,8 +197,8 @@ class AiTrainingService
     training_plan = @user.training_plans.create!(
       goal: @user.goal,
       status: "active",
-      start_date: Date.today,
-      end_date: Date.today + weeks.weeks,
+      start_date: Date.current,
+      end_date: Date.current + weeks.weeks,
       total_weeks: weeks,
       plan_data: plan_data.merge("source" => source, "envelope" => envelope_snapshot)
     )
@@ -220,7 +220,7 @@ class AiTrainingService
     training_plan.workouts.create!(
       week_number: week,
       day_of_week: day,
-      scheduled_date: Date.today + (week - 1).weeks + (day - 1).days,
+      scheduled_date: Date.current + (week - 1).weeks + (day - 1).days,
       workout_type: workout_data["type"].to_s,
       workout_format: format_value,
       distance: distance,

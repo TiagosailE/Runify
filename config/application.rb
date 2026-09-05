@@ -11,6 +11,12 @@ module Runify
 
     config.i18n.default_locale = :"pt-BR"
 
+    # Sem isso o Rails fica em UTC por padrao. "Hoje" so bate com o dia real
+    # do usuario brasileiro se o app inteiro usar Date.current/Time.current
+    # (que respeitam isto) em vez de Date.today/Time.now (que leem o
+    # relogio do SO, UTC no container de producao).
+    config.time_zone = "Brasilia"
+
     config.active_job.queue_adapter = :async
   end
 end

@@ -8,7 +8,7 @@ class TrainingController < ApplicationController
     if @training_plan
       @current_week = @training_plan.current_week
       @week_workouts = @training_plan.workouts_for_week(@current_week)
-      @today_workout = @week_workouts.find { |w| w.scheduled_date == Date.today }
+      @today_workout = @week_workouts.find { |w| w.scheduled_date == Date.current }
       @week_progress = calculate_week_progress(@week_workouts)
     else
       render "no_plan"

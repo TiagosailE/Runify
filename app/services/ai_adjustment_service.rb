@@ -5,6 +5,10 @@
 # antes de virar treino -- senao aumentos sucessivos compõem sem limite.
 class AiAdjustmentService
   MAX_ADJUSTMENT_PERCENT = 20
+  # Chaves batem com data-difficulty em training/index.html.erb -- o valor
+  # que chega aqui e sempre uma dessas tres, ou nil quando o atleta pulou o
+  # feedback.
+  DIFFICULTY_LABELS = { "facil" => "fácil", "medio" => "médio", "dificil" => "difícil" }.freeze
 
   def initialize(user, training_plan)
     @user = user
@@ -37,14 +41,14 @@ class AiAdjustmentService
   def build_adjustment_prompt(completed_workouts, current_week)
     feedback_summary = completed_workouts.map do |workout|
       feedback = workout.workout_details&.dig("user_feedback")
-      difficulty = feedback&.dig("difficulty") || "não informado"
+      difficulty = DIFFICULTY_LABELS[feedback&.dig("difficulty")] || "não informado"
       notes = feedback&.dig("notes") || ""
 
       <<~WORKOUT
         - Treino: #{workout.workout_type}
           Distância planejada: #{workout.distance_km}km
           Pace planejado: #{workout.pace}
-          Dificuldade reportada: #{difficulty}/5
+          Dificuldade reportada: #{difficulty}
           Observações do atleta: #{notes.present? ? notes : 'Nenhuma'}
       WORKOUT
     end.join("\n")
@@ -52,12 +56,12 @@ class AiAdjustmentService
     completion_rate = (completed_workouts.count.to_f / @training_plan.workouts_for_week(current_week - 1).count * 100).round
 
     recent_activities = @user.activities.where("start_date >= ?", 7.days.ago).order(start_date: :desc)
-    strava_summary = if recent_activities.any?
+    activities_summary = if recent_activities.any?
       recent_activities.map do |act|
         "- #{act.start_date.strftime('%d/%m')}: #{(act.distance/1000.0).round(2)}km, pace #{format_pace(act.average_speed)}"
       end.join("\n")
     else
-      "Nenhuma atividade no Strava na última semana"
+      "Nenhuma atividade registrada na última semana"
     end
 
     <<~PROMPT
@@ -72,22 +76,22 @@ class AiAdjustmentService
       ### FEEDBACKS DA SEMANA PASSADA (Semana #{current_week - 1})
       #{feedback_summary}
 
-      ### DADOS DO STRAVA (Última Semana)
-      #{strava_summary}
+      ### ATIVIDADES RECENTES (Última Semana, qualquer origem — manual, importada ou Strava)
+      #{activities_summary}
 
       ### ANÁLISE NECESSÁRIA
 
       Analise os seguintes fatores:
-      1. **Dificuldade média reportada**: Se a maioria dos treinos foi muito fácil (1-2) ou muito difícil (4-5)
+      1. **Dificuldade reportada**: Se a maioria dos treinos foi "fácil", "médio" ou "difícil"
       2. **Taxa de conclusão**: Se o atleta pulou treinos (pode indicar sobrecarga ou falta de motivação)
       3. **Observações qualitativas**: O que o atleta escreveu nos feedbacks
-      4. **Dados reais do Strava**: Compare pace planejado vs executado
+      4. **Atividades recentes**: Compare pace planejado vs executado, quando houver dado
 
       ### REGRAS DE AJUSTE
 
-      - Se dificuldade média <= 2.5 e conclusão >= 80%: Aumentar carga em 5-10%
-      - Se dificuldade média >= 4.0 ou conclusão < 60%: Reduzir carga em 10-15%
-      - Se dificuldade média entre 2.5-4.0 e conclusão >= 60%: Manter progressão normal (5%)
+      - Se a maioria dos treinos foi "fácil" e conclusão >= 80%: Aumentar carga em 5-10%
+      - Se algum treino foi "difícil" ou conclusão < 60%: Reduzir carga em 10-15%
+      - Se a maioria foi "médio" e conclusão >= 60%: Manter progressão normal (5%)
       - Se há observações de dor/lesão: Reduzir carga e sugerir descanso
       - Considerar progressão gradual (regra dos 10% máximo)
 

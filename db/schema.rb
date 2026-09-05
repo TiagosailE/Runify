@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_112623) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -71,6 +71,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_112623) do
     t.index ["start_date"], name: "index_activities_on_start_date"
     t.index ["user_id", "strava_activity_id"], name: "index_activities_on_user_and_strava_id", unique: true
     t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
+  create_table "admin_audit_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.bigint "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.string "details"
+    t.bigint "target_user_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id"], name: "index_admin_audit_logs_on_admin_id"
+    t.index ["created_at"], name: "index_admin_audit_logs_on_created_at"
+    t.index ["target_user_id"], name: "index_admin_audit_logs_on_target_user_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -161,6 +173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_112623) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "admin", default: false, null: false
     t.jsonb "available_days"
     t.integer "best_10k_time"
     t.integer "best_5k_time"
@@ -214,6 +227,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_112623) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "activities", "users"
+  add_foreign_key "admin_audit_logs", "users", column: "admin_id", on_delete: :cascade
+  add_foreign_key "admin_audit_logs", "users", column: "target_user_id", on_delete: :cascade
   add_foreign_key "notifications", "users"
   add_foreign_key "squad_members", "squads"
   add_foreign_key "squad_members", "users"

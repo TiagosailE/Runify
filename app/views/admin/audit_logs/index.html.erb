@@ -1,0 +1,45 @@
+<% content_for :title, "Auditoria · Runify Admin" %>
+
+<div class="mb-5 flex items-center gap-3">
+  <h1 class="text-xl font-semibold text-gray-900">Auditoria</h1>
+  <span class="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700"><%= @audit_logs.size %></span>
+</div>
+
+<p class="mb-4 text-sm text-gray-600">
+  Ações de escrita feitas pelo painel administrativo, da mais recente para a mais antiga
+  (últimas 200). Leitura de ficha não é registrada — o painel não expõe dado pessoal.
+</p>
+
+<div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+      <tr>
+        <th class="px-4 py-3">Quando</th>
+        <th class="px-4 py-3">Administrador</th>
+        <th class="px-4 py-3">Usuário afetado</th>
+        <th class="px-4 py-3">Ação</th>
+        <th class="px-4 py-3">Detalhe</th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-gray-100">
+      <% @audit_logs.each do |log| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 whitespace-nowrap text-gray-600"><%= log.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+          <td class="px-4 py-3 text-gray-600"><%= log.admin.email %></td>
+          <td class="px-4 py-3">
+            <%= link_to log.target_user.email, admin_user_path(log.target_user), class: "text-teal-700 hover:underline" %>
+          </td>
+          <td class="px-4 py-3 text-gray-900"><%= log.action_label %></td>
+          <td class="px-4 py-3 text-gray-500"><%= log.details.presence || "—" %></td>
+        </tr>
+      <% end %>
+
+      <% if @audit_logs.empty? %>
+        <tr>
+          <td colspan="5" class="px-4 py-8 text-center text-gray-500">Nenhuma ação registrada ainda.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

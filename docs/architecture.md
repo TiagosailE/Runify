@@ -100,3 +100,21 @@ Disparados pelos jobs agendados em `config/schedule.rb`
 três existem e batem com o que o schedule referencia; a nota antiga no
 README sobre um `SyncReminderJob` inexistente estava desatualizada e foi
 removida.
+
+## Painel administrativo
+
+`namespace :admin` dentro do mesmo monólito — mesmo banco, mesmo Devise,
+mesmo deploy —, com layout próprio (`app/views/layouts/admin.html.erb`,
+desktop-first, sem a bottom nav nem o `user-scalable=no` do layout do app).
+
+`Admin::BaseController` concentra as duas únicas regras da camada:
+`authenticate_user!` + `current_user&.admin?`, e o `record_audit` que grava
+em `admin_audit_logs`. `Admin::UsersController` (listagem, ficha e as três
+ações de suporte) e `Admin::AuditLogsController` herdam dele.
+
+Nenhuma gem de autorização: um papel só, uma checagem só. `users.admin` é
+concedido apenas por `bin/rails "admin:grant[email]"` — não há tela de
+promoção, e a coluna não está em nenhum `permit`.
+
+O escopo do que o painel lê e escreve é uma decisão de privacidade, não de
+arquitetura: está em `docs/security.md` §7 e `docs/privacy.md` §6.1.
