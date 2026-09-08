@@ -21,20 +21,17 @@ services:
         sync: false
 
       - key: RUNIFY_DATABASE_HOST
-        value:
-          fromDatabase:
-            name: runify-db
-            property: host
+        fromDatabase:
+          name: runify-db
+          property: host
       - key: RUNIFY_DATABASE_PORT
-        value:
-          fromDatabase:
-            name: runify-db
-            property: port
+        fromDatabase:
+          name: runify-db
+          property: port
       - key: RUNIFY_DATABASE_PASSWORD
-        value:
-          fromDatabase:
-            name: runify-db
-            property: password
+        fromDatabase:
+          name: runify-db
+          property: password
 
       # Roda o supervisor do Solid Queue dentro do mesmo processo do Puma
       # (config/puma.rb ja tem o plugin condicional pronto) -- evita pagar
