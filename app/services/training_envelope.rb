@@ -191,7 +191,9 @@ class TrainingEnvelope
       "- Pace sugerido para corrida leve: ~#{format_pace(suggested_easy_pace_seconds)}/km",
       "- Duracao do plano: #{plan_weeks} semanas",
       "- Treinos por semana: #{sessions_per_week}",
-      "- Dias disponiveis (1=Seg..7=Dom): #{training_days.join(', ')}"
+      "- Dias disponiveis (1=Seg..7=Dom): #{training_days.join(', ')}",
+      "- Hoje e dia #{Date.current.cwday}. O plano comeca hoje: se esse dia estiver " \
+      "entre os disponiveis, inclua um treino nele logo na semana 1."
     ]
     lines << "- Historico de lesao relatado: #{injury_history}" if injury_history
     lines.join("\n")

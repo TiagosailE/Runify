@@ -1,6 +1,8 @@
 require "test_helper"
 
 class FallbackPlanBuilderTest < ActiveSupport::TestCase
+  include ActiveSupport::Testing::TimeHelpers
+
   def build_user(**attrs)
     User.create!(
       {
@@ -73,6 +75,20 @@ class FallbackPlanBuilderTest < ActiveSupport::TestCase
     plan["workouts"].group_by { |w| w["week"] }.each do |week, workouts|
       total = workouts.sum { |w| w["distance_km"].to_f }
       assert_operator total, :<=, envelope.max_weekly_km_for_week(week)
+    end
+  end
+
+  # Bug real reportado: usuario disse que podia treinar hoje (terca), gerou o
+  # plano, e terca apareceu como descanso porque a semana 1 sempre pegava os
+  # dias de numero mais baixo (segunda primeiro), nao os mais proximos de hoje.
+  test "semana 1 prioriza hoje quando o atleta declarou disponibilidade" do
+    travel_to Date.new(2026, 9, 8) do # terca-feira
+      user = build_user(running_experience: "beginner", weekly_mileage: 20, preferred_training_days: [ 1, 2, 5, 6, 7 ])
+      plan = FallbackPlanBuilder.new(user).build
+
+      week1_days = plan["workouts"].select { |w| w["week"] == 1 }.map { |w| w["day"] }.sort
+
+      assert_includes week1_days, 2, "dia de hoje (terca=2) deveria ter treino na semana 1"
     end
   end
 

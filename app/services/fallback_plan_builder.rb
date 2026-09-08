@@ -51,13 +51,26 @@ class FallbackPlanBuilder
   end
 
   def workouts_for_week(week)
-    days = @envelope.training_days.first(@envelope.sessions_per_week)
+    days = selected_days(week)
 
     if @envelope.run_walk?
       days.map { |day| run_walk_workout(week, day) }
     else
       continuous_week(week, days)
     end
+  end
+
+  # Semana 1 comeca no dia em que o plano foi gerado, entao os N dias mais
+  # proximos de hoje (rodando a semana) fazem mais sentido do que sempre os N
+  # dias de numero mais baixo -- senao "hoje" so ganha treino se coincidir
+  # ser o primeiro dia disponivel na lista. Semana 2 em diante mantem o
+  # ritmo fixo de sempre.
+  def selected_days(week)
+    days = @envelope.training_days
+    return days.first(@envelope.sessions_per_week) unless week == 1
+
+    today = Date.current.cwday
+    days.sort_by { |day| (day - today) % 7 }.first(@envelope.sessions_per_week)
   end
 
   def run_walk_workout(week, day)
