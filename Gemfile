@@ -60,6 +60,9 @@ end
 
 gem "devise", "~> 5.0"
 
+gem "omniauth-google-oauth2", "~> 1.1"
+gem "omniauth-rails_csrf_protection", "~> 1.0"
+
 gem "strava-ruby-client", "~> 3.0"
 
 gem "dotenv-rails", "~> 3.2"

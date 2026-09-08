@@ -2,8 +2,12 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: "users/sessions",
     registrations: "users/registrations",
-    passwords: "users/passwords"
+    passwords: "users/passwords",
+    omniauth_callbacks: "users/omniauth_callbacks"
   }
+
+  get "cadastro/google", to: "users/google_signups#new", as: :new_google_signup
+  post "cadastro/google", to: "users/google_signups#create", as: :google_signup
 
   root "welcome#index"
 

@@ -60,6 +60,14 @@ services:
       - key: STRAVA_CLIENT_SECRET
         sync: false
 
+      # Login com Google (Devise omniauthable), ver docs/architecture.md.
+      # Redirect URI a cadastrar no Google Cloud Console:
+      # https://<host-de-producao>/users/auth/google_oauth2/callback
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+
       # Plano gerado por IA (AiTrainingService/AiAdjustmentService).
       - key: GEMINI_API_KEY
         sync: false

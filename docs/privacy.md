@@ -31,6 +31,9 @@ sensível (histórico de lesões, Art. 5º, II).
 
 Checkbox único no cadastro (`devise/registrations/new.html.erb`), não
 granular por finalidade — decisão tomada via `/grilling` com o Tiago:
+quem se cadastra via Google vê o mesmo checkbox numa tela própria
+(`users/google_signups/new.html.erb`) antes da conta ser criada — a conta
+não existe até o aceite, mesmo com o e-mail já verificado pelo Google.
 granularizar por fornecedor (IA vs. Strava vs. armazenamento) adicionaria
 complexidade de UX sem ganho real de proteção para um app cujo núcleo
 depende de todos eles. O texto da política de privacidade é onde os fluxos
@@ -68,6 +71,7 @@ internacional):
 | Fornecedor | Recebe | Para quê |
 |---|---|---|
 | Google (Gemini API) | Perfil físico, objetivo, histórico de lesões, atividades recentes | Gerar o plano de treino — é o único que recebe o dado sensível de saúde |
+| Google (login OAuth) | Nada além do necessário para autenticar — o Runify apenas recebe de volta e-mail, nome e um ID técnico que o próprio Google já verificou | Login opcional sem senha, alternativa ao cadastro por e-mail/senha |
 | Strava | Token OAuth, leitura de atividades | Integração opcional (ver `NOTES.md` sobre o app estar `Inactive` do lado deles) |
 | Cloudflare (R2) | Foto de perfil | Armazenamento de avatar |
 | Resend | E-mail | E-mails transacionais (recuperação de senha) |
