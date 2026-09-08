@@ -62,8 +62,15 @@ Rails.application.configure do
   # nada. Se o Tiago colocar dominio proprio depois, o Render NAO atualiza
   # essa variavel sozinho (limitacao conhecida da plataforma); nesse caso
   # definir APP_HOST no painel sobrescreve.
+  #
+  # Fallback final "localhost" e so pro build da imagem Docker: o Render
+  # preenche RENDER_EXTERNAL_HOSTNAME apenas no container em execucao, nunca
+  # durante o `docker build` -- e o Dockerfile roda assets:precompile
+  # (que carrega este arquivo) como etapa de build. Sem o fallback, o fetch
+  # interno levantava KeyError e derrubava o build inteiro antes do deploy
+  # sequer comecar. Em runtime a variavel real do Render sempre sobrescreve.
   config.action_mailer.default_url_options = {
-    host: ENV.fetch("APP_HOST") { ENV.fetch("RENDER_EXTERNAL_HOSTNAME") },
+    host: ENV.fetch("APP_HOST") { ENV.fetch("RENDER_EXTERNAL_HOSTNAME", "localhost") },
     protocol: "https"
   }
 
