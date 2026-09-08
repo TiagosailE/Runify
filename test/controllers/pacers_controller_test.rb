@@ -33,9 +33,18 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should get join" do
-    post join_pacer_url(squads(:two)), params: { code: squads(:two).squad_code }
-    assert_response :redirect
+  test "join_by_code entra no squad com o codigo certo" do
+    post join_by_code_pacers_url, params: { code: squads(:two).squad_code }
+
+    assert_redirected_to pacer_path(squads(:two))
+    assert squads(:two).users.include?(users(:one))
+  end
+
+  test "join_by_code rejeita codigo invalido" do
+    post join_by_code_pacers_url, params: { code: "codigo-que-nao-existe" }
+
+    assert_redirected_to pacers_path
+    assert_equal "Código inválido", flash[:alert]
   end
 
   test "should get leave" do
