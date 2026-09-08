@@ -4,6 +4,8 @@ require "test_helper"
 # nao-deterministica). Aqui o cliente e stubbado para exercitar a
 # orquestracao: aprovar, tentar de novo, ou cair no plano deterministico.
 class AiTrainingServiceTest < ActiveSupport::TestCase
+  include ActiveSupport::Testing::TimeHelpers
+
   def build_user(**attrs)
     User.create!(
       {
@@ -107,6 +109,39 @@ class AiTrainingServiceTest < ActiveSupport::TestCase
     assert(training_plan.workouts.all?(&:run_walk?))
     assert(training_plan.workouts.all? { |w| w.distance.nil? })
     assert(training_plan.workouts.all? { |w| w.steps.any? })
+  end
+
+  # Bug real reportado: dia 2 (terca) sendo agendado numa quarta porque a data
+  # era calculada como offset a partir do dia da geracao, nao como a terca
+  # real da semana. 2026-09-08 e uma terca-feira confirmada.
+  test "scheduled_date usa o dia da semana real, nao offset a partir de hoje" do
+    travel_to Date.new(2026, 9, 8) do # terca-feira
+      athlete = build_user(
+        running_experience: "intermediate", weekly_mileage: 30,
+        preferred_training_days: [ 1, 2 ], goal: "Melhorar meu tempo nos 10km"
+      )
+      plan = {
+        "analysis" => "ok",
+        "plan_duration_weeks" => 4,
+        "workouts" => [
+          { "week" => 1, "day" => 1, "type" => "Corrida Leve", "format" => "continuous",
+            "distance_km" => 5.0, "duration_minutes" => 30, "pace" => "6:00",
+            "description" => "leve", "instructions" => "leve" },
+          { "week" => 1, "day" => 2, "type" => "Corrida Leve", "format" => "continuous",
+            "distance_km" => 5.0, "duration_minutes" => 30, "pace" => "6:00",
+            "description" => "leve", "instructions" => "leve" }
+        ]
+      }
+
+      training_plan = stub_gemini(plan) { AiTrainingService.new(athlete).generate_training_plan }
+
+      monday_workout = training_plan.workouts.find_by(day_of_week: 1)
+      tuesday_workout = training_plan.workouts.find_by(day_of_week: 2)
+
+      assert_equal Date.new(2026, 9, 7), monday_workout.scheduled_date
+      assert_equal Date.new(2026, 9, 8), tuesday_workout.scheduled_date
+      assert_equal Date.current, tuesday_workout.scheduled_date
+    end
   end
 
   test "o envelope usado fica registrado junto do plano" do

@@ -210,10 +210,16 @@ class AiTrainingService
     distance = workout_data["distance_km"].to_f
     distance = nil unless distance.positive?
 
+    # day e 1=Seg..7=Dom (mesma convencao do TrainingEnvelope). Ancorar na
+    # segunda-feira da semana do plano -- em vez de em Date.current direto --
+    # e o que faz "dia 2" cair numa terca de verdade, nao num offset contado
+    # a partir do dia em que o plano foi gerado.
+    monday = training_plan.start_date.beginning_of_week(:monday)
+
     training_plan.workouts.create!(
       week_number: week,
       day_of_week: day,
-      scheduled_date: Date.current + (week - 1).weeks + (day - 1).days,
+      scheduled_date: monday + (week - 1).weeks + (day - 1).days,
       workout_type: workout_data["type"].to_s,
       workout_format: format_value,
       distance: distance,
