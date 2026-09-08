@@ -53,22 +53,10 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 
-  # Falha alto (nao silencioso) se o envio de verdade der erro -- preferivel
-  # a mascarar problema de config da Resend como se o e-mail tivesse ido.
   config.action_mailer.raise_delivery_errors = true
 
-  # RENDER_EXTERNAL_HOSTNAME e preenchido pelo Render sozinho (nome do
-  # servico + .onrender.com) -- funciona no primeiro deploy sem configurar
-  # nada. Se o Tiago colocar dominio proprio depois, o Render NAO atualiza
-  # essa variavel sozinho (limitacao conhecida da plataforma); nesse caso
-  # definir APP_HOST no painel sobrescreve.
-  #
-  # Fallback final "localhost" e so pro build da imagem Docker: o Render
-  # preenche RENDER_EXTERNAL_HOSTNAME apenas no container em execucao, nunca
-  # durante o `docker build` -- e o Dockerfile roda assets:precompile
-  # (que carrega este arquivo) como etapa de build. Sem o fallback, o fetch
-  # interno levantava KeyError e derrubava o build inteiro antes do deploy
-  # sequer comecar. Em runtime a variavel real do Render sempre sobrescreve.
+  # RENDER_EXTERNAL_HOSTNAME so existe em runtime, nunca durante o build da
+  # imagem Docker (que roda assets:precompile) -- daí o fallback final.
   config.action_mailer.default_url_options = {
     host: ENV.fetch("APP_HOST") { ENV.fetch("RENDER_EXTERNAL_HOSTNAME", "localhost") },
     protocol: "https"

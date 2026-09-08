@@ -1,12 +1,8 @@
 require "net/http"
 require "json"
 
-# Ponto unico de chamada da API da Gemini.
-#
-# Existia uma copia desta logica em cada servico de IA, e foi exatamente por
-# isso que os dois acabaram em modelos diferentes (um em gemini-2.5-flash,
-# outro num experimental). Com a versao num lugar so, nao tem como divergir
-# de novo.
+# Ponto unico de chamada da API da Gemini -- evita que os servicos de IA
+# divirjam entre si de modelo ou configuracao.
 class GeminiClient
   MODEL = "gemini-2.5-flash"
   API_URL = "https://generativelanguage.googleapis.com/v1beta/models/#{MODEL}:generateContent".freeze
@@ -17,9 +13,8 @@ class GeminiClient
 
   class Error < StandardError; end
 
-  # Devolve o JSON ja parseado. response_schema garante a estrutura de volta:
-  # sem ele, responseMimeType e so uma dica forte e o JSON pode vir
-  # malformado -- era a origem do parser de regex que existia aqui antes.
+  # response_schema garante a estrutura da resposta -- responseMimeType
+  # sozinho e so uma dica forte, nao garantia.
   def self.generate_json(prompt, response_schema:, temperature: 0.2, max_output_tokens: MAX_OUTPUT_TOKENS)
     raise Error, "Chave da API Gemini não configurada" if ENV["GEMINI_API_KEY"].blank?
 

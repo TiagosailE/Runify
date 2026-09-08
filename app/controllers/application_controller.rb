@@ -4,16 +4,12 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :confine_admin_to_panel
 
-  # Paginas publicas (privacidade, termos, sobre) continuam abertas para o
-  # administrador -- sao documentos, nao funcionalidade de corredor.
   ADMIN_ALLOWED_CONTROLLERS = %w[pages].freeze
 
   protected
 
-  # Conta de administrador e exclusiva do painel: nao navega o app como
-  # corredor. Sem isso, a seta de "voltar" e qualquer URL digitada colocavam a
-  # conta de suporte dentro do dashboard, do onboarding e dos Pacers.
-  # Controllers do Devise ficam de fora ou o admin nao conseguiria sair.
+  # Conta de administrador nao navega o app como corredor -- so acessa /admin,
+  # o Devise (para sair) e as paginas publicas.
   def confine_admin_to_panel
     return unless user_signed_in? && current_user.admin?
     return if devise_controller?
@@ -29,10 +25,8 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    # Administrador cai direto no painel: entrar com a conta de admin ja e
-    # entrar no modo admin. Vem antes das checagens de onboarding de proposito
-    # -- uma conta de suporte nao precisa ter peso e objetivo preenchidos, e
-    # sem isso ela ficaria presa no passo 1 sem nunca chegar ao painel.
+    # Antes das checagens de onboarding: conta de admin nao tem peso/objetivo
+    # preenchidos e ficaria presa no passo 1 sem essa ordem.
     return admin_root_path if resource.admin?
 
     if resource.weight.nil?

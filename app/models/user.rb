@@ -15,10 +15,8 @@ class User < ApplicationRecord
   has_many :admin_actions, class_name: "AdminAuditLog", foreign_key: "admin_id", dependent: :destroy
   has_many :received_admin_actions, class_name: "AdminAuditLog", foreign_key: "target_user_id", dependent: :destroy
 
-  # Pisos ancorados em recorde mundial (5km 12:35, 10km 26:11, meia 56:42) e
-  # tetos no limite do que ainda e uma prova concluida. Dado fora disso nao e
-  # "otimista", e impossivel -- e alimenta a IA com premissa falsa. O min/max
-  # do HTML no formulario nao vale nada: contorna-se pelo DevTools.
+  # Pisos/tetos ancorados em recorde mundial -- fora disso e impossivel, nao
+  # so "otimista", e alimentaria a IA com premissa falsa.
   MIN_5K_TIME_SECONDS = 720
   MAX_5K_TIME_SECONDS = 7200
   MIN_10K_TIME_SECONDS = 1500
@@ -27,10 +25,8 @@ class User < ApplicationRecord
   MAX_HALF_MARATHON_TIME_SECONDS = 21600
   MAX_WEEKLY_MILEAGE_KM = 300
 
-  # Piso temporario em 18 anos [E]: o Tiago decidiu restringir a maiores de
-  # idade por enquanto (tratamento de dado de menor exige consentimento
-  # parental especifico, LGPD Art. 14, que o app ainda nao implementa) --
-  # pretende abrir para menores de idade depois, quando esse fluxo existir.
+  # Minimo 18 anos: consentimento parental (LGPD Art. 14) para menores nao
+  # esta implementado.
   validates :age, numericality: { greater_than_or_equal_to: 18, less_than_or_equal_to: 120, allow_nil: true, message: "deve ser maior de idade (18 anos) -- o Runify ainda não oferece o fluxo de consentimento para menores" }
   validates :weight, numericality: { greater_than: 30, less_than_or_equal_to: 300, allow_nil: true, message: "deve estar entre 30kg e 300kg" }
   validates :height, numericality: { greater_than: 100, less_than_or_equal_to: 250, allow_nil: true, message: "deve estar entre 100cm e 250cm" }
@@ -61,14 +57,11 @@ class User < ApplicationRecord
     message: "deve estar entre 0 e #{MAX_WEEKLY_MILEAGE_KM}km por semana"
   }
 
-  # Checkbox de consentimento no cadastro (LGPD). Virtual de proposito: o que
-  # fica no banco e terms_accepted_at (quando aceitou), nao um boolean --
-  # timestamp e a evidencia que importa se algum dia precisar provar consentimento.
+  # Virtual: o banco guarda terms_accepted_at (timestamp), nao um boolean --
+  # e a evidencia que importa se precisar provar consentimento.
   attr_accessor :terms_accepted
-  # allow_nil e allow_blank default pra true no AcceptanceValidator do Rails
-  # -- a checagem so roda se o campo NAO for nil, entao sem isso um POST sem
-  # o parametro (via curl, ou form adulterado) passa batido sem consentimento
-  # nenhum. Precisa dos dois em false pra ser obrigatorio de verdade.
+  # AcceptanceValidator tem allow_nil: true por padrao -- sem os dois em
+  # false, um POST sem o parametro passa sem nenhum consentimento.
   validates :terms_accepted, acceptance: {
     allow_nil: false,
     allow_blank: false,

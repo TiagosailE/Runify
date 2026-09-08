@@ -1,11 +1,7 @@
 # Gera o plano de treino com a Gemini, dentro de limites calculados em Ruby.
-#
-# A IA continua sendo a autora do plano, mas nao e a autoridade sobre os
-# numeros: o TrainingEnvelope calcula o que e seguro para aquele atleta, o
-# prompt recebe esses limites, o responseSchema ja impede boa parte dos
-# valores absurdos na geracao, e o TrainingPlanValidator rejeita o que passar.
-# Se a IA errar duas vezes, entra o plano deterministico do
-# FallbackPlanBuilder -- nunca um plano incoerente e nunca um erro na tela.
+# A IA e autora do plano mas nao autoridade sobre os numeros: o
+# TrainingEnvelope define o que e seguro, o TrainingPlanValidator rejeita o
+# que sair disso, e o FallbackPlanBuilder assume se a IA errar duas vezes.
 class AiTrainingService
   MAX_ATTEMPTS = 2
 
@@ -81,9 +77,6 @@ class AiTrainingService
   end
 
   def athlete_profile
-    # Estes campos existem no banco desde o onboarding, mas nao eram enviados
-    # -- a IA prescrevia no escuro. Era a causa real de plano absurdo, mais do
-    # que a redacao do prompt.
     [
       "- Nome: #{@user.username.presence || 'Atleta'}",
       "- Idade: #{@user.age || 'não informada'}",
@@ -233,8 +226,7 @@ class AiTrainingService
     )
   end
 
-  # Guardado junto do plano para dar rastro do porque daqueles numeros --
-  # serve para depurar e para a coleta de dados do TG.
+  # Guardado junto do plano para dar rastro do porque daqueles numeros.
   def envelope_snapshot
     {
       "level" => @envelope.level.to_s,

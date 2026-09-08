@@ -46,10 +46,9 @@ class SettingsController < ApplicationController
     }
   end
 
-  # Direito de portabilidade (LGPD Art. 18, V). Exclui deliberadamente
-  # credenciais e segredos operacionais (senha, tokens do Strava) -- isso
-  # nao e "dado sobre o titular" no sentido que a LGPD protege, e expor
-  # token de acesso de terceiro seria falha de seguranca, nao transparencia.
+  # Portabilidade (LGPD Art. 18, V). Exclui senha e tokens do Strava --
+  # nao sao "dado sobre o titular", e expor token de terceiro seria falha
+  # de seguranca.
   def export_data
     data = {
       exported_at: Time.current.iso8601,

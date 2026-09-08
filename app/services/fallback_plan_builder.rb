@@ -115,15 +115,13 @@ class FallbackPlanBuilder
       @envelope.max_single_run_km_for_week(week)
     ].min
 
-    # Arredondar para BAIXO e o que torna o teto garantido por construcao:
-    # com round(), cada corrida leve podia subir 0,05km e a soma estourava o
-    # limite semanal por alguns decimos.
+    # floor() garante que a soma das corridas leves nunca ultrapasse o teto
+    # semanal por arredondamento.
     easy_count = [ days.size - 1, 1 ].max
     easy_km = ((weekly_budget - long_km) / easy_count).floor(1)
 
     if easy_km < 0.5
-      # Orcamento apertado demais para tantas sessoes: encolhe o longao para
-      # caber, em vez de estourar a semana.
+      # Orcamento apertado demais: encolhe o longao em vez de estourar a semana.
       easy_km = 0.5
       long_km = [ (weekly_budget - (easy_km * easy_count)).floor(1), 0.5 ].max
     end

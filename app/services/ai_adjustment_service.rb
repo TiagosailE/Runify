@@ -173,8 +173,6 @@ class AiAdjustmentService
     true
   end
 
-  # "maintain" mantinha a carga multiplicando por 1.05, ou seja, aumentava 5%
-  # toda semana em que a IA pedia justamente para NAO aumentar.
   def adjustment_factor(adjustment_type, percentage)
     case adjustment_type
     when "increase" then 1 + percentage

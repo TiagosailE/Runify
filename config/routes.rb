@@ -7,7 +7,6 @@ Rails.application.routes.draw do
 
   root "welcome#index"
 
-  # Páginas públicas (acessíveis sem login, inclusive a partir do cadastro)
   get "privacidade", to: "pages#privacy", as: :privacy_policy
   get "termos", to: "pages#terms", as: :terms_of_use
   get "sobre", to: "pages#about", as: :about_page
@@ -17,13 +16,11 @@ Rails.application.routes.draw do
   get "profile", to: "profile#index", as: :profile
   patch "profile/update", to: "profile#update", as: :profile_update
 
-  # Strava
   get "strava/connect", to: "strava#connect", as: :strava_connect
   get "strava/callback", to: "strava#callback", as: :strava_callback
   post "strava/sync", to: "strava#sync", as: :sync_strava
   delete "strava/disconnect", to: "strava#disconnect", as: :strava_disconnect
 
-  # Notificações
   resources :notifications, only: [ :index ] do
     member do
       post :mark_as_read
@@ -33,7 +30,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # Pacers/Squads
   resources :pacers do
     member do
       post :join
@@ -44,15 +40,12 @@ Rails.application.routes.draw do
     end
   end
 
-  # Histórico
   get "history", to: "history#index", as: :history
 
-  # Atividades (registro manual)
   get "activities/new", to: "activities#new", as: :new_activity
   post "activities", to: "activities#create", as: :activities
   delete "activities/:id", to: "activities#destroy", as: :activity
 
-  # Configurações
   get "settings", to: "settings#index", as: :settings
   post "settings/update_password", to: "settings#update_password", as: :update_password_settings
   post "settings/toggle_theme", to: "settings#toggle_theme", as: :toggle_theme_settings
@@ -61,21 +54,18 @@ Rails.application.routes.draw do
   get "settings/export_data", to: "settings#export_data", as: :export_data_settings
   delete "settings/delete_account", to: "settings#delete_account", as: :delete_account_settings
 
-  # Training
   get "training", to: "training#index", as: :training_index
   post "training/generate", to: "training#generate", as: :generate_training
   get "training/:id", to: "training#show", as: :training_show
   post "training/:id/complete", to: "training#complete", as: :training_complete
   post "training/:id/feedback", to: "training#feedback", as: :training_feedback
 
-  # Onboarding
   get "onboarding/step1", to: "onboarding#step1", as: :onboarding_step1
   post "onboarding/step2", to: "onboarding#step2", as: :onboarding_step2
   get "onboarding/step2", to: "onboarding#step2_view", as: :onboarding_step2_view
   post "onboarding/complete", to: "onboarding#complete", as: :onboarding_complete
 
-  # Painel administrativo (suporte). Acesso exige users.admin = true --
-  # concedido so por `bin/rails admin:grant[email]`, nunca por tela.
+  # Acesso exige users.admin = true, concedido so por rake -- nunca por tela.
   namespace :admin do
     root "users#index"
     resources :users, only: [ :index, :show ] do
