@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable,
+         :omniauthable, omniauth_providers: [ :google_oauth2 ]
 
   has_one_attached :avatar
   has_one :strava_integration, dependent: :destroy
@@ -78,6 +79,10 @@ class User < ApplicationRecord
     less_than_or_equal_to: 80,
     allow_nil: true
   }
+
+  # Indice unico de verdade no banco tambem (ver AddOmniauthToUsers) --
+  # mesma logica ja aplicada ao athlete_id do Strava depois do bug de 2026-08-18.
+  validates :uid, uniqueness: { scope: :provider }, allow_nil: true
 
   def strava_connected?
     strava_integration.present? && strava_integration.active?

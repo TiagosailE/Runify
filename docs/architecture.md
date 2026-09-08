@@ -63,6 +63,32 @@ não `perform_later`, porque em dev nada roda a fila sem `bin/jobs` junto do
 caso de sincronização em lote de todas as integrações ativas — que hoje não
 está agendado em lugar nenhum (nem `config/schedule.rb`, nem rake task).
 
+## Login com Google (autenticação)
+
+Diferente do fluxo Strava (integração de dados, opcional), este é login —
+`Devise :omniauthable`, provider `google_oauth2`. `users.provider`/`uid`
+guardam o vínculo; índice único em `[provider, uid]` no banco.
+
+```
+Users::OmniauthCallbacksController#google_oauth2
+  → User.find_by(email: auth.info.email)
+    → existe: vincula provider/uid se ainda não tinha (e-mail já verificado
+      pelo Google, vínculo automático é seguro) e loga direto
+    → não existe: guarda uid/email/name na sessão, redireciona para o
+      aceite de termos (não cria o User ainda)
+
+Users::GoogleSignupsController#new/#create
+  → mostra o mesmo checkbox de Política de Privacidade/Termos do cadastro
+    comum; só cria o User (com senha aleatória via
+    Devise.friendly_token, nunca usada/exibida) depois do aceite
+```
+
+Login por e-mail/senha continua existindo sem alteração — Google é um
+caminho a mais, não substitui `database_authenticatable`. Botão "Continuar
+com Google" nas telas de login e cadastro usa `button_to` (POST) porque a
+gem `omniauth-rails_csrf_protection` exige POST na fase de request
+(`/users/auth/google_oauth2`) para não permitir login CSRF.
+
 ## Fluxo de IA (geração e ajuste de plano)
 
 `AiTrainingService.new(user).generate_training_plan`:

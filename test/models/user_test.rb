@@ -76,4 +76,12 @@ class UserTest < ActiveSupport::TestCase
 
     assert user.valid?, user.errors.full_messages.inspect
   end
+
+  test "rejeita uid duplicado para o mesmo provider" do
+    build_user(provider: "google_oauth2", uid: "dup-uid").save!
+    duplicate = build_user(provider: "google_oauth2", uid: "dup-uid")
+
+    assert_not duplicate.valid?
+    assert duplicate.errors[:uid].any?
+  end
 end

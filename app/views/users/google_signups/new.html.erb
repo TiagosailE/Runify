@@ -1,0 +1,45 @@
+<div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] px-6 py-12">
+  <div class="w-full max-w-sm space-y-8">
+
+    <div class="text-left">
+      <h2 class="text-4xl font-bold text-gray-900">
+        Quase lá
+      </h2>
+      <p class="mt-2 text-base text-gray-600">
+        Confirme o aceite abaixo para criar sua conta com
+        <span class="font-medium text-gray-900"><%= @pending_signup[:email] %></span>.
+      </p>
+    </div>
+
+    <%= form_with model: (@user || User.new), url: google_signup_path, method: :post,
+                  scope: :user, data: { turbo: false }, class: "mt-10 space-y-5" do |f| %>
+
+      <% if @user %>
+        <%= render "devise/shared/error_messages", resource: @user %>
+      <% end %>
+
+      <div class="flex items-start gap-3 pt-2">
+        <%= f.check_box :terms_accepted,
+            class: "mt-1 w-5 h-5 rounded border-gray-300 text-teal-500 focus:ring-teal-500 cursor-pointer flex-shrink-0" %>
+        <label for="user_terms_accepted" class="text-sm text-gray-600 cursor-pointer">
+          Li e aceito a
+          <%= link_to "Política de Privacidade", privacy_policy_path, target: "_blank", class: "text-teal-600 font-medium underline" %>
+          e os
+          <%= link_to "Termos de Uso", terms_of_use_path, target: "_blank", class: "text-teal-600 font-medium underline" %>.
+        </label>
+      </div>
+
+      <div class="text-center pt-2">
+        <%= link_to "Cancelar e voltar", new_user_session_path,
+            class: "text-base text-teal-500 hover:text-teal-600 font-medium" %>
+      </div>
+
+      <div class="pt-4">
+        <%= f.submit "Criar conta",
+            class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
+      </div>
+
+    <% end %>
+
+  </div>
+</div>

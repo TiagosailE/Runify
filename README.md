@@ -5,7 +5,7 @@ Runify é uma aplicação Rails para corredores amadores que combina onboarding 
 ## Funcionalidades
 
 - Onboarding com dados físicos, experiência de corrida e objetivo do atleta
-- Autenticação com Devise
+- Autenticação com Devise, com login via Google (OAuth)
 - Conexão com Strava via OAuth e sincronização de atividades
 - Geração de training plans com Gemini
 - Feedback de treinos e ajuste do plano
@@ -21,6 +21,7 @@ Runify é uma aplicação Rails para corredores amadores que combina onboarding 
 - Turbo + Stimulus
 - Tailwind CSS
 - Devise
+- `omniauth-google-oauth2`
 - `strava-ruby-client`
 - `gemini-ai`
 - Solid Cache, Solid Queue e Solid Cable
@@ -40,6 +41,8 @@ Crie um `.env` com as chaves necessárias para desenvolvimento local:
 GEMINI_API_KEY=sua_chave_gemini
 STRAVA_CLIENT_ID=seu_client_id
 STRAVA_CLIENT_SECRET=seu_client_secret
+GOOGLE_CLIENT_ID=seu_client_id
+GOOGLE_CLIENT_SECRET=seu_client_secret
 POSTGRES_PASSWORD=sua_senha_postgres
 RUNIFY_DATABASE_PASSWORD=sua_senha_postgres
 ```

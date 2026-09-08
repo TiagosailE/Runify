@@ -46,10 +46,23 @@
       </div>
 
       <div class="pt-4">
-        <%= f.submit "Entrar", 
+        <%= f.submit "Entrar",
             class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
       </div>
 
+    <% end %>
+
+    <div class="flex items-center gap-3">
+      <div class="flex-1 border-t border-gray-300"></div>
+      <span class="text-sm text-gray-400">ou</span>
+      <div class="flex-1 border-t border-gray-300"></div>
+    </div>
+
+    <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post,
+        data: { turbo: false },
+        class: "w-full flex items-center justify-center gap-3 py-5 px-4 border border-gray-300 text-base font-semibold rounded-2xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition-all duration-200 cursor-pointer" do %>
+      <i class="fab fa-google text-red-500"></i>
+      Continuar com Google
     <% end %>
 
   </div>
