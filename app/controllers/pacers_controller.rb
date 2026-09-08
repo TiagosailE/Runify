@@ -35,7 +35,7 @@ class PacersController < ApplicationController
     @my_squads = current_user.squads
   end
 
-  def join
+  def join_by_code
     squad = Squad.find_by(squad_code: params[:code])
 
     if squad.nil?

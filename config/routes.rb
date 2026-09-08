@@ -32,7 +32,6 @@ Rails.application.routes.draw do
 
   resources :pacers do
     member do
-      post :join
       delete :leave
     end
     collection do
