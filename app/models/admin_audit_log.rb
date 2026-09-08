@@ -2,10 +2,7 @@ class AdminAuditLog < ApplicationRecord
   belongs_to :admin, class_name: "User"
   belongs_to :target_user, class_name: "User"
 
-  # Toda acao de escrita do painel administrativo entra aqui. Nao ha registro
-  # de LEITURA: o painel so mostra dado operacional (nunca peso, altura, data
-  # de nascimento ou historico de lesao), entao abrir a ficha de alguem nao e
-  # um ato que precise de prestacao de contas.
+  # So acao de escrita entra aqui -- abrir a ficha de alguem nao gera registro.
   ACTION_LABELS = {
     "strava_disconnect" => "Strava desconectado",
     "plan_cancel" => "Plano de treino cancelado",

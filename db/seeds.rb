@@ -75,15 +75,12 @@ end
 
 demo_user = users.fetch('demo@runify.app')
 
-# Os tres usuarios de demonstracao sao corredores comuns. Conta de admin nao
-# navega o app (ApplicationController#confine_admin_to_panel), entao marcar o
-# demo como admin tiraria justamente a conta usada para testar as telas.
+# Conta de admin nao navega o app, entao nao pode ser a mesma usada para
+# testar as telas.
 users.each_value { |user| user.update!(admin: false) if user.admin? }
 
-# Conta separada, so para abrir o painel localmente sem passo extra. Fora de
-# producao apenas: em producao o acesso e concedido por
-# `bin/rails "admin:grant[email]"`, e uma senha de seed e previsivel demais
-# para carregar esse privilegio no ar.
+# So fora de producao: em producao o acesso e concedido por
+# `bin/rails "admin:grant[email]"`.
 unless Rails.env.production?
   admin_user = User.find_or_initialize_by(email: 'admin@runify.app')
   if admin_user.new_record?

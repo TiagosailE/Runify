@@ -1,10 +1,6 @@
-# Calcula, sem IA, os limites seguros de treino de um atleta.
-#
-# Existe porque prompt nao da garantia: LLM e probabilistico, entao os
-# numeros que chegam no usuario precisam passar por uma trava deterministica.
-# Esta classe e a fonte unica desses limites -- o prompt recebe eles, o
-# validador rejeita o que sair deles, e o plano de fallback e montado a
-# partir deles.
+# Calcula, sem IA, os limites seguros de treino de um atleta -- fonte unica
+# desses numeros: o prompt os recebe, o validador rejeita o que sair deles,
+# o fallback e montado a partir deles.
 class TrainingEnvelope
   # Pace mais rapido que qualquer humano sustenta num treino (o recorde
   # mundial dos 5km e ~2:24/km) e o ponto em que "correr" ja virou caminhada.
@@ -49,7 +45,6 @@ class TrainingEnvelope
     advanced: 5
   }.freeze
 
-  # Fronteiras de volume semanal declarado (km) entre niveis.
   BEGINNER_WEEKLY_KM = 15
   INTERMEDIATE_WEEKLY_KM = 40
 

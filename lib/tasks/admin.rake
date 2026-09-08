@@ -1,6 +1,5 @@
-# Concessao de acesso administrativo. Fica em rake de proposito: nao existe
-# tela que promova alguem a admin, porque uma tela dessas transforma qualquer
-# falha de sessao no painel em escalada de privilegio.
+# Sem tela de promocao de proposito -- uma falha de sessao no painel viraria
+# escalada de privilegio.
 #
 #   bin/rails "admin:grant[tiago@exemplo.com]"
 #   bin/rails "admin:revoke[tiago@exemplo.com]"

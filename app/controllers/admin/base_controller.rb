@@ -1,7 +1,5 @@
 module Admin
-  # Toda tela administrativa herda daqui. A autorizacao e um `before_action`
-  # simples de proposito: existe UM papel (admin sim/nao) e um unico
-  # administrador previsto, entao uma gem de politica seria peso morto.
+  # Papel unico (admin sim/nao): uma gem de politica seria peso morto aqui.
   class BaseController < ApplicationController
     layout "admin"
 

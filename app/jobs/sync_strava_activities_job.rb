@@ -1,8 +1,6 @@
 class SyncStravaActivitiesJob < ApplicationJob
-  # O botao "Sincronizar" da home traz so as ultimas atividades -- e o mesmo
-  # numero que a home exibe em "Suas N ultimas atividades"
-  # (User#recent_activities). A varredura em background continua puxando uma
-  # janela maior, porque ali o objetivo e nao deixar buraco no historico.
+  # Sincronizar manual traz so as ultimas atividades exibidas na home; a
+  # varredura em background usa janela maior para nao deixar buraco no historico.
   MANUAL_SYNC_LIMIT = 2
   BACKGROUND_SYNC_LIMIT = 30
 
@@ -57,10 +55,8 @@ class SyncStravaActivitiesJob < ApplicationJob
 
     { new_count: new_count, updated_count: updated_count, error: nil }
   rescue => e
-    # Strava::Errors::Fault#message so devolve o texto generico ("Forbidden");
-    # o detalhe de verdade (ex: Application Status Inactive, conta free sem
-    # acesso a API) vem em #errors, que o Rails.logger.error normal nao
-    # mostrava -- ficava invisivel no log toda vez que isso acontecia.
+    # Strava::Errors::Fault#message so devolve "Forbidden"; o motivo real
+    # (ex: Application Status Inactive) vem em #errors.
     detail = (e.errors.inspect if e.respond_to?(:errors)) rescue nil
     Rails.logger.error "Failed to sync Strava for user #{user.id}: #{e.message}#{" (#{detail})" if detail}"
     { new_count: 0, updated_count: 0, error: e }

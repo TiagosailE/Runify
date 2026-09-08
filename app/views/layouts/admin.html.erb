@@ -13,8 +13,6 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
 
-    <%# Mesmo script do layout principal: o painel segue o tema que o usuario
-        escolheu no app, em vez de ser uma ilha sempre clara. %>
     <%= javascript_tag nonce: true do %>
       const cookieDarkMode = document.cookie.includes('dark_mode=true');
       document.documentElement.classList.toggle('dark', cookieDarkMode);
@@ -25,9 +23,6 @@
     <div class="min-h-screen bg-[#F5F5F5] pb-16">
       <header class="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 shadow-sm border-b sticky top-0 z-50 transition-colors duration-300">
         <div class="flex items-center justify-between px-6 py-4">
-          <%# Nao ha caminho de volta para o app: a conta de administrador e
-              exclusiva do painel (ver ApplicationController#confine_admin_to_panel).
-              A unica saida e encerrar a sessao. %>
           <%= button_to destroy_user_session_path,
                 method: :delete,
                 class: "text-gray-600 dark:text-gray-200 hover:text-teal-500 transition-colors cursor-pointer",
