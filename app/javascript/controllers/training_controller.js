@@ -70,7 +70,7 @@ export default class extends Controller {
         }
         this.showFeedbackModal()
       } else {
-        this.handleCompleteError(button, originalContent)
+        this.handleCompleteError(button, originalContent, data?.message)
       }
     } catch (error) {
       console.error('Error completing workout:', error)
@@ -78,11 +78,12 @@ export default class extends Controller {
     }
   }
 
-  handleCompleteError(button, originalContent) {
+  handleCompleteError(button, originalContent, message) {
+    const text = message || 'Erro ao completar treino'
     if (typeof window.showToast === 'function') {
-      window.showToast('Erro ao completar treino', 'error')
+      window.showToast(text, 'error')
     } else {
-      alert('Erro ao completar treino')
+      alert(text)
     }
     if (button) {
       button.disabled = false

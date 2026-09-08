@@ -8,7 +8,12 @@ class TrainingPlan < ApplicationRecord
 
   def current_week
     return 0 unless start_date
-    ((Date.current - start_date).to_i / 7) + 1
+
+    # Mesma ancora que AiTrainingService#create_workout usa pra scheduled_date
+    # -- sem isso, um plano gerado fora de segunda vira semana num dia que nao
+    # bate com as datas reais dos treinos.
+    monday = start_date.beginning_of_week(:monday)
+    ((Date.current - monday).to_i / 7) + 1
   end
 
   def workouts_for_week(week_number)

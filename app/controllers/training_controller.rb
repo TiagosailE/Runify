@@ -28,6 +28,13 @@ class TrainingController < ApplicationController
   end
 
   def complete
+    if @workout.scheduled_date > Date.current
+      return render json: {
+        success: false,
+        message: "Esse treino ainda não chegou -- está agendado para #{@workout.scheduled_date.strftime('%d/%m')}."
+      }, status: :unprocessable_entity
+    end
+
     if @workout.mark_as_completed!
       NotificationService.send_congratulations(current_user, @workout)
 
