@@ -24,16 +24,17 @@ class FallbackPlanBuilder
   WARMUP_SECONDS = 300
   COOLDOWN_SECONDS = 300
 
-  def initialize(user, envelope = nil)
+  def initialize(user, envelope = nil, week_range: nil)
     @user = user
     @envelope = envelope || TrainingEnvelope.new(user)
+    @week_range = week_range || (1..@envelope.plan_weeks)
   end
 
   def build
     {
       "analysis" => analysis_text,
       "plan_duration_weeks" => @envelope.plan_weeks,
-      "workouts" => (1..@envelope.plan_weeks).flat_map { |week| workouts_for_week(week) }
+      "workouts" => @week_range.flat_map { |week| workouts_for_week(week) }
     }
   end
 
@@ -60,14 +61,14 @@ class FallbackPlanBuilder
     end
   end
 
-  # Semana 1 comeca no dia em que o plano foi gerado, entao os N dias mais
-  # proximos de hoje (rodando a semana) fazem mais sentido do que sempre os N
-  # dias de numero mais baixo -- senao "hoje" so ganha treino se coincidir
-  # ser o primeiro dia disponivel na lista. Semana 2 em diante mantem o
-  # ritmo fixo de sempre.
+  # A primeira semana gerada comeca no dia em que isso roda (geracao inicial
+  # ou regeneracao parcial por troca de dias), entao os N dias mais proximos
+  # de hoje (rodando a semana) fazem mais sentido do que sempre os N dias de
+  # numero mais baixo -- senao "hoje" so ganha treino se coincidir ser o
+  # primeiro dia disponivel na lista. Semanas seguintes mantem o ritmo fixo.
   def selected_days(week)
     days = @envelope.training_days
-    return days.first(@envelope.sessions_per_week) unless week == 1
+    return days.first(@envelope.sessions_per_week) unless week == @week_range.first
 
     today = Date.current.cwday
     days.sort_by { |day| (day - today) % 7 }.first(@envelope.sessions_per_week)

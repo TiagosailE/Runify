@@ -99,6 +99,25 @@ class FallbackPlanBuilderTest < ActiveSupport::TestCase
     assert_equal [ 2, 4 ], plan["workouts"].map { |w| w["day"] }.uniq.sort
   end
 
+  test "week_range restringe as semanas geradas" do
+    user = build_user(running_experience: "intermediate", weekly_mileage: 30, preferred_training_days: [ 1, 3, 5 ])
+    envelope = TrainingEnvelope.new(user)
+    plan = FallbackPlanBuilder.new(user, envelope, week_range: 3..5).build
+
+    assert_equal [ 3, 4, 5 ], plan["workouts"].map { |w| w["week"] }.uniq.sort
+  end
+
+  test "week_range customizado tambem prioriza hoje na primeira semana do range" do
+    travel_to Date.new(2026, 9, 8) do # terca-feira
+      user = build_user(running_experience: "beginner", weekly_mileage: 20, preferred_training_days: [ 1, 2, 5, 6, 7 ])
+      plan = FallbackPlanBuilder.new(user, TrainingEnvelope.new(user), week_range: 3..5).build
+
+      week3_days = plan["workouts"].select { |w| w["week"] == 3 }.map { |w| w["day"] }.sort
+
+      assert_includes week3_days, 2, "dia de hoje (terca=2) deveria ganhar treino na primeira semana do range"
+    end
+  end
+
   test "numero de semanas bate com o envelope" do
     user = build_user(running_experience: "beginner")
     envelope = TrainingEnvelope.new(user)

@@ -4,6 +4,7 @@ class SettingsController < ApplicationController
   def index
     @dark_mode = cookies[:dark_mode] == "true"
     @notifications_enabled = current_user.notifications_enabled
+    @training_days = current_user.preferred_training_days
   end
 
   def update_password
@@ -25,6 +26,25 @@ class SettingsController < ApplicationController
       flash[:toast] = { message: "Senha atual incorreta.", type: "error" }
       redirect_to settings_path
     end
+  end
+
+  def update_training_days
+    days = training_days_params[:preferred_training_days].to_a.reject(&:blank?).map(&:to_i).select { |d| d.between?(1, 7) }.uniq.sort
+
+    if days.empty?
+      flash[:toast] = { message: "Selecione pelo menos um dia de treino.", type: "error" }
+      return redirect_to settings_path
+    end
+
+    current_user.update!(preferred_training_days: days)
+    regenerate_remaining_plan
+
+    flash[:toast] = { message: "Dias de treino atualizados!", type: "success" }
+    redirect_to settings_path
+  rescue => e
+    Rails.logger.error "Erro ao regenerar plano após troca de dias: #{e.message}"
+    flash[:toast] = { message: "Dias salvos, mas houve um erro ao atualizar o plano de treino. Tente gerar um novo plano na tela de Treino.", type: "error" }
+    redirect_to settings_path
   end
 
   def toggle_theme
@@ -75,6 +95,25 @@ class SettingsController < ApplicationController
   end
 
   private
+
+  # So mexe nas semanas ainda nao concluidas (pendentes, semana atual em
+  # diante) -- historico e treinos ja feitos ficam intactos. Sem plano ativo
+  # ou plano ja terminado, so a preferencia muda; o proximo plano gerado ja
+  # nasce com os dias novos.
+  def regenerate_remaining_plan
+    plan = current_user.active_training_plan
+    return unless plan
+
+    current_week = [ plan.current_week, 1 ].max
+    return if current_week > plan.total_weeks
+
+    week_range = current_week..plan.total_weeks
+    AiTrainingService.new(current_user, training_plan: plan, week_range: week_range).generate_training_plan
+  end
+
+  def training_days_params
+    params.permit(preferred_training_days: [])
+  end
 
   def password_params
     params.permit(:current_password, :new_password, :password_confirmation)

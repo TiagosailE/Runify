@@ -7,9 +7,10 @@
 class TrainingPlanValidator
   PACE_PATTERN = /(\d{1,2}):(\d{2})/
 
-  def initialize(plan_data, envelope)
+  def initialize(plan_data, envelope, week_range: nil)
     @plan_data = plan_data
     @envelope = envelope
+    @week_range = week_range || (1..envelope.plan_weeks)
   end
 
   def valid?
@@ -44,7 +45,7 @@ class TrainingPlanValidator
       day = workout["day"].to_i
 
       errors = []
-      errors << "#{label}: semana #{week} fora do plano de #{@envelope.plan_weeks} semanas" unless week.between?(1, @envelope.plan_weeks)
+      errors << "#{label}: semana #{week} fora do intervalo esperado (#{@week_range.min} a #{@week_range.max})" unless @week_range.cover?(week)
       errors << "#{label}: dia #{day} inválido (precisa ser 1 a 7)" unless day.between?(1, 7)
       errors << "#{label}: dia #{day} não está entre os dias disponíveis do atleta (#{@envelope.training_days.join(', ')})" if day.between?(1, 7) && !@envelope.training_days.include?(day)
       errors.concat(format_violations(workout, label))

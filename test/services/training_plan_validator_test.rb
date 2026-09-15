@@ -97,7 +97,20 @@ class TrainingPlanValidatorTest < ActiveSupport::TestCase
     validator = TrainingPlanValidator.new(plan([ workout("week" => 99) ]), envelope_for(runner))
 
     assert_not validator.valid?
-    assert_match(/fora do plano/, validator.violations.join)
+    assert_match(/fora do intervalo esperado/, validator.violations.join)
+  end
+
+  test "week_range customizado rejeita semana dentro do plano mas fora do range" do
+    validator = TrainingPlanValidator.new(plan([ workout("week" => 1) ]), envelope_for(runner), week_range: 3..6)
+
+    assert_not validator.valid?
+    assert_match(/fora do intervalo esperado \(3 a 6\)/, validator.violations.join)
+  end
+
+  test "week_range customizado aceita semana dentro do range informado" do
+    validator = TrainingPlanValidator.new(plan([ workout("week" => 3) ]), envelope_for(runner), week_range: 3..6)
+
+    assert validator.valid?, validator.violations.inspect
   end
 
   test "rejeita corrida continua para quem nunca correu" do
