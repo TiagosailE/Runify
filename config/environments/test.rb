@@ -31,6 +31,10 @@ Rails.application.configure do
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
 
+  # Enfileira sem rodar de verdade -- permite assert_enqueued_with sem
+  # depender do Solid Queue estar de pe durante os testes.
+  config.active_job.queue_adapter = :test
+
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
