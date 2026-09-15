@@ -30,6 +30,16 @@ class AiTrainingServiceTest < ActiveSupport::TestCase
     FallbackPlanBuilder.new(user).build
   end
 
+  def add_workout(plan, monday, week, day, status)
+    plan.workouts.create!(
+      week_number: week, day_of_week: day,
+      scheduled_date: monday + (week - 1).weeks + (day - 1).days,
+      workout_type: "Corrida Leve", workout_format: "continuous",
+      distance: 5.0, duration: 1800, pace: "6:00",
+      description: "leve", instructions: "leve", status: status
+    )
+  end
+
   def insane_plan
     {
       "analysis" => "plano perigoso",
@@ -142,6 +152,41 @@ class AiTrainingServiceTest < ActiveSupport::TestCase
       assert_equal Date.new(2026, 9, 8), tuesday_workout.scheduled_date
       assert_equal Date.current, tuesday_workout.scheduled_date
     end
+  end
+
+  # Cenario da troca de dias de treino em settings: regenerar so o que ainda
+  # nao aconteceu, sem mexer no historico nem criar um plano novo.
+  test "regeneracao parcial troca so os pendentes do week_range, preservando o resto" do
+    athlete = runner
+    plan = athlete.training_plans.create!(
+      goal: athlete.goal, status: "active", start_date: 2.weeks.ago.to_date,
+      end_date: Date.current + 4.weeks, total_weeks: 6, plan_data: { "source" => "ai" }
+    )
+    monday = plan.start_date.beginning_of_week(:monday)
+
+    week1_completed = add_workout(plan, monday, 1, 1, "completed")
+    week3_completed = add_workout(plan, monday, 3, 1, "completed")
+    week3_pending_old = add_workout(plan, monday, 3, 3, "pending")
+
+    new_plan_data = {
+      "analysis" => "continuacao", "plan_duration_weeks" => 6,
+      "workouts" => [ {
+        "week" => 3, "day" => 5, "type" => "Corrida Leve", "format" => "continuous",
+        "distance_km" => 5.0, "duration_minutes" => 30, "pace" => "6:00",
+        "description" => "leve", "instructions" => "leve"
+      } ]
+    }
+
+    result = stub_gemini(new_plan_data) do
+      AiTrainingService.new(athlete, training_plan: plan, week_range: 3..6).generate_training_plan
+    end
+
+    assert_equal plan.id, result.id
+    assert_equal 1, athlete.training_plans.count
+    assert Workout.exists?(week1_completed.id), "semana fora do week_range nao deveria ser tocada"
+    assert Workout.exists?(week3_completed.id), "treino ja concluido dentro do week_range nao deveria ser apagado"
+    assert_not Workout.exists?(week3_pending_old.id), "pendente antigo dentro do week_range deveria ser substituido"
+    assert_equal 1, plan.workouts.where(week_number: 3, day_of_week: 5).count
   end
 
   test "o envelope usado fica registrado junto do plano" do

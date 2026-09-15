@@ -60,6 +60,42 @@
     </section>
 
     <section>
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Dias de Treino</h2>
+
+      <div class="bg-white rounded-2xl shadow-sm p-5">
+        <%= form_with url: update_training_days_settings_path, method: :post, local: true do %>
+          <div class="grid grid-cols-7 gap-2">
+            <% days = [
+              { value: 1, label: 'Seg', name: 'S' },
+              { value: 2, label: 'Ter', name: 'T' },
+              { value: 3, label: 'Qua', name: 'Q' },
+              { value: 4, label: 'Qui', name: 'Q' },
+              { value: 5, label: 'Sex', name: 'S' },
+              { value: 6, label: 'Sáb', name: 'S' },
+              { value: 7, label: 'Dom', name: 'D' }
+            ] %>
+
+            <% days.each do |day| %>
+              <label class="flex flex-col items-center cursor-pointer group">
+                <%= check_box_tag 'preferred_training_days[]', day[:value], @training_days&.include?(day[:value]),
+                    class: "hidden peer",
+                    id: "settings_day_#{day[:value]}" %>
+                <div class="w-full aspect-square flex items-center justify-center rounded-xl border-2 border-gray-300 peer-checked:border-teal-500 peer-checked:bg-teal-500 peer-checked:text-white text-gray-700 font-semibold transition-all hover:border-teal-400">
+                  <%= day[:name] %>
+                </div>
+                <span class="text-xs text-gray-600 mt-1"><%= day[:label] %></span>
+              </label>
+            <% end %>
+          </div>
+          <p class="text-xs text-gray-500 mt-3">
+            Mudar os dias atualiza automaticamente as semanas do seu plano de treino que ainda não aconteceram.
+          </p>
+          <%= submit_tag "Salvar Dias", class: "w-full mt-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer" %>
+        <% end %>
+      </div>
+    </section>
+
+    <section>
       <h2 class="text-lg font-semibold text-gray-900 mb-4">Notificações</h2>
       
       <div class="bg-white rounded-2xl p-4 shadow-sm space-y-4">

@@ -5,9 +5,14 @@
 class AiTrainingService
   MAX_ATTEMPTS = 2
 
-  def initialize(user)
+  # training_plan/week_range presentes = regeneracao parcial (ex: mudanca de
+  # dias de treino no meio do plano): gera so as semanas informadas e grava
+  # nesse plano, em vez de criar um plano novo do zero.
+  def initialize(user, training_plan: nil, week_range: nil)
     @user = user
     @envelope = TrainingEnvelope.new(user)
+    @training_plan = training_plan
+    @week_range = week_range || (1..@envelope.plan_weeks)
   end
 
   def generate_training_plan
@@ -30,7 +35,7 @@ class AiTrainingService
 
     MAX_ATTEMPTS.times do |attempt|
       plan_data = request_plan(previous_violations: violations)
-      validator = TrainingPlanValidator.new(plan_data, @envelope)
+      validator = TrainingPlanValidator.new(plan_data, @envelope, week_range: @week_range)
 
       return [ plan_data, attempt.zero? ? "ai" : "ai_retry" ] if validator.valid?
 
@@ -43,7 +48,7 @@ class AiTrainingService
     end
 
     Rails.logger.warn "Usando plano determinístico de fallback para user #{@user.id}"
-    [ FallbackPlanBuilder.new(@user, @envelope).build, "fallback" ]
+    [ FallbackPlanBuilder.new(@user, @envelope, week_range: @week_range).build, "fallback" ]
   end
 
   def request_plan(previous_violations: [])
@@ -67,6 +72,13 @@ class AiTrainingService
       "## LIMITES OBRIGATÓRIOS (calculados a partir dos dados reais dele)\n#{@envelope.to_prompt_section}",
       "## REGRAS\n#{rules}"
     ]
+
+    if regenerating_partial_plan?
+      sections << "## CONTINUAÇÃO DE PLANO EXISTENTE\nEste plano já está em andamento " \
+                  "(#{@envelope.plan_weeks} semanas no total). O atleta mudou os dias disponíveis " \
+                  "para treino. Gere APENAS as semanas #{@week_range.min} a #{@week_range.max}, " \
+                  "usando os novos dias disponíveis listados acima."
+    end
 
     if previous_violations.any?
       sections << "## SUA RESPOSTA ANTERIOR FOI REJEITADA\n" \
@@ -136,7 +148,7 @@ class AiTrainingService
   # Os limites entram no proprio schema, entao a maior parte dos valores
   # impossiveis nem chega a ser gerada.
   def response_schema
-    last_week_ceiling = @envelope.max_single_run_km_for_week(@envelope.plan_weeks)
+    last_week_ceiling = @envelope.max_single_run_km_for_week(@week_range.max)
 
     {
       type: "OBJECT",
@@ -152,7 +164,7 @@ class AiTrainingService
           items: {
             type: "OBJECT",
             properties: {
-              week: { type: "INTEGER", minimum: 1, maximum: @envelope.plan_weeks },
+              week: { type: "INTEGER", minimum: @week_range.min, maximum: @week_range.max },
               day: { type: "INTEGER", minimum: 1, maximum: 7 },
               type: { type: "STRING" },
               format: { type: "STRING", enum: Workout::FORMATS },
@@ -185,6 +197,8 @@ class AiTrainingService
   end
 
   def persist(plan_data, source)
+    return persist_partial(plan_data, source) if regenerating_partial_plan?
+
     weeks = @envelope.plan_weeks
 
     training_plan = @user.training_plans.create!(
@@ -199,6 +213,21 @@ class AiTrainingService
     plan_data["workouts"].each { |workout_data| create_workout(training_plan, workout_data) }
 
     training_plan
+  end
+
+  # Regrava so as semanas de @week_range no plano existente -- as semanas
+  # anteriores (historico, inclusive treinos concluidos) ficam intactas.
+  def persist_partial(plan_data, source)
+    ActiveRecord::Base.transaction do
+      @training_plan.workouts.where(week_number: @week_range, status: "pending").destroy_all
+      plan_data["workouts"].each { |workout_data| create_workout(@training_plan, workout_data) }
+    end
+
+    @training_plan
+  end
+
+  def regenerating_partial_plan?
+    @training_plan.present?
   end
 
   def create_workout(training_plan, workout_data)
