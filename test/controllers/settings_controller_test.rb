@@ -1,6 +1,8 @@
 require "test_helper"
 
 class SettingsControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+
   setup do
     sign_in users(:one)
   end
@@ -41,36 +43,17 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ 1, 3, 5 ], users(:one).reload.preferred_training_days
   end
 
-  test "update_training_days regenera as semanas pendentes do plano ativo" do
+  # A regeneracao em si (chamada a IA) roda em background -- ver
+  # RegenerateTrainingDaysJobTest. Aqui so garante que o request nao trava
+  # esperando a IA: enfileira o job e responde na hora.
+  test "update_training_days enfileira a regeneracao em vez de rodar a IA no request" do
     user = users(:one)
-    user.update!(running_experience: "intermediate", weekly_mileage: 30, preferred_training_days: [ 1, 3, 5 ])
-    plan = user.training_plans.create!(
-      goal: "Teste", status: "active", start_date: 2.weeks.ago.to_date,
-      end_date: Date.current + 4.weeks, total_weeks: 6, plan_data: {}
-    )
-    monday = plan.start_date.beginning_of_week(:monday)
-    old_pending = plan.workouts.create!(
-      week_number: plan.current_week, day_of_week: 1, scheduled_date: monday + (plan.current_week - 1).weeks,
-      workout_type: "Corrida Leve", workout_format: "continuous", distance: 5.0, duration: 1800,
-      pace: "6:00", description: "leve", instructions: "leve", status: "pending"
-    )
 
-    new_plan_data = {
-      "analysis" => "continuacao", "plan_duration_weeks" => 6,
-      "workouts" => [ {
-        "week" => plan.current_week, "day" => 2, "type" => "Corrida Leve", "format" => "continuous",
-        "distance_km" => 5.0, "duration_minutes" => 30, "pace" => "6:00",
-        "description" => "leve", "instructions" => "leve"
-      } ]
-    }
-
-    GeminiClient.stub :generate_json, ->(_prompt, **_opts) { new_plan_data } do
+    assert_enqueued_with(job: RegenerateTrainingDaysJob, args: [ user.id ]) do
       post update_training_days_settings_url, params: { preferred_training_days: [ "2", "4" ] }
     end
 
     assert_redirected_to settings_path
-    assert_not Workout.exists?(old_pending.id)
-    assert_equal 1, plan.workouts.where(week_number: plan.current_week, day_of_week: 2).count
   end
 
   test "export_data devolve JSON com os dados do usuario" do
