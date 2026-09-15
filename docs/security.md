@@ -100,7 +100,8 @@ caiu de ~10 atributos `style="..."` para 1, `pacers/show.html.erb` de ~4
 para 1 — cor de borda, box-shadow e background por tier saíram de string
 Ruby montada à mão (`SquadMember#tier_data`/`#border_style`, o segundo
 removido por não ter uso) para classes CSS estáticas em
-`components/pacer_frames.css` (`.tier-<border_tier> .avatar-ring` etc.),
+`components/pacer_frames.css` (`.tier-<border_tier> .level-badge` etc.;
+a moldura em si hoje é imagem estática em `app/assets/images/pacer_frames/`),
 carregadas via `<link>` de verdade, não `<style nonce>` inline.
 
 18 atributos `style="..."` sobrevivem no total (contagem por ocorrência),

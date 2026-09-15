@@ -33,6 +33,20 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "ranking desenha a moldura do tier de cada membro" do
+    squad_members(:one).update_columns(level: 45)
+
+    get pacer_url(squads(:one))
+
+    assert_select ".pacer-avatar.tier-golden_marathon img.pacer-avatar-frame[src*='pacer_frames/golden_marathon']"
+  end
+
+  test "todo tier tem imagem de moldura" do
+    SquadMember::TIER_DATA.each_key do |tier|
+      assert Rails.application.assets.load_path.find("pacer_frames/#{tier}.webp"), "falta pacer_frames/#{tier}.webp"
+    end
+  end
+
   test "join_by_code entra no squad com o codigo certo" do
     post join_by_code_pacers_url, params: { code: squads(:two).squad_code }
 
