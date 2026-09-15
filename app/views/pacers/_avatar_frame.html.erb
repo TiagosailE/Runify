@@ -1,84 +1,8 @@
-<%
-  # size: :lg (index — avatar 96px) ou :md (show — avatar 80px). As
-  # coordenadas do SVG do :lg são as do :md multiplicadas por 1.2 — mesma
-  # proporção que os dois blocos duplicados originais já usavam.
-  case size
-  when :lg
-    scale = 1.2
-    wrapper_class = "w-24 h-24"
-    badge_wrapper_class = "w-10 h-10 -bottom-2 -right-2"
-    badge_text_class = "text-sm"
-    blur = 4
-  else
-    scale = 1.0
-    wrapper_class = "w-20 h-20"
-    badge_wrapper_class = "w-8 h-8 -bottom-1 -right-1"
-    badge_text_class = "text-xs"
-    blur = 3
-  end
-
-  vb = (100 * scale).round
-  c = vb / 2.0
-  r_thin = (45 * scale).round
-  r_glow = (48 * scale).round
-
-  cardinal_points = [
-    [ 50, 5, 55, 15, 45, 15 ],
-    [ 95, 50, 85, 55, 85, 45 ],
-    [ 50, 95, 55, 85, 45, 85 ],
-    [ 5, 50, 15, 55, 15, 45 ]
-  ].map { |pts| pts.map { |n| (n * scale).round } }
-
-  milestone_accents = [
-    [ 20, 20, 25, 15, 15, 25 ],
-    [ 80, 20, 75, 15, 85, 25 ],
-    [ 20, 80, 25, 85, 15, 75 ],
-    [ 80, 80, 75, 85, 85, 75 ]
-  ].map { |pts| pts.map { |n| (n * scale).round } }
-%>
-
-<div class="frame-container tier-<%= member.border_tier %>">
-
-  <svg class="frame-border" viewBox="0 0 <%= vb %> <%= vb %>" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <filter id="<%= filter_id %>">
-        <feGaussianBlur stdDeviation="<%= blur %>" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-
-    <circle cx="<%= c %>" cy="<%= c %>" r="<%= r_thin %>" fill="none" stroke="<%= member.border_color %>" stroke-width="3" opacity="0.3"/>
-    <circle cx="<%= c %>" cy="<%= c %>" r="<%= r_glow %>" fill="none" stroke="<%= member.border_color %>" stroke-width="2" filter="url(#<%= filter_id %>)"/>
-
-    <% cardinal_points.each do |x1, y1, x2, y2, x3, y3| %>
-      <path d="M <%= x1 %>,<%= y1 %> L <%= x2 %>,<%= y2 %> L <%= x3 %>,<%= y3 %> Z" fill="<%= member.border_color %>" filter="url(#<%= filter_id %>)"/>
-    <% end %>
-
-    <% if member.level >= 30 %>
-      <% milestone_accents.each do |x1, y1, x2, y2, x3, y3| %>
-        <path d="M <%= x1 %>,<%= y1 %> L <%= x2 %>,<%= y2 %> L <%= x3 %>,<%= y3 %> Z" fill="<%= member.border_color %>" opacity="0.7"/>
-      <% end %>
-    <% end %>
-  </svg>
-
-  <div class="avatar-ring <%= wrapper_class %>">
-    <img src="<%= avatar_url %>" alt="<%= avatar_alt %>" class="w-full h-full object-cover">
-  </div>
-
-  <% if member.level >= 10 %>
-    <div class="frame-icon corner-tl">
-      <i class="fas <%= member.tier_icon %>"></i>
-    </div>
-    <div class="frame-icon corner-tr">
-      <i class="fas <%= member.tier_icon %>"></i>
-    </div>
-  <% end %>
-
-  <div class="level-badge <%= badge_context == :index ? "level-badge-on-index" : "level-badge-on-show" %> absolute <%= badge_wrapper_class %> <%= badge_text_class %>">
+<%# size: :lg (index) ou :md (show). A moldura ocupa 160% da foto — proporção gravada nos .webp de pacer_frames/. %>
+<div class="pacer-avatar pacer-avatar-<%= size %> tier-<%= member.border_tier %>">
+  <img src="<%= avatar_url %>" alt="<%= avatar_alt %>" class="pacer-avatar-photo">
+  <%= image_tag "pacer_frames/#{member.border_tier}.webp", alt: "", class: "pacer-avatar-frame", decoding: "async" %>
+  <div class="level-badge level-badge-on-<%= badge_context %>">
     <%= member.level %>
   </div>
-
 </div>
