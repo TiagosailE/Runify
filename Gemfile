@@ -67,7 +67,7 @@ gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 gem "strava-ruby-client", "~> 3.0"
 
-gem "active_storage_validations", "~> 3.0"
+gem "active_storage_validations", "~> 4.1"
 
 gem "sentry-ruby"
 gem "sentry-rails"
