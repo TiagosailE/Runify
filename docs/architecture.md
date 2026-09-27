@@ -128,8 +128,16 @@ lógica de XP.
 ## Notificações
 
 `NotificationService` são métodos de classe que criam `Notification`
-(`send_workout_reminder`, `send_sync_reminder`, `send_congratulations`,
-etc.), todos com `return unless user.notifications_enabled?` na entrada.
+(`send_workout_reminder`, `send_evening_workout_reminder`,
+`send_congratulations`, etc.), todos com `return unless
+user.notifications_enabled?` na entrada, exceto `send_adjustment_alert`
+(alerta de saúde, sempre chega). `notifications_enabled` nasce ligado em
+conta nova; quem já existia mantém a escolha que tinha. O lembrete das 8h
+(`WorkoutReminderJob`) e o das 19h (`DailyNotificationsJob`, só para treino
+ainda pendente) têm textos diferentes, sem horário; treino sem distância
+(caminhada/corrida) mostra a duração. Não há mais lembrete de sincronizar o
+Strava; o tipo `sync_reminder` continua válido no model só para as
+notificações antigas já gravadas.
 Disparados pelos jobs agendados em `config/schedule.rb`
 (`WorkoutReminderJob`, `DailyNotificationsJob`, `WeeklySummaryJob`) — os
 três existem e batem com o que o schedule referencia; a nota antiga no

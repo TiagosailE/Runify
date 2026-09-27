@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_26_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_26_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -187,7 +187,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_120000) do
     t.integer "height"
     t.text "injury_history"
     t.datetime "last_strava_sync_at"
-    t.boolean "notifications_enabled", default: false
+    t.boolean "notifications_enabled", default: true
     t.integer "preferred_training_days", default: [], array: true
     t.string "provider"
     t.datetime "remember_created_at"
