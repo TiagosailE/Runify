@@ -52,6 +52,16 @@ class TrainingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "usuario nao completa treino de outro usuario" do
+    post training_complete_url(workouts(:two))
+    assert_response :not_found
+  end
+
+  test "usuario nao envia feedback de treino de outro usuario" do
+    post training_feedback_url(workouts(:two)), params: { difficulty: "medium", notes: "ok" }
+    assert_response :not_found
+  end
+
   test "should get feedback" do
     post training_feedback_url(workouts(:one)), params: { difficulty: "medium", notes: "ok" }
     assert_response :success
