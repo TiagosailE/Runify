@@ -39,6 +39,49 @@ class XpServiceTest < ActiveSupport::TestCase
     )
   end
 
+  test "calculate_xp soma km vezes dez, bonus de ritmo e bonus de streak" do
+    @squad_member.update!(streak: 3)
+    activity = create_activity(Time.current)
+    activity.update!(distance: 5000, duration: 1500, moving_time: 1500)
+
+    xp = XpService.calculate_xp(activity, @squad_member.reload)
+
+    assert_equal 85, xp # 50 (5km x 10) + 5 (ritmo de 5:00/km) + 30 (streak 3 x 10)
+  end
+
+  test "ritmo mais lento que 6:00/km nao gera bonus negativo" do
+    activity = create_activity(Time.current)
+    activity.update!(distance: 5000, duration: 2100, moving_time: 2100)
+
+    xp = XpService.calculate_xp(activity, @squad_member)
+
+    assert_equal 50, xp # so a base: ritmo de 7:00/km fica no piso zero, sem streak
+  end
+
+  test "bonus de ritmo tem teto de 25" do
+    activity = create_activity(Time.current)
+    activity.update!(distance: 5000, duration: 60, moving_time: 60)
+
+    xp = XpService.calculate_xp(activity, @squad_member)
+
+    assert_equal 75, xp # 50 de base + teto de 25, ritmo bem abaixo de 6:00/km
+  end
+
+  test "award_xp da xp so em squads ativos" do
+    ended_squad = Squad.create!(
+      name: "Squad Encerrado", description: "descricao", owner: @user,
+      challenge_duration: 4, challenge_start: 8.weeks.ago, challenge_end: 1.week.ago
+    )
+    ended_member = ended_squad.squad_members.create!(user: @user, joined_at: Time.current)
+    activity = create_activity(Time.current)
+    activity.update!(distance: 5000, duration: 1500, moving_time: 1500)
+
+    XpService.award_xp(@user, activity)
+
+    assert_equal 55, @squad_member.reload.experience_points # 50 de base + 5 de ritmo, sem streak
+    assert_equal 0, ended_member.reload.experience_points
+  end
+
   test "duas corridas no mesmo dia nao somam duas ao streak" do
     travel_to Time.zone.local(2026, 9, 27, 10, 0) do
       create_activity(Time.current)

@@ -94,4 +94,37 @@ class NotificationServiceTest < ActiveSupport::TestCase
   test "o lembrete de sincronizacao do Strava deixou de existir" do
     assert_not_respond_to NotificationService, :send_sync_reminder
   end
+
+  test "parabens cita o tipo do treino" do
+    NotificationService.send_congratulations(@user, @continuous)
+
+    notification = @user.notifications.last
+    assert_equal "congratulations", notification.notification_type
+    assert_includes notification.message, "Corrida Leve"
+  end
+
+  test "parabens respeita notifications_enabled desligado" do
+    @user.update!(notifications_enabled: false)
+
+    assert_no_difference -> { @user.notifications.count } do
+      NotificationService.send_congratulations(@user, @continuous)
+    end
+  end
+
+  test "alerta de ajuste sempre notifica, mesmo com notifications_enabled desligado" do
+    @user.update!(notifications_enabled: false)
+
+    assert_difference -> { @user.notifications.count }, 1 do
+      NotificationService.send_adjustment_alert(@user, {
+        "analysis" => "Aumentamos seu volume levemente.",
+        "recommendations" => [ "Hidrate-se bem", "Durma cedo" ],
+        "red_flags" => [ "dor no joelho" ]
+      })
+    end
+
+    notification = @user.notifications.last
+    assert_includes notification.message, "Aumentamos seu volume levemente."
+    assert_includes notification.message, "Hidrate-se bem"
+    assert_includes notification.message, "Alertas: dor no joelho"
+  end
 end

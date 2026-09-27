@@ -8,8 +8,7 @@ class OnboardingController < ApplicationController
     current_user.update(
       weight: onboarding_step_params[:weight],
       height: onboarding_step_params[:height],
-      birth_date: onboarding_step_params[:birth_date],
-      available_days: onboarding_step_params[:available_days] || []
+      birth_date: onboarding_step_params[:birth_date]
     )
 
     redirect_to onboarding_step2_view_path
@@ -42,7 +41,7 @@ class OnboardingController < ApplicationController
   private
 
   def onboarding_step_params
-    params.permit(:weight, :height, :birth_date, available_days: [])
+    params.permit(:weight, :height, :birth_date)
   end
 
   def onboarding_complete_params

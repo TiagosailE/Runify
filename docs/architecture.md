@@ -94,8 +94,9 @@ gem `omniauth-rails_csrf_protection` exige POST na fase de request
 `AiTrainingService.new(user).generate_training_plan`:
 1. Monta prompt com perfil do usuário + até 10 atividades recentes
    (`distance_km`, `duration_formatted`, `pace_per_km`).
-2. Chama a API do Gemini (`gemini-2.5-flash`) via `Net::HTTP` direto — não
-   usa a gem `gemini-ai` do Gemfile para essa chamada especificamente.
+2. Chama a API do Gemini (`gemini-2.5-flash`) via `Net::HTTP` direto, sem
+   depender de gem cliente (a `gemini-ai` chegou a estar no `Gemfile`, mas
+   nunca foi usada e saiu na faxina de código morto).
 3. Faz parse da resposta e cria `TrainingPlan` + `Workout` em lote.
 4. Relança qualquer erro depois de logar (quem chama decide o que mostrar).
 
@@ -150,7 +151,7 @@ removida.
 
 `namespace :admin` dentro do mesmo monólito — mesmo banco, mesmo Devise,
 mesmo deploy —, com layout próprio (`app/views/layouts/admin.html.erb`,
-desktop-first, sem a bottom nav nem o `user-scalable=no` do layout do app).
+desktop-first, sem a bottom nav do layout do app).
 
 `Admin::BaseController` concentra as duas únicas regras da camada:
 `authenticate_user!` + `current_user&.admin?`, e o `record_audit` que grava

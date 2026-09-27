@@ -42,7 +42,7 @@ class SyncStravaActivitiesJob < ApplicationJob
 
       if activity.save
         if is_new
-          if defined?(XpService) && activity.run?
+          if activity.run?
             XpService.update_streak(user)
             XpService.award_xp(user, activity)
           end

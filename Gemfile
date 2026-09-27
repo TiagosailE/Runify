@@ -46,6 +46,8 @@ group :development, :test do
   gem "brakeman", require: false
 
   gem "rubocop-rails-omakase", require: false
+
+  gem "dotenv-rails", "~> 3.2"
 end
 
 group :development do
@@ -64,10 +66,6 @@ gem "omniauth-google-oauth2", "~> 1.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 gem "strava-ruby-client", "~> 3.0"
-
-gem "dotenv-rails", "~> 3.2"
-
-gem "gemini-ai", "~> 4.3"
 
 gem "active_storage_validations", "~> 3.0"
 

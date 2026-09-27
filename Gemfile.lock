@@ -153,10 +153,6 @@ GEM
     erubi (1.13.1)
     et-orbi (1.4.1)
       tzinfo
-    ethon (0.18.0)
-      ffi (>= 1.15.0)
-      logger
-    event_stream_parser (1.0.0)
     faraday (2.14.3)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -165,9 +161,6 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.4)
       net-http (~> 0.5)
-    faraday-typhoeus (1.1.0)
-      faraday (~> 2.0)
-      typhoeus (~> 1.4)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
     ffi (1.17.4-arm-linux-gnu)
@@ -177,26 +170,8 @@ GEM
     fugit (1.13.0)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
-    gemini-ai (4.3.0)
-      event_stream_parser (~> 1.0)
-      faraday (~> 2.13, >= 2.13.2)
-      faraday-typhoeus (~> 1.1)
-      googleauth (~> 1.8)
-      typhoeus (~> 1.4, >= 1.4.1)
     globalid (1.4.0)
       activesupport (>= 6.1)
-    google-cloud-env (2.4.0)
-      base64 (~> 0.2)
-      faraday (>= 1.0, < 3.a)
-    google-logging-utils (0.2.0)
-    googleauth (1.17.3)
-      faraday (>= 1.0, < 3.a)
-      google-cloud-env (~> 2.2)
-      google-logging-utils (~> 0.1)
-      jwt (>= 1.4, < 4.0)
-      os (>= 0.9, < 2.0)
-      pstore (~> 0.1)
-      signet (>= 0.16, < 2.a)
     hashie (5.1.0)
       logger
     httparty (0.24.2)
@@ -314,7 +289,6 @@ GEM
       actionpack (>= 4.2)
       omniauth (~> 2.0)
     orm_adapter (0.5.0)
-    os (1.1.4)
     ostruct (0.6.3)
     parallel (2.1.0)
     parser (3.3.12.0)
@@ -333,7 +307,6 @@ GEM
       actionpack (>= 7.0.0)
       activesupport (>= 7.0.0)
       rack
-    pstore (0.2.1)
     public_suffix (7.0.5)
     puma (8.0.2)
       nio4r (~> 2.0)
@@ -449,10 +422,6 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
-    signet (0.22.0)
-      addressable (~> 2.8)
-      faraday (>= 0.17.5, < 3.a)
-      jwt (>= 1.5, < 4.0)
     simplecov (1.1.1)
     snaky_hash (2.0.7)
       hashie (>= 0.1.0, < 6)
@@ -504,8 +473,6 @@ GEM
     turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
-    typhoeus (1.6.0)
-      ethon (>= 0.18.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
@@ -549,7 +516,6 @@ DEPENDENCIES
   debug
   devise (~> 5.0)
   dotenv-rails (~> 3.2)
-  gemini-ai (~> 4.3)
   image_processing (~> 1.2)
   importmap-rails
   jbuilder

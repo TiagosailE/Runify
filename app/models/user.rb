@@ -1,4 +1,9 @@
 class User < ApplicationRecord
+  # available_days: substituida por preferred_training_days. last_strava_sync_at:
+  # substituida por strava_integrations.last_sync_at. Coluna fica no banco ate
+  # o deploy com ignored_columns estar no ar; remove_column vem depois.
+  self.ignored_columns += %w[available_days last_strava_sync_at]
+
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: [ :google_oauth2 ]

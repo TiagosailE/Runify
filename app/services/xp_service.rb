@@ -31,8 +31,6 @@ class XpService
     user.squad_members.each { |squad_member| squad_member.update(streak: streak) }
   end
 
-  private
-
   def self.calculate_streak(user)
     activity_dates = user.activities.runs.select(:start_date).map { |activity| activity.start_date.to_date }.to_set
     return 0 if activity_dates.empty?
@@ -82,4 +80,6 @@ class XpService
       user.user_achievements.create(achievement: achievement, earned_at: Time.current)
     end
   end
+
+  private_class_method :calculate_streak, :calculate_pace_minutes, :calculate_pace_bonus
 end

@@ -234,8 +234,9 @@ Autenticação gerenciada pelo **Devise** (módulos `database_authenticatable`, 
 - `injury_history` (texto livre), `goal` (validado até 500 caracteres).
 
 **Campos de preferências/agenda:**
-- `available_days` (**jsonb**) e `preferred_training_days` (**array de inteiros**) — duas estratégias de armazenamento de disponibilidade semanal, alimentando o gerador de plano de IA.
-- `notifications_enabled` (boolean, default `true` para contas novas), `last_strava_sync_at`.
+- `preferred_training_days` (array de inteiros): única fonte de disponibilidade semanal, alimentando o gerador de plano de IA.
+- `notifications_enabled` (boolean, default `true` para contas novas).
+- `available_days` e `last_strava_sync_at` continuam no banco (`ignored_columns` no model), mas nenhum código lê ou escreve mais neles; a data de sincronização com o Strava vem de `strava_integrations.last_sync_at`.
 
 **Métodos de negócio relevantes (lógica que mora no modelo, não no banco):** `strava_connected?`, `active_training_plan`, `age`, `estimated_vo2_max`, `average_recent_pace`, `level`/`experience_points` (delegados ao `primary_squad_member`).
 
@@ -324,7 +325,7 @@ Filha de `training_plans` (1:N). Representa um treino agendado.
 
 ### 4.7 `achievements` + `user_achievements` — sistema de conquistas
 
-- **`achievements`** — catálogo de conquistas: `name` (NOT NULL), `badge_type`, `icon`, `description`, `xp_reward` (default 0). Índice em `badge_type`.
+- **`achievements`**: catálogo de conquistas, `name` (NOT NULL), `icon`, `description`, `xp_reward` (default 0). `badge_type` continua no banco (`ignored_columns` no model), sem leitor em nenhum lugar do app.
 - **`user_achievements`** — junção que registra a conquista obtida por um usuário e *quando* (`earned_at`). Índice único `(user_id, achievement_id)`.
 
 > Observação técnica para o TG: o modelo `Achievement` não declara explicitamente `has_many :user_achievements`, embora o lado `User` use a associação `has_many :through`. Não impede o funcionamento da junção a partir do usuário, mas é um ponto de assimetria a documentar.

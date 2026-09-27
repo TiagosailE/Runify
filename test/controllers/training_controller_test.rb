@@ -36,6 +36,43 @@ class TrainingControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "Treino da segunda"
   end
 
+  # Consequencia assumida do C3 (semana 1 e a atual, dia passado descartado):
+  # plano gerado no fim de semana pode nascer com a semana 1 vazia.
+  test "aviso de semana sem treino aparece quando a semana 1 nasce vazia" do
+    monday = Date.new(2026, 9, 14)
+    users(:one).training_plans.create!(
+      goal: "Teste", status: "active", start_date: monday,
+      end_date: monday + 5.weeks, total_weeks: 6, plan_data: {}
+    )
+
+    travel_to monday + 6.days do # domingo da semana 1, sem nenhum treino criado
+      get training_index_url
+    end
+
+    assert_response :success
+    assert_select "p", text: "Sem treinos nesta semana"
+  end
+
+  test "aviso de semana sem treino nao aparece quando ha treino na semana" do
+    monday = Date.new(2026, 9, 14)
+    plan = users(:one).training_plans.create!(
+      goal: "Teste", status: "active", start_date: monday,
+      end_date: monday + 5.weeks, total_weeks: 6, plan_data: {}
+    )
+    plan.workouts.create!(
+      week_number: 1, day_of_week: 3, scheduled_date: monday + 2.days,
+      workout_type: "Corrida Leve", workout_format: "continuous", distance: 5.0, duration: 1800,
+      pace: "6:00", description: "leve", instructions: "leve", status: "pending"
+    )
+
+    travel_to monday + 6.days do
+      get training_index_url
+    end
+
+    assert_response :success
+    assert_select "p", text: "Sem treinos nesta semana", count: 0
+  end
+
   test "generate mostra mensagem generica sem o detalhe da excecao" do
     boom = ->(*) { raise "detalhe interno que nao pode vazar" }
 
@@ -47,14 +84,19 @@ class TrainingControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "detalhe interno que nao pode vazar", flash[:toast][:message]
   end
 
-  test "should get show" do
-    get training_show_url(workouts(:one))
-    assert_response :success
-  end
-
   test "should get complete" do
     post training_complete_url(workouts(:one))
     assert_response :success
+  end
+
+  test "usuario nao completa treino de outro usuario" do
+    post training_complete_url(workouts(:two))
+    assert_response :not_found
+  end
+
+  test "usuario nao envia feedback de treino de outro usuario" do
+    post training_feedback_url(workouts(:two)), params: { difficulty: "medium", notes: "ok" }
+    assert_response :not_found
   end
 
   test "should get feedback" do
