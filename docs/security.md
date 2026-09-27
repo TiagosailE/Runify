@@ -71,6 +71,11 @@ partir do que o app carrega de verdade:
   próprio app (`data:`), sem chamada a terceiro.
 - `frame-ancestors 'none'`, `object-src 'none'`.
 
+**Complemento em 2026-09-27:** Font Awesome parou de vir do cdnjs. A versão
+6.5.1 (CSS e webfontes) passou a ser servida pelo próprio app via Propshaft,
+o arquivo baixado foi conferido contra o hash SRI publicado pelo cdnjs antes
+de entrar no repositório, e `style-src`/`font-src` não citam mais esse host.
+
 **Achados só na verificação, não no design inicial** — a CSP expôs padrões
 que já quebravam a política assim que ligada:
 
@@ -172,10 +177,6 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
   um jeito trivial de negar acesso ao usuário legítimo. O rate limit por
   IP (login) cobre a varredura de senha sem esse efeito colateral — mesmo
   raciocínio já usado no Rota Velho Chico.
-- **`config.hosts` continua comentado.** Ativa proteção contra Host header
-  forjado, mas exige o domínio real de produção, que ainda não existe (a
-  entrega `chore/production-config` ainda não rodou). Ligar sem o valor
-  certo derruba o app inteiro em vez de proteger algo.
 
 ## 5. Fora do repositório
 
@@ -191,8 +192,10 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
    `/pacers/:id` autenticado, confirmar que cores de borda/sombra de tier e
    a barra de km aparecem, e olhar o console do navegador por qualquer
    violação de CSP que a verificação por `curl` não conseguiria pegar.
-4. **`APP_HOST`** com o domínio real do Render, quando existir, pra ligar
-   `config.hosts`.
+4. **`config.hosts`** (2026-09-27): já lê `RENDER_EXTERNAL_HOSTNAME` e
+   `APP_HOST` do ambiente, ignorando o que estiver vazio. Falta só confirmar
+   depois do primeiro deploy que o site carrega (erro de "Blocked host"
+   indicaria valor errado).
 5. **GitHub**: 2FA na conta e *secret scanning* — o repo é privado hoje,
    mas nada impede tornar público depois (como o Rota Velho Chico), e vale
    ligar antes independente disso.

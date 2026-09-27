@@ -7,11 +7,11 @@
 Rails.application.configure do
   config.content_security_policy do |policy|
     policy.default_src :self
-    policy.font_src    :self, :data, "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"
+    policy.font_src    :self, :data, "https://fonts.gstatic.com"
     policy.img_src     :self, :https, :data
     policy.object_src  :none
     policy.script_src  :self
-    policy.style_src   :self, "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"
+    policy.style_src   :self, "https://fonts.googleapis.com"
     policy.style_src_attr :unsafe_inline
     policy.connect_src :self
     policy.frame_ancestors :none
