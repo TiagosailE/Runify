@@ -85,12 +85,28 @@ class SettingsController < ApplicationController
   end
 
   def delete_account
-    current_user.destroy
-    flash[:toast] = { message: "Conta excluída com sucesso.", type: "success" }
-    redirect_to root_path
+    confirmed = if current_user.provider.present?
+      current_user.email.casecmp?(delete_account_params[:confirmation].to_s)
+    else
+      current_user.valid_password?(delete_account_params[:confirmation].to_s)
+    end
+
+    if confirmed
+      current_user.destroy
+      flash[:toast] = { message: "Conta excluída com sucesso.", type: "success" }
+      redirect_to root_path
+    else
+      message = current_user.provider.present? ? "E-mail incorreto." : "Senha incorreta."
+      flash[:toast] = { message: "#{message} Nada foi excluído.", type: "error" }
+      redirect_to settings_path
+    end
   end
 
   private
+
+  def delete_account_params
+    params.permit(:confirmation)
+  end
 
   def training_days_params
     params.permit(preferred_training_days: [])

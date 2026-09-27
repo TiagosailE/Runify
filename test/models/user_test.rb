@@ -8,11 +8,20 @@ class UserTest < ActiveSupport::TestCase
     User.new(
       {
         email: "user-#{SecureRandom.hex(4)}@example.com",
-        password: "password123",
+        password: "password1234",
         username: "Teste",
         terms_accepted: true
       }.merge(attrs)
     )
+  end
+
+  test "rejeita senha com 11 caracteres e aceita com 12" do
+    curta = build_user(password: "a" * 11, password_confirmation: "a" * 11)
+    assert_not curta.valid?
+    assert_includes curta.errors[:password], "é muito curto (mínimo: 12 caracteres)"
+
+    valida = build_user(password: "a" * 12, password_confirmation: "a" * 12)
+    assert valida.valid?, valida.errors.full_messages.inspect
   end
 
   test "conta nova nasce com as notificacoes ligadas" do

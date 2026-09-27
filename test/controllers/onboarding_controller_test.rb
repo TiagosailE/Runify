@@ -33,7 +33,7 @@ class OnboardingControllerTest < ActionDispatch::IntegrationTest
   test "sign in sends user back to step1 when weight is still missing" do
     sign_out users(:one)
 
-    post user_session_url, params: { user: { email: users(:one).email, password: "password123" } }
+    post user_session_url, params: { user: { email: users(:one).email, password: "password1234" } }
 
     assert_redirected_to onboarding_step1_path
   end
@@ -43,7 +43,7 @@ class OnboardingControllerTest < ActionDispatch::IntegrationTest
     user.update!(weight: 70, height: 175)
     sign_out user
 
-    post user_session_url, params: { user: { email: user.email, password: "password123" } }
+    post user_session_url, params: { user: { email: user.email, password: "password1234" } }
 
     assert_redirected_to onboarding_step2_view_path
   end

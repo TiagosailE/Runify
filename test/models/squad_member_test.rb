@@ -3,7 +3,7 @@ require "test_helper"
 class SquadMemberTest < ActiveSupport::TestCase
   def build_user(name)
     User.create!(
-      email: "#{name}-#{SecureRandom.hex(4)}@example.com", password: "password123",
+      email: "#{name}-#{SecureRandom.hex(4)}@example.com", password: "password1234",
       username: name, terms_accepted: true
     )
   end

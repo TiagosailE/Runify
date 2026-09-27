@@ -3,7 +3,7 @@ week_start = Date.current.beginning_of_week(:monday)
 seed_password = if Rails.env.production?
   ENV.fetch("SEED_USER_PASSWORD") { raise "SEED_USER_PASSWORD é obrigatório para rodar o seed em produção" }
 else
-  ENV.fetch("SEED_USER_PASSWORD", "password123")
+  ENV.fetch("SEED_USER_PASSWORD", "password1234")
 end
 
 puts 'Seeding demo data...'

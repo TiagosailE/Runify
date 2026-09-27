@@ -180,6 +180,15 @@
       
       <%= form_with url: delete_account_settings_path, method: :delete, id: "delete-account-form" do %>
         <div class="space-y-3">
+          <% if current_user.provider.present? %>
+            <input type="email" name="confirmation" required autocomplete="off"
+                placeholder="Digite seu e-mail para confirmar"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-red-500" />
+          <% else %>
+            <input type="password" name="confirmation" required autocomplete="off"
+                placeholder="Digite sua senha para confirmar"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-red-500" />
+          <% end %>
           <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all">
             Sim, excluir minha conta
           </button>

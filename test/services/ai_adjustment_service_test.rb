@@ -6,7 +6,7 @@ class AiAdjustmentServiceTest < ActiveSupport::TestCase
   def setup
     @user = User.create!(
       email: "adjust-#{SecureRandom.hex(4)}@example.com",
-      password: "password123",
+      password: "password1234",
       username: "Teste",
       running_experience: "intermediate",
       weekly_mileage: 30,
@@ -194,7 +194,7 @@ class AiAdjustmentServiceTest < ActiveSupport::TestCase
   # 10% por semana sem limite nenhum.
   test "run walk apos varias semanas de aumento nunca passa do teto de duracao" do
     beginner = User.create!(
-      email: "runwalk-#{SecureRandom.hex(4)}@example.com", password: "password123",
+      email: "runwalk-#{SecureRandom.hex(4)}@example.com", password: "password1234",
       username: "Iniciante", running_experience: "beginner", terms_accepted: true
     )
     envelope = TrainingEnvelope.new(beginner)

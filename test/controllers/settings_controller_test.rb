@@ -15,7 +15,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "should get update_password" do
     post update_password_settings_url, params: {
-      current_password: "password123",
+      current_password: "password1234",
       new_password: "newpassword123",
       password_confirmation: "newpassword123"
     }
@@ -82,5 +82,48 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes body, users(:one).encrypted_password
     assert_not_includes body, "encrypted_password"
     assert_not_includes body, "reset_password_token"
+  end
+
+  test "delete_account com senha errada nao apaga a conta" do
+    assert_no_difference "User.count" do
+      delete delete_account_settings_url, params: { confirmation: "senha-errada" }
+    end
+
+    assert_redirected_to settings_path
+    assert_equal "error", flash[:toast][:type]
+  end
+
+  test "delete_account com senha certa apaga a conta" do
+    assert_difference "User.count", -1 do
+      delete delete_account_settings_url, params: { confirmation: "password1234" }
+    end
+
+    assert_redirected_to root_path
+  end
+
+  test "delete_account de conta google com email certo apaga, com email errado nao" do
+    google_user = User.create!(
+      email: "google-#{SecureRandom.hex(4)}@example.com",
+      username: "Google User",
+      provider: "google_oauth2",
+      uid: "uid-#{SecureRandom.hex(4)}",
+      password: Devise.friendly_token[0, 20],
+      terms_accepted: true
+    )
+    sign_out users(:one)
+    sign_in google_user
+
+    assert_no_difference "User.count" do
+      delete delete_account_settings_url, params: { confirmation: "errado@example.com" }
+    end
+
+    assert_redirected_to settings_path
+    assert_equal "error", flash[:toast][:type]
+
+    assert_difference "User.count", -1 do
+      delete delete_account_settings_url, params: { confirmation: google_user.email.upcase }
+    end
+
+    assert_redirected_to root_path
   end
 end

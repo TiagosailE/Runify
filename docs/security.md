@@ -156,11 +156,11 @@ lista.
 
 ### 3.6 Senha de demonstração fixa no repositório
 
-`db/seeds.rb` tinha `password123` escrito no arquivo. Como o app vai ao ar
+`db/seeds.rb` tinha `password1234` escrito no arquivo. Como o app vai ao ar
 com o mesmo seed rodando em produção (dados de demonstração para o TG), a
 senha virou obrigatória via `SEED_USER_PASSWORD` fora de dev/test — ausente,
 o seed para com erro em vez de cair num padrão adivinhável. Em dev/test o
-padrão `password123` continua valendo (banco local, sem valor pra ninguém,
+padrão `password1234` continua valendo (banco local, sem valor pra ninguém,
 e o passo `Tests: Seeds` do `bin/ci` depende dele).
 
 ## 4. Aceito conscientemente
