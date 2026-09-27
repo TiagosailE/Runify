@@ -243,13 +243,18 @@ class AiTrainingServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "regeneracao parcial nao recria treino pendente de dia que ja passou" do
+  # O que ja passou e historico: nao e recriado e tambem nao e apagado (um
+  # treino perdido continua contando na semana, em vez de sumir da conta).
+  test "regeneracao parcial preserva pendente de dia que ja passou e substitui os de hoje em diante" do
     travel_to Date.new(2026, 9, 10) do # quinta-feira
       athlete = runner
       plan = athlete.training_plans.create!(
         goal: athlete.goal, status: "active", start_date: Date.new(2026, 9, 7),
         end_date: Date.new(2026, 10, 18), total_weeks: 6, plan_data: { "source" => "ai" }
       )
+      monday = plan.start_date
+      missed_monday = add_workout(plan, monday, 1, 1, "pending")
+      old_friday = add_workout(plan, monday, 1, 5, "pending")
 
       new_plan_data = {
         "analysis" => "continuacao", "plan_duration_weeks" => 6,
@@ -264,7 +269,10 @@ class AiTrainingServiceTest < ActiveSupport::TestCase
         AiTrainingService.new(athlete, training_plan: plan, week_range: 1..6).generate_training_plan
       end
 
-      assert_equal [ Date.new(2026, 9, 11) ], plan.workouts.pluck(:scheduled_date)
+      assert Workout.exists?(missed_monday.id), "pendente de dia passado nao deveria ser apagado"
+      assert_not Workout.exists?(old_friday.id), "pendente de hoje em diante deveria ser substituido"
+      assert_equal [ Date.new(2026, 9, 7), Date.new(2026, 9, 11) ], plan.workouts.order(:scheduled_date).pluck(:scheduled_date)
+      assert_equal 1, plan.workouts.where(day_of_week: 1).count, "o dia passado nao deveria ser recriado"
     end
   end
 

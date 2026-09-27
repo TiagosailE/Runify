@@ -217,10 +217,14 @@ class AiTrainingService
   end
 
   # Regrava so as semanas de @week_range no plano existente -- as semanas
-  # anteriores (historico, inclusive treinos concluidos) ficam intactas.
+  # anteriores (historico, inclusive treinos concluidos) ficam intactas, e na
+  # semana atual os pendentes de dias que ja passaram tambem (sao historico).
   def persist_partial(plan_data, source)
     ActiveRecord::Base.transaction do
-      @training_plan.workouts.where(week_number: @week_range, status: "pending").destroy_all
+      @training_plan.workouts
+                    .where(week_number: @week_range, status: "pending")
+                    .where("scheduled_date >= ?", Date.current)
+                    .destroy_all
       plan_data["workouts"].each { |workout_data| create_workout(@training_plan, workout_data) }
     end
 
