@@ -163,6 +163,12 @@
         </div>
 
       </div>
+    <% elsif @week_workouts.empty? %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-sm">
+        <i class="fas fa-calendar-week text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
+        <p class="text-gray-500 dark:text-gray-400">Sem treinos nesta semana</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500 mt-2">Os próximos aparecem na segunda-feira</p>
+      </div>
     <% else %>
       <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-sm">
         <i class="fas fa-calendar-check text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
