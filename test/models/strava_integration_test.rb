@@ -66,4 +66,30 @@ class StravaIntegrationTest < ActiveSupport::TestCase
     assert_not StravaIntegration.app_inactive_error?(StandardError.new("boom"))
     assert_not StravaIntegration.app_inactive_error?(FakeFault.new(nil))
   end
+
+  test "access_token cifrado no esquema deterministico antigo continua legivel" do
+    integration = strava_integrations(:one)
+
+    old_key_provider = ActiveRecord::Encryption::Scheme.new(deterministic: true).key_provider
+    old_ciphertext = ActiveRecord::Encryption::Encryptor.new.encrypt("token-antigo", key_provider: old_key_provider)
+
+    StravaIntegration.connection.execute(
+      "UPDATE strava_integrations SET access_token = #{StravaIntegration.connection.quote(old_ciphertext)} WHERE id = #{integration.id}"
+    )
+
+    assert_equal "token-antigo", integration.reload.access_token
+  end
+
+  test "access_token gravado de novo deixa de ser deterministico" do
+    a = strava_integrations(:one)
+    b = strava_integrations(:two)
+
+    a.update!(access_token: "mesmo-valor")
+    b.update!(access_token: "mesmo-valor")
+
+    raw_a = StravaIntegration.connection.select_value("SELECT access_token FROM strava_integrations WHERE id = #{a.id}")
+    raw_b = StravaIntegration.connection.select_value("SELECT access_token FROM strava_integrations WHERE id = #{b.id}")
+
+    assert_not_equal raw_a, raw_b
+  end
 end

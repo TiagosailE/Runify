@@ -338,3 +338,26 @@ não pode bloquear `SettingsController#delete_account` — o que aconteceria com
   Para o escopo de um administrador único num app de 30 usuários, o rate limit
   de login e a sessão do Devise são a defesa; se um dia houver mais de um
   administrador, reconsiderar.
+
+## 8. Chaves de criptografia fixadas em produção (2026-09-27)
+
+`config/initializers/active_record_encryption.rb` derivava as três chaves
+(`primary_key`, `deterministic_key`, `key_derivation_salt`) do
+`secret_key_base` toda vez que a app subia. Uma rotação futura do
+`secret_key_base` mudaria essas chaves derivadas junto e tornaria ilegível
+todo `access_token`/`refresh_token` já cifrado no banco.
+
+Em produção, o initializer agora lê as três chaves do `credentials`
+(`active_record_encryption:`), com os mesmos valores que já estavam
+derivados hoje (calculados uma vez a partir do `secret_key_base` atual e
+congelados ali): nenhum dado precisou ser recifrado na migração. Falta
+alguma chave no `credentials`: erro claro no boot, não silêncio. Dev/test
+continuam derivando do `secret_key_base` local, sem depender de master key
+(o CI não tem uma).
+
+`StravaIntegration#access_token` também deixou de ser `deterministic: true`
+(existia só pra permitir busca por igualdade no SQL, que nada no código faz,
+conferido por grep). Virou `previous: { deterministic: true }`: valores
+antigos continuam legíveis, e qualquer `access_token` novo (a cada refresh
+de token) passa a usar o esquema não determinístico, mais seguro contra
+correlação por texto cifrado repetido.
