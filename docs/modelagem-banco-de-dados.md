@@ -281,7 +281,7 @@ Plano macro que pertence a um usuário e agrupa os workouts.
 - `status` — máquina de estados validada: `active` / `completed` / `cancelled` (default `active`).
 - `plan_data` (**jsonb**) — estrutura completa devolvida pela IA (Gemini).
 
-**Lógica no modelo:** `current_week` (calcula a semana atual a partir de `start_date`), `current_week_workouts`, `active?`/`completed?`, scope `active`.
+**Lógica no modelo:** `current_week` (calcula a semana atual a partir da segunda-feira da semana de `start_date`), `current_week_workouts`, `active?`/`completed?`, scope `active`.
 
 **Índices:** `user_id`, `status`, `start_date`.
 

@@ -192,8 +192,8 @@ class TrainingEnvelope
       "- Duracao do plano: #{plan_weeks} semanas",
       "- Treinos por semana: #{sessions_per_week}",
       "- Dias disponiveis (1=Seg..7=Dom): #{training_days.join(', ')}",
-      "- Hoje e dia #{Date.current.cwday}. O plano comeca hoje: se esse dia estiver " \
-      "entre os disponiveis, inclua um treino nele logo na semana 1."
+      "- Hoje e dia #{Date.current.cwday}. A semana 1 e a semana atual e treino em dia anterior " \
+      "a hoje e descartado: se hoje estiver entre os dias disponiveis, inclua um treino nele."
     ]
     lines << "- Historico de lesao relatado: #{injury_history}" if injury_history
     lines.join("\n")

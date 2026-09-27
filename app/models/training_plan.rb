@@ -6,9 +6,11 @@ class TrainingPlan < ApplicationRecord
 
   scope :active, -> { where(status: "active") }
 
+  # A semana 1 e a semana calendario (segunda a domingo) de start_date, mesmo
+  # que o plano tenha sido gerado no meio dela.
   def current_week
     return 0 unless start_date
-    ((Date.current - start_date).to_i / 7) + 1
+    ((Date.current - start_date.beginning_of_week(:monday)).to_i / 7) + 1
   end
 
   def workouts_for_week(week_number)

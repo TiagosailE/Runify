@@ -140,4 +140,12 @@ class TrainingEnvelopeTest < ActiveSupport::TestCase
 
     assert_equal 2, envelope.sessions_per_week
   end
+
+  test "o prompt avisa que a semana 1 e a atual e que dia passado e descartado" do
+    user = build_user(running_experience: "advanced", weekly_mileage: 60)
+    section = TrainingEnvelope.new(user).to_prompt_section
+
+    assert_includes section, "A semana 1 e a semana atual"
+    assert_not_includes section, "O plano comeca hoje"
+  end
 end
