@@ -24,6 +24,49 @@ class UserTest < ActiveSupport::TestCase
     assert valida.valid?, valida.errors.full_messages.inspect
   end
 
+  test "avatar aceita PNG ate 5 MB e rejeita tipo fora da lista" do
+    valido = build_user
+    valido.avatar.attach(io: StringIO.new("conteudo"), filename: "avatar.png", content_type: "image/png")
+    assert valido.valid?, valido.errors.full_messages.inspect
+
+    invalido = build_user
+    invalido.avatar.attach(io: StringIO.new("<svg></svg>"), filename: "avatar.svg", content_type: "image/svg+xml")
+    assert_not invalido.valid?
+    assert invalido.errors[:avatar].present?
+  end
+
+  test "avatar rejeita arquivo maior que 5 MB mesmo com tipo permitido" do
+    user = build_user
+    user.avatar.attach(io: StringIO.new("a" * 6.megabytes), filename: "grande.png", content_type: "image/png")
+
+    assert_not user.valid?
+    assert user.errors[:avatar].present?
+  end
+
+  test "avatar_url sem foto gera SVG local, sem contatar terceiro nem vazar o email" do
+    user = build_user(username: "Ana Paula", email: "ana@example.com")
+    user.save!
+
+    url = user.avatar_url
+
+    assert_match(/\Adata:image\/svg\+xml;base64,/, url)
+    assert_no_match(/ui-avatars/, url)
+
+    decoded = Base64.decode64(url.sub("data:image/svg+xml;base64,", ""))
+    assert_no_match("ana@example.com", decoded)
+    assert_includes decoded, "AN"
+  end
+
+  test "avatar_url sanitiza username malicioso antes de gerar o SVG" do
+    user = build_user(username: "<script>alert(1)</script>")
+    user.save!
+
+    decoded = Base64.decode64(user.avatar_url.sub("data:image/svg+xml;base64,", ""))
+
+    assert_no_match(/<script>/, decoded)
+    assert_includes decoded, "SC"
+  end
+
   test "conta nova nasce com as notificacoes ligadas" do
     user = build_user
     user.save!

@@ -64,10 +64,11 @@ partir do que o app carrega de verdade:
 - `style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com`
   (Font Awesome + Google Fonts, os dois `@import`/`<link>` externos reais do
   app) com nonce para os cinco blocos `<style>` que sobreviveram.
-- `img-src 'self' https: data:` — o app tem duas origens externas de imagem
-  hoje (`ui-avatars.com` como fallback de avatar, `images.unsplash.com` no
-  hero da landing) e potencialmente mais no futuro (fotos do Strava); fixar
-  host por host seria frágil e `script-src` já bloqueia o vetor mais perigoso.
+- `img-src 'self' https: data:`: o app tem `images.unsplash.com` como origem
+  externa de imagem (hero da landing) e potencialmente mais no futuro (fotos
+  do Strava); fixar host por host seria frágil e `script-src` já bloqueia o
+  vetor mais perigoso. Avatar sem foto usa SVG com as iniciais gerado pelo
+  próprio app (`data:`), sem chamada a terceiro.
 - `frame-ancestors 'none'`, `object-src 'none'`.
 
 **Achados só na verificação, não no design inicial** — a CSP expôs padrões

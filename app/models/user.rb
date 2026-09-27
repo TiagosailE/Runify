@@ -25,6 +25,8 @@ class User < ApplicationRecord
   MIN_HALF_MARATHON_TIME_SECONDS = 3300
   MAX_HALF_MARATHON_TIME_SECONDS = 21600
   MAX_WEEKLY_MILEAGE_KM = 300
+  AVATAR_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
+  AVATAR_MAX_SIZE = 5.megabytes
 
   # Minimo 18 anos: consentimento parental (LGPD Art. 14) para menores nao
   # esta implementado.
@@ -32,6 +34,7 @@ class User < ApplicationRecord
   validates :weight, numericality: { greater_than: 30, less_than_or_equal_to: 300, allow_nil: true, message: "deve estar entre 30kg e 300kg" }
   validates :height, numericality: { greater_than: 100, less_than_or_equal_to: 250, allow_nil: true, message: "deve estar entre 100cm e 250cm" }
   validates :goal, length: { maximum: 500, allow_nil: true, message: "não pode exceder 500 caracteres" }
+  validates :avatar, content_type: AVATAR_CONTENT_TYPES, size: { less_than_or_equal_to: AVATAR_MAX_SIZE }
 
   validates :best_5k_time, numericality: {
     greater_than_or_equal_to: MIN_5K_TIME_SECONDS,
@@ -109,7 +112,7 @@ class User < ApplicationRecord
     if avatar.attached?
       Rails.application.routes.url_helpers.rails_blob_path(avatar, only_path: true)
     else
-      "https://ui-avatars.com/api/?name=#{username || email}&background=14b8a6&color=fff&size=200"
+      initials_avatar_data_uri
     end
   end
 
@@ -173,5 +176,24 @@ class User < ApplicationRecord
 
   def record_terms_acceptance
     self.terms_accepted_at = Time.current
+  end
+
+  # Sem foto: iniciais geradas aqui mesmo, sem depender de terceiro (ver
+  # docs/security.md). Sanitizado pra so letra/numero antes de virar SVG --
+  # username de cadastro e texto livre do usuario.
+  def initials_avatar_data_uri
+    svg = <<~SVG
+      <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+        <rect width="200" height="200" fill="#14b8a6" />
+        <text x="50%" y="50%" dy=".35em" text-anchor="middle" font-family="sans-serif" font-size="80" fill="#fff">#{avatar_initials}</text>
+      </svg>
+    SVG
+
+    "data:image/svg+xml;base64,#{Base64.strict_encode64(svg)}"
+  end
+
+  def avatar_initials
+    source = username.presence || email.to_s.split("@").first.to_s
+    source.scan(/[a-zA-Z0-9]/).first(2).join.upcase.presence || "?"
   end
 end
