@@ -1,5 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  # onboarding@resend.dev funciona sem verificar dominio proprio na Resend.
-  default from: "Runify <onboarding@resend.dev>"
+  default from: Rails.configuration.x.mailer_from
   layout "mailer"
 end

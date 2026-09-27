@@ -18,5 +18,10 @@ module Runify
     config.time_zone = "Brasilia"
 
     config.active_job.queue_adapter = :async
+
+    # Remetente unico de todo e-mail do app (ApplicationMailer e Devise).
+    # onboarding@resend.dev funciona sem verificar dominio proprio na Resend;
+    # com dominio verificado, MAILER_FROM troca sem mexer no codigo.
+    config.x.mailer_from = ENV["MAILER_FROM"].presence || "Runify <onboarding@resend.dev>"
   end
 end
