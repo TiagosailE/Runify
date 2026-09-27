@@ -65,7 +65,7 @@ gem "devise", "~> 5.0"
 gem "omniauth-google-oauth2", "~> 1.1"
 gem "omniauth-rails_csrf_protection", "~> 1.0"
 
-gem "strava-ruby-client", "~> 3.0"
+gem "strava-ruby-client", "~> 3.1"
 
 gem "active_storage_validations", "~> 3.0"
 
