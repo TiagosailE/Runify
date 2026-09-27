@@ -169,7 +169,7 @@ class AiTrainingService
               type: { type: "STRING" },
               format: { type: "STRING", enum: Workout::FORMATS },
               distance_km: { type: "NUMBER", minimum: 0, maximum: last_week_ceiling, nullable: true },
-              duration_minutes: { type: "INTEGER", minimum: 5, maximum: 300 },
+              duration_minutes: { type: "INTEGER", minimum: 5, maximum: TrainingEnvelope::MAX_SESSION_MINUTES },
               pace: { type: "STRING" },
               description: { type: "STRING" },
               instructions: { type: "STRING" },
@@ -200,12 +200,13 @@ class AiTrainingService
     return persist_partial(plan_data, source) if regenerating_partial_plan?
 
     weeks = @envelope.plan_weeks
+    start_date = Date.current.beginning_of_week(:monday)
 
     training_plan = @user.training_plans.create!(
       goal: @user.goal,
       status: "active",
-      start_date: Date.current,
-      end_date: Date.current + weeks.weeks,
+      start_date: start_date,
+      end_date: start_date + weeks.weeks - 1.day,
       total_weeks: weeks,
       plan_data: plan_data.merge("source" => source, "envelope" => envelope_snapshot)
     )
@@ -216,10 +217,14 @@ class AiTrainingService
   end
 
   # Regrava so as semanas de @week_range no plano existente -- as semanas
-  # anteriores (historico, inclusive treinos concluidos) ficam intactas.
+  # anteriores (historico, inclusive treinos concluidos) ficam intactas, e na
+  # semana atual os pendentes de dias que ja passaram tambem (sao historico).
   def persist_partial(plan_data, source)
     ActiveRecord::Base.transaction do
-      @training_plan.workouts.where(week_number: @week_range, status: "pending").destroy_all
+      @training_plan.workouts
+                    .where(week_number: @week_range, status: "pending")
+                    .where("scheduled_date >= ?", Date.current)
+                    .destroy_all
       plan_data["workouts"].each { |workout_data| create_workout(@training_plan, workout_data) }
     end
 
@@ -244,11 +249,15 @@ class AiTrainingService
     # e o que faz "dia 2" cair numa terca de verdade, nao num offset contado
     # a partir do dia em que o plano foi gerado.
     monday = training_plan.start_date.beginning_of_week(:monday)
+    scheduled_date = monday + (week - 1).weeks + (day - 1).days
+
+    # Plano gerado no meio da semana: o que ja passou nao vira treino pendente.
+    return if scheduled_date < Date.current
 
     training_plan.workouts.create!(
       week_number: week,
       day_of_week: day,
-      scheduled_date: monday + (week - 1).weeks + (day - 1).days,
+      scheduled_date: scheduled_date,
       workout_type: workout_data["type"].to_s,
       workout_format: format_value,
       distance: distance,

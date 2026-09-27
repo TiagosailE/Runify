@@ -102,6 +102,17 @@ gem `omniauth-rails_csrf_protection` exige POST na fase de request
 `AiAdjustmentService.new(user, training_plan).analyze_and_adjust`:
 - Só age a partir da semana 2 do plano (`current_week > 1`), e só se houver
   `Workout` completados na semana anterior — sem dado, sem ajuste.
+- No máximo uma vez por semana por plano (`training_plans.last_adjusted_week`),
+  chamado só pelo `WeeklyAiAnalysisJob`, que roda de segunda a quarta (retenta
+  quem ainda não foi ajustado nos dois dias seguintes): registrar feedback não
+  dispara ajuste.
+- A IA sugere direção e percentual, o código corta: aumento até 10%, redução
+  até 20%. Distância e duração também respeitam o teto do `TrainingEnvelope`
+  para a semana do treino (`max_single_run_km_for_week` e
+  `max_duration_seconds_for_week`), e o aumento nunca leva o volume da semana
+  (treinos concluídos incluídos) além de `max_weekly_km_for_week`.
+- Alerta de `red_flags` vira notificação mesmo com `notifications_enabled`
+  desligado.
 - Modelo diferente do de geração (`gemini-2.0-flash-exp`).
 - Engole a própria exceção (loga e retorna) — ajuste é best-effort, nunca
   deve derrubar o fluxo que o chamou.
@@ -119,8 +130,16 @@ lógica de XP.
 ## Notificações
 
 `NotificationService` são métodos de classe que criam `Notification`
-(`send_workout_reminder`, `send_sync_reminder`, `send_congratulations`,
-etc.), todos com `return unless user.notifications_enabled?` na entrada.
+(`send_workout_reminder`, `send_evening_workout_reminder`,
+`send_congratulations`, etc.), todos com `return unless
+user.notifications_enabled?` na entrada, exceto `send_adjustment_alert`
+(alerta de saúde, sempre chega). `notifications_enabled` nasce ligado em
+conta nova; quem já existia mantém a escolha que tinha. O lembrete das 8h
+(`WorkoutReminderJob`) e o das 19h (`DailyNotificationsJob`, só para treino
+ainda pendente) têm textos diferentes, sem horário; treino sem distância
+(caminhada/corrida) mostra a duração. Não há mais lembrete de sincronizar o
+Strava; o tipo `sync_reminder` continua válido no model só para as
+notificações antigas já gravadas.
 Disparados pelos jobs agendados em `config/schedule.rb`
 (`WorkoutReminderJob`, `DailyNotificationsJob`, `WeeklySummaryJob`) — os
 três existem e batem com o que o schedule referencia; a nota antiga no

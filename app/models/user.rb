@@ -114,7 +114,7 @@ class User < ApplicationRecord
   end
 
   def primary_squad_member
-    squad_members.order(experience_points: :desc).first
+    squad_members.order(level: :desc, experience_points: :desc).first
   end
 
   def level

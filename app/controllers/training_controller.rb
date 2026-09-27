@@ -48,13 +48,6 @@ class TrainingController < ApplicationController
       })
     )
 
-    current_week = @workout.training_plan.current_week
-    completed_workouts_this_week = @workout.training_plan.workouts_for_week(current_week).select(&:completed?)
-
-    if completed_workouts_this_week.count >= 3
-      AiAdjustmentService.new(current_user, @workout.training_plan).analyze_and_adjust
-    end
-
     render json: { success: true, message: "Feedback enviado!" }
   end
 

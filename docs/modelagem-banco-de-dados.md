@@ -111,6 +111,7 @@ erDiagram
         date start_date
         date end_date
         integer total_weeks
+        integer last_adjusted_week
         jsonb plan_data
     }
 
@@ -234,7 +235,7 @@ Autenticação gerenciada pelo **Devise** (módulos `database_authenticatable`, 
 
 **Campos de preferências/agenda:**
 - `available_days` (**jsonb**) e `preferred_training_days` (**array de inteiros**) — duas estratégias de armazenamento de disponibilidade semanal, alimentando o gerador de plano de IA.
-- `notifications_enabled` (boolean), `last_strava_sync_at`.
+- `notifications_enabled` (boolean, default `true` para contas novas), `last_strava_sync_at`.
 
 **Métodos de negócio relevantes (lógica que mora no modelo, não no banco):** `strava_connected?`, `active_training_plan`, `age`, `estimated_vo2_max`, `average_recent_pace`, `level`/`experience_points` (delegados ao `primary_squad_member`).
 
@@ -277,11 +278,12 @@ Cada linha é um treino sincronizado. Exemplo clássico do híbrido **normalizad
 
 Plano macro que pertence a um usuário e agrupa os workouts.
 
-- `goal` (texto), `start_date`, `end_date`, `total_weeks`.
+- `goal` (texto), `start_date` (sempre a segunda-feira da semana de geração), `end_date`, `total_weeks`.
+- `last_adjusted_week` (inteiro, nulo): semana em que o `AiAdjustmentService` já ajustou o plano; garante no máximo um ajuste por semana.
 - `status` — máquina de estados validada: `active` / `completed` / `cancelled` (default `active`).
 - `plan_data` (**jsonb**) — estrutura completa devolvida pela IA (Gemini).
 
-**Lógica no modelo:** `current_week` (calcula a semana atual a partir de `start_date`), `current_week_workouts`, `active?`/`completed?`, scope `active`.
+**Lógica no modelo:** `current_week` (calcula a semana atual a partir da segunda-feira da semana de `start_date`), `current_week_workouts`, `active?`/`completed?`, scope `active`.
 
 **Índices:** `user_id`, `status`, `start_date`.
 
@@ -309,7 +311,7 @@ Filha de `training_plans` (1:N). Representa um treino agendado.
 - `squad_code` — código único de convite, **gerado automaticamente** antes da validação (`SecureRandom.alphanumeric(8).upcase`).
 - `owner_id` — dono.
 - `challenge_start`, `challenge_end`, `challenge_duration` — janela do desafio. `active?` compara `challenge_end` com a data atual.
-- `leaderboard` ordena membros por XP e nível.
+- `leaderboard` ordena membros por nível e, no mesmo nível, por XP (o XP zera a cada level-up, então nível vem primeiro).
 
 **`squad_members`** — junção rica (já descrita na seção 3):
 - `level` (default 1), `experience_points` (default 0), `streak` (default 0), `joined_at`.

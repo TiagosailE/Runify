@@ -6,6 +6,7 @@ class WeeklyAiAnalysisJob < ApplicationJob
       current_week = plan.current_week
 
       next if current_week <= 1
+      next if plan.last_adjusted_week == current_week
 
       previous_week_workouts = plan.workouts_for_week(current_week - 1)
       completed_count = previous_week_workouts.count(&:completed?)

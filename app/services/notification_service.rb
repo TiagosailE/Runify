@@ -4,19 +4,20 @@ class NotificationService
 
     user.notifications.create(
       title: "Treino de Hoje!",
-      message: "Você tem um treino agendado: #{workout.workout_type} - #{workout.distance_km}km às #{workout.scheduled_date.strftime('%H:%M')}",
+      message: "Você tem um treino agendado hoje: #{workout_summary(workout)}",
       notification_type: "workout_reminder",
       sent_at: Time.current
     )
   end
 
-  def self.send_sync_reminder(user)
+  # Segundo lembrete do dia (19h), so para treino que continua pendente.
+  def self.send_evening_workout_reminder(user, workout)
     return unless user.notifications_enabled?
 
     user.notifications.create(
-      title: "Sincronize seu Strava",
-      message: "Já faz um tempo que você não sincroniza suas atividades. Que tal atualizar?",
-      notification_type: "sync_reminder",
+      title: "Ainda dá tempo!",
+      message: "Ainda dá tempo de fazer o treino de hoje: #{workout_summary(workout)}",
+      notification_type: "workout_reminder",
       sent_at: Time.current
     )
   end
@@ -49,6 +50,7 @@ class NotificationService
     week_workouts = training_plan.workouts_for_week(current_week)
     completed = week_workouts.count(&:completed?)
     total = week_workouts.count
+    return if total.zero?
 
     motivation = if completed >= total * 0.8
       "Você está incrível!"
@@ -66,9 +68,9 @@ class NotificationService
     )
   end
 
+  # Sem o guard de notifications_enabled?: red_flags sao alerta de saude
+  # (overtraining, risco de lesao) e chegam mesmo com as notificacoes desligadas.
   def self.send_adjustment_alert(user, adjustment_data)
-    return unless user.notifications_enabled?
-
     recommendations = Array(adjustment_data["recommendations"]).first(2).join(" ")
     red_flags = Array(adjustment_data["red_flags"]).join(", ")
 
@@ -83,4 +85,16 @@ class NotificationService
       sent_at: Time.current
     )
   end
+
+  # Treino de caminhada/corrida nao tem distancia: mostra a duracao.
+  def self.workout_summary(workout)
+    amount = if workout.distance.present?
+      "#{workout.distance_km}km"
+    elsif workout.duration.present?
+      "#{(workout.duration / 60.0).round}min"
+    end
+
+    [ workout.workout_type, amount ].compact.join(" - ")
+  end
+  private_class_method :workout_summary
 end

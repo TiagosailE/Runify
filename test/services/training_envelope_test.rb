@@ -140,4 +140,28 @@ class TrainingEnvelopeTest < ActiveSupport::TestCase
 
     assert_equal 2, envelope.sessions_per_week
   end
+
+  test "o prompt avisa que a semana 1 e a atual e que dia passado e descartado" do
+    user = build_user(running_experience: "advanced", weekly_mileage: 60)
+    section = TrainingEnvelope.new(user).to_prompt_section
+
+    assert_includes section, "A semana 1 e a semana atual"
+    assert_not_includes section, "O plano comeca hoje"
+  end
+
+  # Teto de duracao do ajuste da IA: o mesmo teto de distancia da semana no
+  # pace mais lento permitido, limitado ao que o validador chama de implausivel.
+  test "teto de duracao do iniciante absoluto vem do teto de distancia da semana" do
+    envelope = TrainingEnvelope.new(build_user(running_experience: "beginner"))
+
+    assert_equal 2160, envelope.max_duration_seconds_for_week(1) # 3.0km x 12:00/km
+    assert_operator envelope.max_duration_seconds_for_week(5), :>, envelope.max_duration_seconds_for_week(1)
+  end
+
+  test "teto de duracao nunca passa do limite de plausibilidade do validador" do
+    envelope = TrainingEnvelope.new(build_user(running_experience: "advanced", weekly_mileage: 60))
+
+    assert_equal 24.0 * TrainingEnvelope::SLOWEST_HUMAN_PACE, envelope.max_duration_seconds_for_week(1)
+    assert_equal TrainingEnvelope::MAX_SESSION_MINUTES * 60, envelope.max_duration_seconds_for_week(12)
+  end
 end

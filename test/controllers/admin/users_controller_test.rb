@@ -224,6 +224,17 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert @user.reload.reset_password_token.present?
   end
 
+  test "redefinicao de senha pelo painel sai com o remetente do ApplicationMailer" do
+    sign_in @admin
+
+    post send_password_reset_admin_user_path(@user)
+
+    mail = ActionMailer::Base.deliveries.last
+    expected = Mail::Address.new(ApplicationMailer.default_params[:from])
+    assert_equal @user.email, mail.to.first
+    assert_equal [ expected.address ], mail.from
+  end
+
   test "falha no envio de e-mail vira aviso, nao erro 500" do
     sign_in @admin
 

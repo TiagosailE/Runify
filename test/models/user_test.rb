@@ -15,6 +15,13 @@ class UserTest < ActiveSupport::TestCase
     )
   end
 
+  test "conta nova nasce com as notificacoes ligadas" do
+    user = build_user
+    user.save!
+
+    assert user.reload.notifications_enabled?
+  end
+
   test "aceita tempos de prova plausíveis" do
     user = build_user(best_5k_time: 25 * 60, best_10k_time: 55 * 60, best_half_marathon_time: 120 * 60)
 

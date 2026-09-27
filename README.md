@@ -11,7 +11,7 @@ Runify é uma aplicação Rails para corredores amadores que combina onboarding 
 - Feedback de treinos e ajuste do plano
 - Histórico de atividades e dashboard do corredor
 - Pacers/Squads com ranking de membros
-- Notificações de treino, sincronização e resumo semanal
+- Notificações de treino e resumo semanal
 - Sistema de XP, nível e conquistas
 
 ## Stack

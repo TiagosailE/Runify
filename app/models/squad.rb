@@ -14,7 +14,7 @@ class Squad < ApplicationRecord
   end
 
   def leaderboard
-    squad_members.order(experience_points: :desc, level: :desc)
+    squad_members.order(level: :desc, experience_points: :desc)
   end
 
   private

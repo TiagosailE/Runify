@@ -38,6 +38,9 @@ class TrainingEnvelope
   MIN_PLAN_WEEKS = 4
   MAX_PLAN_WEEKS = 12
 
+  # Acima disto uma sessao e implausivel: o validador reprova o plano.
+  MAX_SESSION_MINUTES = 300
+
   SESSIONS_BY_LEVEL = {
     absolute_beginner: 3,
     beginner: 3,
@@ -124,6 +127,15 @@ class TrainingEnvelope
     grow(max_weekly_km, week)
   end
 
+  # Teto de duracao de UM treino na semana. O validador so barra duracao acima
+  # de MAX_SESSION_MINUTES; abaixo disso o limite implicito e o teto de
+  # distancia da semana no pace mais lento permitido. Serve para corrida
+  # continua e para run/walk (sem distancia no treino, mas cuja sessao inteira,
+  # caminhada incluida, conta no teto de distancia).
+  def max_duration_seconds_for_week(week)
+    [ (max_single_run_km_for_week(week) * slowest_pace_seconds).floor, MAX_SESSION_MINUTES * 60 ].min
+  end
+
   def fastest_pace_seconds
     @fastest_pace_seconds ||= begin
       from_best = proven_best_pace_seconds
@@ -192,8 +204,8 @@ class TrainingEnvelope
       "- Duracao do plano: #{plan_weeks} semanas",
       "- Treinos por semana: #{sessions_per_week}",
       "- Dias disponiveis (1=Seg..7=Dom): #{training_days.join(', ')}",
-      "- Hoje e dia #{Date.current.cwday}. O plano comeca hoje: se esse dia estiver " \
-      "entre os disponiveis, inclua um treino nele logo na semana 1."
+      "- Hoje e dia #{Date.current.cwday}. A semana 1 e a semana atual e treino em dia anterior " \
+      "a hoje e descartado: se hoje estiver entre os dias disponiveis, inclua um treino nele."
     ]
     lines << "- Historico de lesao relatado: #{injury_history}" if injury_history
     lines.join("\n")
