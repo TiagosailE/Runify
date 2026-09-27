@@ -7,11 +7,13 @@ module ActiveRecordEncryptionKeys
     production ? configure_from_credentials! : configure_from_secret_key_base!
   end
 
+  HEX_32_BYTES = /\A[0-9a-f]{64}\z/i
+
   def self.configure_from_credentials!
     creds = Rails.application.credentials.active_record_encryption || {}
-    missing = %i[primary_key deterministic_key key_derivation_salt].reject { |key| creds[key].present? }
-    if missing.any?
-      raise "Faltam no credentials as chaves de active_record_encryption: #{missing.join(', ')}"
+    invalid = %i[primary_key deterministic_key key_derivation_salt].reject { |key| creds[key].to_s.match?(HEX_32_BYTES) }
+    if invalid.any?
+      raise "Chave de active_record_encryption ausente ou não é hex de 64 caracteres no credentials: #{invalid.join(', ')}"
     end
 
     Rails.application.config.active_record.encryption.primary_key = [ creds[:primary_key] ].pack("H*")

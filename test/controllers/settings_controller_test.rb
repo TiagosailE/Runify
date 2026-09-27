@@ -126,4 +126,14 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to root_path
   end
+
+  test "delete_account aceita a senha real mesmo depois de vincular o Google a uma conta que ja tinha senha" do
+    users(:one).update!(provider: "google_oauth2", uid: "uid-#{SecureRandom.hex(4)}")
+
+    assert_difference "User.count", -1 do
+      delete delete_account_settings_url, params: { confirmation: "password1234" }
+    end
+
+    assert_redirected_to root_path
+  end
 end

@@ -84,19 +84,22 @@ class SettingsController < ApplicationController
       disposition: "attachment"
   end
 
+  # A senha, quando certa, sempre confirma -- inclusive numa conta que
+  # vinculou o Google depois de criada com senha (OmniauthCallbacksController
+  # so grava o provider, nunca mexe na senha real que o usuario ja tinha). O
+  # e-mail so entra como confirmacao alternativa pra quem tem provider e pode
+  # nao ter senha nenhuma pra digitar (cadastro direto pelo Google).
   def delete_account
-    confirmed = if current_user.provider.present?
-      current_user.email.casecmp?(delete_account_params[:confirmation].to_s)
-    else
-      current_user.valid_password?(delete_account_params[:confirmation].to_s)
-    end
+    confirmation = delete_account_params[:confirmation].to_s
+    confirmed = current_user.valid_password?(confirmation) ||
+      (current_user.provider.present? && current_user.email.casecmp?(confirmation))
 
     if confirmed
       current_user.destroy
       flash[:toast] = { message: "Conta excluída com sucesso.", type: "success" }
       redirect_to root_path
     else
-      message = current_user.provider.present? ? "E-mail incorreto." : "Senha incorreta."
+      message = current_user.provider.present? ? "Senha ou e-mail incorretos." : "Senha incorreta."
       flash[:toast] = { message: "#{message} Nada foi excluído.", type: "error" }
       redirect_to settings_path
     end

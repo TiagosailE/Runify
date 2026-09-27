@@ -61,9 +61,10 @@ partir do que o app carrega de verdade:
 
 - `script-src 'self'` com nonce por sessão (importmap, os dois scripts
   inline do layout).
-- `style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com`
-  (Font Awesome + Google Fonts, os dois `@import`/`<link>` externos reais do
-  app) com nonce para os cinco blocos `<style>` que sobreviveram.
+- `style-src 'self' https://fonts.googleapis.com` (o `@import` real do Google
+  Fonts; Font Awesome não precisa mais de host externo aqui, ver
+  "Complemento" abaixo) com nonce para os cinco blocos `<style>` que
+  sobreviveram.
 - `img-src 'self' https: data:`: o app tem `images.unsplash.com` como origem
   externa de imagem (hero da landing) e potencialmente mais no futuro (fotos
   do Strava); fixar host por host seria frágil e `script-src` já bloqueia o
@@ -193,9 +194,13 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
    a barra de km aparecem, e olhar o console do navegador por qualquer
    violação de CSP que a verificação por `curl` não conseguiria pegar.
 4. **`config.hosts`** (2026-09-27): já lê `RENDER_EXTERNAL_HOSTNAME` e
-   `APP_HOST` do ambiente, ignorando o que estiver vazio. Falta só confirmar
-   depois do primeiro deploy que o site carrega (erro de "Blocked host"
-   indicaria valor errado).
+   `APP_HOST` do ambiente, ignorando o que estiver vazio. Se as duas vierem
+   vazias, `config.hosts` fica `[]` e o `ActionDispatch::HostAuthorization`
+   não bloqueia nada (mesmo comportamento de antes, comentado): o site
+   carregando não prova proteção ativa, só que o host não está sendo
+   rejeitado. Falta confirmar depois do primeiro deploy que o site carrega
+   (erro de "Blocked host" indicaria valor errado) e que
+   `RENDER_EXTERNAL_HOSTNAME` aparece preenchida no painel do Render.
 5. **GitHub**: 2FA na conta e *secret scanning* — o repo é privado hoje,
    mas nada impede tornar público depois (como o Rota Velho Chico), e vale
    ligar antes independente disso.
