@@ -27,18 +27,27 @@ class XpService
   end
 
   def self.update_streak(user)
-    user.squad_members.each do |squad_member|
-      last_workout = user.activities.where("start_date >= ?", 2.days.ago).exists?
-
-      if last_workout
-        squad_member.increment!(:streak)
-      else
-        squad_member.update(streak: 0)
-      end
-    end
+    streak = calculate_streak(user)
+    user.squad_members.each { |squad_member| squad_member.update(streak: streak) }
   end
 
   private
+
+  def self.calculate_streak(user)
+    activity_dates = user.activities.select(:start_date).map { |activity| activity.start_date.to_date }.to_set
+    return 0 if activity_dates.empty?
+
+    today = Date.current
+    cursor = activity_dates.include?(today) ? today : today - 1
+    return 0 unless activity_dates.include?(cursor)
+
+    streak = 0
+    while activity_dates.include?(cursor)
+      streak += 1
+      cursor -= 1
+    end
+    streak
+  end
 
   def self.calculate_pace_minutes(activity)
     return 6.0 unless activity.moving_time && activity.distance && activity.distance > 0
@@ -53,7 +62,7 @@ class XpService
   end
 
   def self.check_achievements(user, squad_member)
-    if squad_member.level == 10 && !user.achievements.exists?(name: "Nível 10")
+    if squad_member.level >= 10 && !user.achievements.exists?(name: "Nível 10")
       achievement = Achievement.find_or_create_by(
         name: "Nível 10",
         description: "Alcançou o nível 10",
