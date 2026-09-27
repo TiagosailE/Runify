@@ -137,34 +137,11 @@ class AiAdjustmentService
     # Numa transacao com a marca da semana: falha no meio nao deixa parte dos
     # treinos ajustada sem marca, o que faria a proxima execucao compor de novo.
     ActiveRecord::Base.transaction do
-      remaining_workouts.each do |workout|
-        original_distance = workout.distance
-        original_duration = workout.duration
+      remaining_workouts.group_by(&:week_number).each do |week, week_workouts|
+        week_factor = weekly_capped_factor(week, week_workouts, factor)
 
-        if workout.distance.present?
-          # Teto do envelope para a semana daquele treino: sem isso, aumentos
-          # sucessivos de 10% compõem sem limite semana após semana.
-          ceiling = @envelope.max_single_run_km_for_week(workout.week_number)
-          workout.distance = (workout.distance * factor).round(2).clamp(1.0, ceiling)
-        end
-
-        workout.duration = adjusted_duration(workout, factor) if workout.duration.present?
-
-        workout.workout_details = (workout.workout_details || {}).merge({
-          "ai_adjustment" => {
-            "adjusted_at" => Time.current.iso8601,
-            "type" => adjustment_type,
-            "percentage" => (percentage * 100).round(1),
-            "reason" => adjustment_data["analysis"],
-            "recommendations" => adjustment_data["recommendations"],
-            "red_flags" => adjustment_data["red_flags"],
-            "original_distance" => original_distance,
-            "original_duration" => original_duration
-          }
-        })
-
-        if workout.save
-          adjusted_count += 1
+        week_workouts.each do |workout|
+          adjusted_count += 1 if adjust_workout(workout, week_factor, adjustment_data, percentage)
         end
       end
 
@@ -183,6 +160,50 @@ class AiAdjustmentService
     end
 
     true
+  end
+
+  def adjust_workout(workout, factor, adjustment_data, percentage)
+    original_distance = workout.distance
+    original_duration = workout.duration
+
+    if workout.distance.present?
+      # Teto do envelope para a semana daquele treino: sem isso, aumentos
+      # sucessivos de 10% compõem sem limite semana após semana.
+      ceiling = @envelope.max_single_run_km_for_week(workout.week_number)
+      workout.distance = (workout.distance * factor).round(2).clamp(1.0, ceiling)
+    end
+
+    workout.duration = adjusted_duration(workout, factor) if workout.duration.present?
+
+    workout.workout_details = (workout.workout_details || {}).merge({
+      "ai_adjustment" => {
+        "adjusted_at" => Time.current.iso8601,
+        "type" => adjustment_data["adjustment_type"],
+        "percentage" => (percentage * 100).round(1),
+        "reason" => adjustment_data["analysis"],
+        "recommendations" => adjustment_data["recommendations"],
+        "red_flags" => adjustment_data["red_flags"],
+        "original_distance" => original_distance,
+        "original_duration" => original_duration
+      }
+    })
+
+    workout.save
+  end
+
+  # O volume da semana (treinos ja concluidos incluidos) tem teto no validador,
+  # alem do teto de cada treino. Aumento so vai ate onde cabe nele e nunca
+  # reduz uma semana que ja estava acima.
+  def weekly_capped_factor(week, pending_workouts, factor)
+    return factor unless factor > 1
+
+    pending_km = pending_workouts.sum { |workout| workout.distance.to_f }
+    return factor if pending_km.zero?
+
+    fixed_km = @training_plan.workouts.where(week_number: week).where.not(status: "pending").sum(:distance).to_f
+    room_km = @envelope.max_weekly_km_for_week(week) - fixed_km
+
+    [ factor, [ room_km / pending_km, 1.0 ].max ].min
   end
 
   # A IA so decide a direcao e a intensidade; o limite por direcao e nosso.

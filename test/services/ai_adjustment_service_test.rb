@@ -244,6 +244,64 @@ class AiAdjustmentServiceTest < ActiveSupport::TestCase
     assert_equal ceiling + 600, @future.reload.duration
   end
 
+  # O ajuste tambem nao pode empurrar a semana para alem do volume semanal
+  # que o validador aceita (invariante 5): o teto de UM treino sozinho nao basta.
+  def add_week3_workouts(distance, count: 3, status: "pending")
+    count.times.map do |index|
+      @plan.workouts.create!(
+        week_number: 3, day_of_week: (index * 2) + 1, scheduled_date: Date.current + 1.week + (index * 2).days,
+        workout_type: "Corrida Leve", workout_format: "continuous",
+        distance: distance, duration: 3600, pace: "6:00", status: status
+      )
+    end
+  end
+
+  test "aumento nao passa do volume semanal maximo da semana" do
+    weekly_ceiling = TrainingEnvelope.new(@user).max_weekly_km_for_week(3)
+    workouts = add_week3_workouts(13.0) # 39.0 km, teto da semana 3: 39.9 km
+
+    stub_gemini(adjustment("increase", 10)) do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    total = workouts.sum { |w| w.reload.distance.to_f }
+    assert_operator total, :<=, weekly_ceiling + 0.05
+    assert_operator total, :>, 39.0, "deveria ter aumentado ate onde cabe no teto"
+  end
+
+  test "treino ja concluido na semana conta no volume semanal do aumento" do
+    weekly_ceiling = TrainingEnvelope.new(@user).max_weekly_km_for_week(3)
+    done = add_week3_workouts(13.0, count: 1, status: "completed")
+    pending = add_week3_workouts(13.0, count: 2)
+
+    stub_gemini(adjustment("increase", 10)) do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    total = (done + pending).sum { |w| w.reload.distance.to_f }
+    assert_operator total, :<=, weekly_ceiling + 0.05
+  end
+
+  test "semana que ja estava acima do teto semanal nao cresce nem e reduzida por causa de um aumento" do
+    workouts = add_week3_workouts(14.0, count: 3) # 42.0 km, acima dos 39.9 km do teto
+
+    stub_gemini(adjustment("increase", 10)) do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_equal [ 14.0 ] * 3, workouts.map { |w| w.reload.distance.to_f }
+  end
+
+  test "reducao nao e afetada pelo teto semanal" do
+    workouts = add_week3_workouts(13.0)
+
+    stub_gemini(adjustment("decrease", 10)) do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_equal [ 11.7 ] * 3, workouts.map { |w| w.reload.distance.to_f }
+  end
+
   test "red flags notificam mesmo com as notificacoes desligadas" do
     @user.update!(notifications_enabled: false)
 

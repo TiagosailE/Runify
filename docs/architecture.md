@@ -108,7 +108,8 @@ gem `omniauth-rails_csrf_protection` exige POST na fase de request
 - A IA sugere direção e percentual, o código corta: aumento até 10%, redução
   até 20%. Distância e duração também respeitam o teto do `TrainingEnvelope`
   para a semana do treino (`max_single_run_km_for_week` e
-  `max_duration_seconds_for_week`).
+  `max_duration_seconds_for_week`), e o aumento nunca leva o volume da semana
+  (treinos concluídos incluídos) além de `max_weekly_km_for_week`.
 - Alerta de `red_flags` vira notificação mesmo com `notifications_enabled`
   desligado.
 - Modelo diferente do de geração (`gemini-2.0-flash-exp`).
