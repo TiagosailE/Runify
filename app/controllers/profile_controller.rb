@@ -12,11 +12,10 @@ class ProfileController < ApplicationController
       update_params[:birth_date] = Date.current - age.years
     end
 
-    if profile_params[:avatar].present?
-      current_user.avatar.attach(profile_params[:avatar])
-    end
+    current_user.assign_attributes(update_params)
+    current_user.avatar.attach(profile_params[:avatar]) if profile_params[:avatar].present?
 
-    if current_user.update(update_params)
+    if current_user.save
       flash[:toast] = { message: "Perfil atualizado com sucesso!", type: "success" }
       redirect_to profile_path
     else

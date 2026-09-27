@@ -29,9 +29,8 @@ class PacersController < ApplicationController
   end
 
   def show
-    @squad = Squad.find(params[:id])
+    @squad = current_user.squads.find(params[:id])
     @leaderboard = @squad.leaderboard.includes(:user)
-    @is_member = @squad.users.include?(current_user)
     @my_squads = current_user.squads
   end
 
@@ -60,7 +59,7 @@ class PacersController < ApplicationController
   end
 
   def leave
-    squad = Squad.find(params[:id])
+    squad = current_user.squads.find(params[:id])
     squad_member = squad.squad_members.find_by(user: current_user)
 
     if squad.owner == current_user

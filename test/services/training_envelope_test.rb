@@ -8,7 +8,7 @@ class TrainingEnvelopeTest < ActiveSupport::TestCase
     User.create!(
       {
         email: "envelope-#{SecureRandom.hex(4)}@example.com",
-        password: "password123",
+        password: "password1234",
         username: "Teste",
         terms_accepted: true
       }.merge(attrs)

@@ -73,7 +73,7 @@ module Admin
       redirect_to admin_user_path(@user), notice: "E-mail de redefinição de senha enviado."
     rescue StandardError => e
       Rails.logger.error("[admin] falha ao enviar redefinição de senha para user #{@user.id}: #{e.class}: #{e.message}")
-      redirect_to admin_user_path(@user), alert: "Não foi possível enviar o e-mail: #{e.message}"
+      redirect_to admin_user_path(@user), alert: "Não foi possível enviar o e-mail. Tente novamente."
     end
 
     private

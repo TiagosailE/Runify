@@ -51,13 +51,13 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
   # --- Entrada no painel ----------------------------------------------------
 
   test "login de admin cai direto no painel" do
-    post user_session_path, params: { user: { email: @admin.email, password: "password123" } }
+    post user_session_path, params: { user: { email: @admin.email, password: "password1234" } }
 
     assert_redirected_to admin_root_path
   end
 
   test "login de usuario comum segue o fluxo normal de onboarding" do
-    post user_session_path, params: { user: { email: @user.email, password: "password123" } }
+    post user_session_path, params: { user: { email: @user.email, password: "password1234" } }
 
     assert_redirected_to onboarding_step1_path
   end
@@ -250,6 +250,6 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to admin_user_path(@user)
-    assert_match "Resend fora do ar", flash[:alert]
+    assert_no_match "Resend fora do ar", flash[:alert]
   end
 end

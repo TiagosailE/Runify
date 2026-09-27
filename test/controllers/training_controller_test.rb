@@ -36,6 +36,17 @@ class TrainingControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "Treino da segunda"
   end
 
+  test "generate mostra mensagem generica sem o detalhe da excecao" do
+    boom = ->(*) { raise "detalhe interno que nao pode vazar" }
+
+    AiTrainingService.stub :new, boom do
+      post generate_training_url
+    end
+
+    assert_redirected_to training_index_path
+    assert_no_match "detalhe interno que nao pode vazar", flash[:toast][:message]
+  end
+
   test "should get show" do
     get training_show_url(workouts(:one))
     assert_response :success

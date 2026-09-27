@@ -61,14 +61,21 @@ partir do que o app carrega de verdade:
 
 - `script-src 'self'` com nonce por sessão (importmap, os dois scripts
   inline do layout).
-- `style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com`
-  (Font Awesome + Google Fonts, os dois `@import`/`<link>` externos reais do
-  app) com nonce para os cinco blocos `<style>` que sobreviveram.
-- `img-src 'self' https: data:` — o app tem duas origens externas de imagem
-  hoje (`ui-avatars.com` como fallback de avatar, `images.unsplash.com` no
-  hero da landing) e potencialmente mais no futuro (fotos do Strava); fixar
-  host por host seria frágil e `script-src` já bloqueia o vetor mais perigoso.
+- `style-src 'self' https://fonts.googleapis.com` (o `@import` real do Google
+  Fonts; Font Awesome não precisa mais de host externo aqui, ver
+  "Complemento" abaixo) com nonce para os cinco blocos `<style>` que
+  sobreviveram.
+- `img-src 'self' https: data:`: o app tem `images.unsplash.com` como origem
+  externa de imagem (hero da landing) e potencialmente mais no futuro (fotos
+  do Strava); fixar host por host seria frágil e `script-src` já bloqueia o
+  vetor mais perigoso. Avatar sem foto usa SVG com as iniciais gerado pelo
+  próprio app (`data:`), sem chamada a terceiro.
 - `frame-ancestors 'none'`, `object-src 'none'`.
+
+**Complemento em 2026-09-27:** Font Awesome parou de vir do cdnjs. A versão
+6.5.1 (CSS e webfontes) passou a ser servida pelo próprio app via Propshaft,
+o arquivo baixado foi conferido contra o hash SRI publicado pelo cdnjs antes
+de entrar no repositório, e `style-src`/`font-src` não citam mais esse host.
 
 **Achados só na verificação, não no design inicial** — a CSP expôs padrões
 que já quebravam a política assim que ligada:
@@ -156,11 +163,11 @@ lista.
 
 ### 3.6 Senha de demonstração fixa no repositório
 
-`db/seeds.rb` tinha `password123` escrito no arquivo. Como o app vai ao ar
+`db/seeds.rb` tinha `password1234` escrito no arquivo. Como o app vai ao ar
 com o mesmo seed rodando em produção (dados de demonstração para o TG), a
 senha virou obrigatória via `SEED_USER_PASSWORD` fora de dev/test — ausente,
 o seed para com erro em vez de cair num padrão adivinhável. Em dev/test o
-padrão `password123` continua valendo (banco local, sem valor pra ninguém,
+padrão `password1234` continua valendo (banco local, sem valor pra ninguém,
 e o passo `Tests: Seeds` do `bin/ci` depende dele).
 
 ## 4. Aceito conscientemente
@@ -171,10 +178,6 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
   um jeito trivial de negar acesso ao usuário legítimo. O rate limit por
   IP (login) cobre a varredura de senha sem esse efeito colateral — mesmo
   raciocínio já usado no Rota Velho Chico.
-- **`config.hosts` continua comentado.** Ativa proteção contra Host header
-  forjado, mas exige o domínio real de produção, que ainda não existe (a
-  entrega `chore/production-config` ainda não rodou). Ligar sem o valor
-  certo derruba o app inteiro em vez de proteger algo.
 
 ## 5. Fora do repositório
 
@@ -190,8 +193,14 @@ e o passo `Tests: Seeds` do `bin/ci` depende dele).
    `/pacers/:id` autenticado, confirmar que cores de borda/sombra de tier e
    a barra de km aparecem, e olhar o console do navegador por qualquer
    violação de CSP que a verificação por `curl` não conseguiria pegar.
-4. **`APP_HOST`** com o domínio real do Render, quando existir, pra ligar
-   `config.hosts`.
+4. **`config.hosts`** (2026-09-27): já lê `RENDER_EXTERNAL_HOSTNAME` e
+   `APP_HOST` do ambiente, ignorando o que estiver vazio. Se as duas vierem
+   vazias, `config.hosts` fica `[]` e o `ActionDispatch::HostAuthorization`
+   não bloqueia nada (mesmo comportamento de antes, comentado): o site
+   carregando não prova proteção ativa, só que o host não está sendo
+   rejeitado. Falta confirmar depois do primeiro deploy que o site carrega
+   (erro de "Blocked host" indicaria valor errado) e que
+   `RENDER_EXTERNAL_HOSTNAME` aparece preenchida no painel do Render.
 5. **GitHub**: 2FA na conta e *secret scanning* — o repo é privado hoje,
    mas nada impede tornar público depois (como o Rota Velho Chico), e vale
    ligar antes independente disso.
@@ -334,3 +343,26 @@ não pode bloquear `SettingsController#delete_account` — o que aconteceria com
   Para o escopo de um administrador único num app de 30 usuários, o rate limit
   de login e a sessão do Devise são a defesa; se um dia houver mais de um
   administrador, reconsiderar.
+
+## 8. Chaves de criptografia fixadas em produção (2026-09-27)
+
+`config/initializers/active_record_encryption.rb` derivava as três chaves
+(`primary_key`, `deterministic_key`, `key_derivation_salt`) do
+`secret_key_base` toda vez que a app subia. Uma rotação futura do
+`secret_key_base` mudaria essas chaves derivadas junto e tornaria ilegível
+todo `access_token`/`refresh_token` já cifrado no banco.
+
+Em produção, o initializer agora lê as três chaves do `credentials`
+(`active_record_encryption:`), com os mesmos valores que já estavam
+derivados hoje (calculados uma vez a partir do `secret_key_base` atual e
+congelados ali): nenhum dado precisou ser recifrado na migração. Falta
+alguma chave no `credentials`: erro claro no boot, não silêncio. Dev/test
+continuam derivando do `secret_key_base` local, sem depender de master key
+(o CI não tem uma).
+
+`StravaIntegration#access_token` também deixou de ser `deterministic: true`
+(existia só pra permitir busca por igualdade no SQL, que nada no código faz,
+conferido por grep). Virou `previous: { deterministic: true }`: valores
+antigos continuam legíveis, e qualquer `access_token` novo (a cada refresh
+de token) passa a usar o esquema não determinístico, mais seguro contra
+correlação por texto cifrado repetido.
