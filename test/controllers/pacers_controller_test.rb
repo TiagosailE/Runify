@@ -33,6 +33,11 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "nao membro recebe 404 ao ver o show" do
+    get pacer_url(squads(:two))
+    assert_response :not_found
+  end
+
   test "ranking desenha a moldura do tier de cada membro" do
     squad_members(:one).update_columns(level: 45)
 
@@ -52,6 +57,9 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to pacer_path(squads(:two))
     assert squads(:two).users.include?(users(:one))
+
+    follow_redirect!
+    assert_response :success
   end
 
   test "join_by_code rejeita codigo invalido" do
@@ -67,5 +75,10 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
 
     delete leave_pacer_url(squads(:two))
     assert_response :redirect
+  end
+
+  test "nao membro recebe 404 ao tentar sair" do
+    delete leave_pacer_url(squads(:two))
+    assert_response :not_found
   end
 end
