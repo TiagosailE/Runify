@@ -29,6 +29,14 @@ class SquadTest < ActiveSupport::TestCase
     assert_equal [ veteran_more_xp, veteran_fresh_level, newcomer_lots_of_xp ], squad.leaderboard.to_a
   end
 
+  test "squad com dono inexistente falha no banco" do
+    squad = build_squad(build_user("dono"))
+
+    assert_raises(ActiveRecord::InvalidForeignKey) do
+      squad.update_column(:owner_id, 0)
+    end
+  end
+
   test "level-up que atravessa varios niveis de uma vez reordena o ranking" do
     owner = build_user("dono")
     squad = build_squad(owner)

@@ -72,6 +72,7 @@ class StravaControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "callback blocks when the athlete is already connected to a different user" do
+    users(:two).strava_integration.destroy
     other_integration = StravaIntegration.create!(
       user: users(:two),
       strava_athlete_id: "777777",
@@ -118,6 +119,7 @@ class StravaControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "callback com falha ao salvar a integracao nao vaza detalhe interno" do
+    users(:two).strava_integration.destroy
     StravaIntegration.create!(
       user: users(:two),
       strava_athlete_id: "444444",

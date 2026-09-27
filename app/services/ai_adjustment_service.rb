@@ -61,7 +61,7 @@ class AiAdjustmentService
 
     completion_rate = (completed_workouts.count.to_f / @training_plan.workouts_for_week(current_week - 1).count * 100).round
 
-    recent_activities = @user.activities.where("start_date >= ?", 7.days.ago).order(start_date: :desc)
+    recent_activities = @user.activities.runs.where("start_date >= ?", 7.days.ago).order(start_date: :desc)
     activities_summary = if recent_activities.any?
       recent_activities.map do |act|
         "- #{act.start_date.strftime('%d/%m')}: #{(act.distance/1000.0).round(2)}km, pace #{format_pace(act.average_speed)}"

@@ -4,6 +4,7 @@ require "ostruct"
 class SyncStravaActivitiesJobTest < ActiveJob::TestCase
   test "sync_user_activities creates new activities and reports counts" do
     user = users(:one)
+    user.strava_integration.destroy
     integration = StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true
@@ -30,6 +31,7 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
 
   test "sync_user_activities returns the error instead of raising when the API call fails" do
     user = users(:one)
+    user.strava_integration.destroy
     StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true
@@ -46,6 +48,33 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
     assert result[:error].present?
   end
 
+  test "sync_user_activities nao chama XpService para atividade que nao e corrida" do
+    user = users(:one)
+    user.strava_integration.destroy
+    StravaIntegration.create!(
+      user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
+      token_expires_at: 1.day.from_now, active: true
+    )
+
+    fake_activity = OpenStruct.new(
+      id: 99, name: "Pedal", sport_type: "Ride", distance: 20_000.0,
+      elapsed_time: 3600, moving_time: 3500, average_speed: 5.7,
+      start_date: Time.current, to_h: { id: 99 }
+    )
+    fake_api = Object.new
+    fake_api.define_singleton_method(:athlete_activities) { |*_args, **_kwargs| [ fake_activity ] }
+
+    called = false
+    XpService.stub :award_xp, ->(*) { called = true } do
+      Strava::Api::Client.stub :new, fake_api do
+        SyncStravaActivitiesJob.new.sync_user_activities(user)
+      end
+    end
+
+    assert_not called
+    assert user.activities.exists?(strava_activity_id: "99")
+  end
+
   test "sync_user_activities is a no-op for users without an active strava connection" do
     user = users(:two)
     result = SyncStravaActivitiesJob.new.sync_user_activities(user)
@@ -57,6 +86,7 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
   # historico.
   test "sync_user_activities repassa o limite pedido para a API do Strava" do
     user = users(:one)
+    user.strava_integration.destroy
     StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true
