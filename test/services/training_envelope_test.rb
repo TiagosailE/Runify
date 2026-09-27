@@ -78,6 +78,17 @@ class TrainingEnvelopeTest < ActiveSupport::TestCase
     assert_equal 11.0, envelope.max_single_run_km
   end
 
+  test "pedal recente nao conta como base do teto de corrida" do
+    user = build_user(running_experience: "intermediate", weekly_mileage: 30)
+    user.activities.create!(
+      name: "Pedal", sport_type: "Ride", distance: 50_000, duration: 5_400,
+      moving_time: 5_400, start_date: 3.days.ago, source: "manual"
+    )
+    envelope = TrainingEnvelope.new(user)
+
+    assert_equal 0.0, envelope.longest_recent_run_km
+  end
+
   test "corrida antiga nao conta como base recente" do
     user = build_user(running_experience: "intermediate", weekly_mileage: 20)
     user.activities.create!(

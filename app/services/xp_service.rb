@@ -34,7 +34,7 @@ class XpService
   private
 
   def self.calculate_streak(user)
-    activity_dates = user.activities.select(:start_date).map { |activity| activity.start_date.to_date }.to_set
+    activity_dates = user.activities.runs.select(:start_date).map { |activity| activity.start_date.to_date }.to_set
     return 0 if activity_dates.empty?
 
     today = Date.current

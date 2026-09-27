@@ -115,7 +115,7 @@ class AiTrainingService
   end
 
   def activities_summary
-    recent = @user.activities.order(start_date: :desc).limit(10)
+    recent = @user.activities.runs.order(start_date: :desc).limit(10)
     return "Nenhuma atividade registrada." if recent.empty?
 
     recent.map do |activity|

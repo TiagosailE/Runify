@@ -180,6 +180,7 @@ class TrainingEnvelope
   def longest_recent_run_km
     @longest_recent_run_km ||= begin
       furthest = user.activities
+                     .runs
                      .where("start_date >= ?", RECENT_HISTORY_WINDOW.ago)
                      .maximum(:distance)
       furthest ? (furthest / 1000.0).round(2) : 0.0

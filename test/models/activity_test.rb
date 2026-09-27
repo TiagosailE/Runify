@@ -55,4 +55,22 @@ class ActivityTest < ActiveSupport::TestCase
     activity = Activity.new(valid_attributes.merge(distance: 5000, moving_time: 1500))
     assert_equal "5:00'", activity.pace_per_km
   end
+
+  test "run? reconhece Run, TrailRun e VirtualRun, mas nao outros esportes" do
+    assert Activity.new(valid_attributes.merge(sport_type: "Run")).run?
+    assert Activity.new(valid_attributes.merge(sport_type: "TrailRun")).run?
+    assert Activity.new(valid_attributes.merge(sport_type: "VirtualRun")).run?
+    assert_not Activity.new(valid_attributes.merge(sport_type: "Ride")).run?
+    assert_not Activity.new(valid_attributes.merge(sport_type: "Swim")).run?
+    assert_not Activity.new(valid_attributes.merge(sport_type: "Walk")).run?
+  end
+
+  test "scope runs traz so as atividades de corrida" do
+    user = users(:one)
+    corrida = user.activities.create!(valid_attributes.except(:user).merge(sport_type: "Run"))
+    pedal = user.activities.create!(valid_attributes.except(:user).merge(sport_type: "Ride"))
+
+    assert_includes user.activities.runs, corrida
+    assert_not_includes user.activities.runs, pedal
+  end
 end

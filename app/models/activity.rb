@@ -1,7 +1,10 @@
 class Activity < ApplicationRecord
   SOURCES = %w[strava manual].freeze
+  RUN_SPORT_TYPES = %w[Run TrailRun VirtualRun].freeze
 
   belongs_to :user
+
+  scope :runs, -> { where(sport_type: RUN_SPORT_TYPES) }
 
   validates :distance, numericality: { greater_than: 0, message: "deve ser maior que zero" }
   validates :duration, numericality: { greater_than: 0, only_integer: true, message: "deve ser maior que zero" }
@@ -37,5 +40,9 @@ class Activity < ApplicationRecord
 
   def formatted_date
     start_date.strftime("%d/%m/%Y")
+  end
+
+  def run?
+    RUN_SPORT_TYPES.include?(sport_type)
   end
 end

@@ -160,7 +160,7 @@ class User < ApplicationRecord
   end
 
   def average_recent_pace
-    recent = activities.where("start_date > ?", 30.days.ago)
+    recent = activities.runs.where("start_date > ?", 30.days.ago)
                        .where.not(average_speed: nil)
                        .limit(10)
 
