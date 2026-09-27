@@ -172,7 +172,6 @@ class TrainingEnvelope
   def training_days
     @training_days ||= begin
       declared = Array(user.preferred_training_days).map(&:to_i).select { |d| d.between?(1, 7) }
-      declared = Array(user.available_days).map(&:to_i).select { |d| d.between?(1, 7) } if declared.empty?
       declared.uniq.sort.presence || [ 1, 3, 5 ]
     end
   end
