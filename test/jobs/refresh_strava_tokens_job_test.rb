@@ -4,6 +4,7 @@ require "ostruct"
 class RefreshStravaTokensJobTest < ActiveJob::TestCase
   test "refreshes tokens for integrations needing refresh" do
     user = users(:one)
+    user.strava_integration.destroy
     integration = StravaIntegration.create!(user: user, access_token: "old", refresh_token: "rtok", token_expires_at: 1.minute.ago, active: true)
 
     fake_oauth = Object.new

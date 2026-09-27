@@ -4,6 +4,7 @@ require "ostruct"
 class SyncStravaActivitiesJobTest < ActiveJob::TestCase
   test "sync_user_activities creates new activities and reports counts" do
     user = users(:one)
+    user.strava_integration.destroy
     integration = StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true
@@ -30,6 +31,7 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
 
   test "sync_user_activities returns the error instead of raising when the API call fails" do
     user = users(:one)
+    user.strava_integration.destroy
     StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true
@@ -48,6 +50,7 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
 
   test "sync_user_activities nao chama XpService para atividade que nao e corrida" do
     user = users(:one)
+    user.strava_integration.destroy
     StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true
@@ -83,6 +86,7 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
   # historico.
   test "sync_user_activities repassa o limite pedido para a API do Strava" do
     user = users(:one)
+    user.strava_integration.destroy
     StravaIntegration.create!(
       user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
       token_expires_at: 1.day.from_now, active: true

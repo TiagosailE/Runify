@@ -28,6 +28,22 @@ class SquadMemberTest < ActiveSupport::TestCase
     assert_equal 100, member.experience_points
   end
 
+  # Duas instancias da mesma linha, cada uma em memoria com o XP de antes:
+  # sem recarregar dentro do lock, a segunda chamada soma sobre o valor
+  # antigo e o XP da primeira some.
+  test "add_xp recarrega o registro antes de somar, nao perde XP concorrente" do
+    user = build_user("corredor")
+    member = join(build_squad(user), user, level: 1, xp: 0)
+
+    stale_a = SquadMember.find(member.id)
+    stale_b = SquadMember.find(member.id)
+
+    stale_a.add_xp(50)
+    stale_b.add_xp(30)
+
+    assert_equal 80, member.reload.experience_points
+  end
+
   # User#level e User#experience_points leem do "principal": o de maior nivel,
   # nao o de maior XP (que zera a cada level-up).
   test "o pacer principal do usuario e o de maior nivel, nao o de maior XP" do

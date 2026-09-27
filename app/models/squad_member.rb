@@ -3,9 +3,11 @@ class SquadMember < ApplicationRecord
   belongs_to :user
 
   def add_xp(amount)
-    self.experience_points += amount
-    check_level_up
-    save
+    with_lock do
+      self.experience_points += amount
+      check_level_up
+      save
+    end
   end
 
   def xp_for_next_level

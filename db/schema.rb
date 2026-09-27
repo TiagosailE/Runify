@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_26_120100) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_27_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -123,7 +123,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_120100) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "name", null: false
-    t.integer "owner_id", null: false
+    t.bigint "owner_id", null: false
     t.string "squad_code", null: false
     t.datetime "updated_at", null: false
     t.index ["challenge_start"], name: "index_squads_on_challenge_start"
@@ -143,7 +143,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_120100) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["strava_athlete_id"], name: "index_strava_integrations_on_strava_athlete_id", unique: true
-    t.index ["user_id"], name: "index_strava_integrations_on_user_id"
+    t.index ["user_id"], name: "index_strava_integrations_on_user_id", unique: true
   end
 
   create_table "training_plans", force: :cascade do |t|
@@ -236,6 +236,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_120100) do
   add_foreign_key "notifications", "users"
   add_foreign_key "squad_members", "squads"
   add_foreign_key "squad_members", "users"
+  add_foreign_key "squads", "users", column: "owner_id"
   add_foreign_key "strava_integrations", "users"
   add_foreign_key "training_plans", "users"
   add_foreign_key "user_achievements", "achievements"

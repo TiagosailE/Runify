@@ -4,6 +4,7 @@ require "ostruct"
 class StravaIntegrationTest < ActiveSupport::TestCase
   test "refresh_token! updates token fields" do
     user = users(:one)
+    user.strava_integration.destroy
     integration = StravaIntegration.create!(user: user, access_token: "old", refresh_token: "rtok", token_expires_at: 1.minute.ago, active: true)
 
     fake_oauth = Object.new
@@ -23,6 +24,7 @@ class StravaIntegrationTest < ActiveSupport::TestCase
 
   test "fetch_recent_activities uses Strava::Api::Client" do
     user = users(:one)
+    user.strava_integration.destroy
     integration = StravaIntegration.create!(user: user, access_token: "token", refresh_token: "rtok", token_expires_at: Time.current + 1.day, active: true)
 
     fake_api = Object.new
@@ -78,6 +80,17 @@ class StravaIntegrationTest < ActiveSupport::TestCase
     )
 
     assert_equal "token-antigo", integration.reload.access_token
+  end
+
+  test "segunda integracao para o mesmo usuario falha no banco" do
+    user = users(:one)
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      StravaIntegration.create!(
+        user: user, strava_athlete_id: "9999999", access_token: "a", refresh_token: "r",
+        token_expires_at: 1.day.from_now, active: true
+      )
+    end
   end
 
   test "access_token gravado de novo deixa de ser deterministico" do
