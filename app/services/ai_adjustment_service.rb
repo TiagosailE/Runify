@@ -136,7 +136,12 @@ class AiAdjustmentService
 
     # Numa transacao com a marca da semana: falha no meio nao deixa parte dos
     # treinos ajustada sem marca, o que faria a proxima execucao compor de novo.
-    ActiveRecord::Base.transaction do
+    # O lock relê a marca: outra execucao pode ter ajustado a semana enquanto
+    # esta esperava a resposta da IA.
+    applied = ActiveRecord::Base.transaction do
+      @training_plan.lock!
+      next false if @training_plan.last_adjusted_week == current_week
+
       remaining_workouts.group_by(&:week_number).each do |week, week_workouts|
         week_factor = weekly_capped_factor(week, week_workouts, factor)
 
@@ -146,7 +151,10 @@ class AiAdjustmentService
       end
 
       @training_plan.update!(last_adjusted_week: current_week)
+      true
     end
+
+    return false unless applied
 
     Rails.logger.info "=== AI ADJUSTMENT APPLIED ==="
     Rails.logger.info "Type: #{adjustment_type}"
@@ -168,9 +176,11 @@ class AiAdjustmentService
 
     if workout.distance.present?
       # Teto do envelope para a semana daquele treino: sem isso, aumentos
-      # sucessivos de 10% compõem sem limite semana após semana.
+      # sucessivos de 10% compõem sem limite semana após semana. O piso de
+      # 1 km nunca eleva um treino que ja era menor (nem passa do teto).
       ceiling = @envelope.max_single_run_km_for_week(workout.week_number)
-      workout.distance = (workout.distance * factor).round(2).clamp(1.0, ceiling)
+      floor = [ 1.0, workout.distance, ceiling ].min
+      workout.distance = (workout.distance * factor).round(2).clamp(floor, ceiling)
     end
 
     workout.duration = adjusted_duration(workout, factor) if workout.duration.present?
@@ -188,7 +198,10 @@ class AiAdjustmentService
       }
     })
 
-    workout.save
+    return true if workout.save
+
+    Rails.logger.warn "Ajuste da IA nao salvou o treino #{workout.id}: #{workout.errors.full_messages.join(', ')}"
+    false
   end
 
   # O volume da semana (treinos ja concluidos incluidos) tem teto no validador,
@@ -224,7 +237,9 @@ class AiAdjustmentService
   def adjusted_duration(workout, factor)
     ceiling = [ @envelope.max_duration_seconds_for_week(workout.week_number), workout.duration ].max
 
-    [ [ (workout.duration * factor).to_i, 600 ].max, ceiling ].min
+    floor = [ 600, workout.duration ].min
+
+    [ [ (workout.duration * factor).to_i, floor ].max, ceiling ].min
   end
 
   def adjustment_factor(adjustment_type, percentage)

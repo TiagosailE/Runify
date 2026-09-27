@@ -302,6 +302,80 @@ class AiAdjustmentServiceTest < ActiveSupport::TestCase
     assert_equal [ 11.7 ] * 3, workouts.map { |w| w.reload.distance.to_f }
   end
 
+  # Treino pequeno (perfil de volume baixo) nao pode ser elevado ao piso de 1 km
+  # nem a 10 minutos por um "maintain".
+  test "maintain nao mexe em treino menor que o piso de distancia e de duracao" do
+    @future.update_columns(distance: 0.5, duration: 300)
+
+    stub_gemini(adjustment("maintain", 0)) do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_in_delta 0.5, @future.reload.distance.to_f, 0.001
+    assert_equal 300, @future.duration
+  end
+
+  # Teto da semana abaixo de 1 km: o clamp com piso fixo de 1.0 levantava
+  # ArgumentError, o rescue engolia e a semana nunca era marcada.
+  test "perfil de volume muito baixo nao quebra o ajuste" do
+    @user.update!(weekly_mileage: 2)
+    @future.update_columns(distance: 0.8)
+    ceiling = TrainingEnvelope.new(@user).max_single_run_km_for_week(2)
+    assert_operator ceiling, :<, 1.0
+
+    stub_gemini(adjustment("increase", 10)) do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_in_delta 0.88, @future.reload.distance.to_f, 0.001
+    assert_equal 2, @plan.reload.last_adjusted_week
+  end
+
+  # Outra execucao (ex: o job agendado e um run manual no console) pode
+  # ajustar a semana enquanto esta espera a resposta da IA.
+  test "execucao que perdeu a corrida para outra nao aplica o ajuste de novo" do
+    plan_id = @plan.id
+    racing = ->(_prompt, **_opts) do
+      TrainingPlan.find(plan_id).update_columns(last_adjusted_week: 2)
+      adjustment("increase", 10)
+    end
+
+    GeminiClient.stub :generate_json, racing do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_in_delta 5.0, @future.reload.distance.to_f, 0.001
+  end
+
+  test "falha ao gravar a marca desfaz o ajuste dos treinos" do
+    @plan.stub :update!, ->(*) { raise "falha no banco" } do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_in_delta 5.0, @future.reload.distance.to_f, 0.001
+    assert_equal 1800, @future.duration
+    assert_nil @plan.reload.last_adjusted_week
+  end
+
+  test "treino que nao salva e registrado no log e nao impede o resto do ajuste" do
+    @future.update_columns(distance: nil) # continuo sem distancia: invalido no model
+    other = @plan.workouts.create!(
+      week_number: 2, day_of_week: 3, scheduled_date: Date.current + 2.days,
+      workout_type: "Corrida Leve", workout_format: "continuous",
+      distance: 5.0, duration: 1800, pace: "6:00", status: "pending"
+    )
+    io = StringIO.new
+
+    Rails.stub :logger, ActiveSupport::Logger.new(io) do
+      stub_gemini(adjustment("increase", 10)) do
+        AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+      end
+    end
+
+    assert_in_delta 5.5, other.reload.distance.to_f, 0.001
+    assert_match(/nao salvou o treino #{@future.id}/, io.string)
+  end
+
   test "red flags notificam mesmo com as notificacoes desligadas" do
     @user.update!(notifications_enabled: false)
 
