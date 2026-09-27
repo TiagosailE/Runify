@@ -116,4 +116,43 @@ class StravaControllerTest < ActionDispatch::IntegrationTest
     delete strava_disconnect_url
     assert_redirected_to dashboard_path
   end
+
+  test "callback com falha ao salvar a integracao nao vaza detalhe interno" do
+    StravaIntegration.create!(
+      user: users(:two),
+      strava_athlete_id: "444444",
+      access_token: "x",
+      refresh_token: "y",
+      token_expires_at: 1.day.from_now,
+      active: true
+    )
+
+    get strava_connect_url
+    state = state_from_redirect
+
+    StravaIntegration.stub :find_by, nil do
+      Strava::OAuth::Client.stub :new, stub_oauth_token(444_444) do
+        get strava_callback_url(state: state, code: "validcode")
+      end
+    end
+
+    assert_redirected_to dashboard_path
+    assert_equal "error", flash[:toast][:type]
+    assert_no_match "conectado a outra conta", flash[:toast][:message]
+  end
+
+  test "sync mostra mensagem generica quando a sincronizacao falha" do
+    fake_job = Object.new
+    fake_job.define_singleton_method(:sync_user_activities) do |*_args, **_kwargs|
+      { new_count: 0, updated_count: 0, error: RuntimeError.new("detalhe interno da api") }
+    end
+
+    SyncStravaActivitiesJob.stub :new, fake_job do
+      post sync_strava_url
+    end
+
+    assert_redirected_to dashboard_path
+    assert_equal "error", flash[:toast][:type]
+    assert_no_match "detalhe interno da api", flash[:toast][:message]
+  end
 end

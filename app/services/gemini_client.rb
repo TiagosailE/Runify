@@ -51,9 +51,10 @@ class GeminiClient
   end
 
   def self.post(body)
-    uri = URI("#{API_URL}?key=#{ENV['GEMINI_API_KEY']}")
+    uri = URI(API_URL)
     request = Net::HTTP::Post.new(uri)
     request["Content-Type"] = "application/json"
+    request["x-goog-api-key"] = ENV["GEMINI_API_KEY"]
     request.body = body.to_json
 
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, read_timeout: READ_TIMEOUT) do |http|

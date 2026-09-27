@@ -20,7 +20,8 @@ class TrainingController < ApplicationController
     flash[:toast] = { message: "Plano de treino gerado com sucesso!", type: "success" }
     redirect_to training_index_path
   rescue => e
-    flash[:toast] = { message: "Erro ao gerar plano: #{e.message}", type: "error" }
+    Rails.logger.error "Erro ao gerar plano de treino: #{e.class} - #{e.message}"
+    flash[:toast] = { message: "Erro ao gerar plano. Tente novamente.", type: "error" }
     redirect_to training_index_path
   end
 

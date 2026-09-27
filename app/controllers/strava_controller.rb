@@ -78,7 +78,7 @@ class StravaController < ApplicationController
 
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "Strava integration error: #{e.message}"
-    flash[:toast] = { message: "Erro ao conectar: #{e.message}", type: "error" }
+    flash[:toast] = { message: "Erro ao conectar com Strava. Tente novamente.", type: "error" }
     redirect_to dashboard_path
   rescue Strava::Errors::Fault, Faraday::Error => e
     Rails.logger.error "Strava OAuth token exchange failed: #{e.message}"
@@ -119,7 +119,8 @@ class StravaController < ApplicationController
                    "Registre suas atividades manualmente enquanto isso.",
           type: "warning" }
       else
-        { message: "Erro ao sincronizar: #{result[:error].message}", type: "error" }
+        Rails.logger.error "Erro ao sincronizar Strava para user #{current_user.id}: #{result[:error].class} - #{result[:error].message}"
+        { message: "Erro ao sincronizar. Tente novamente.", type: "error" }
       end
     else
       message = []

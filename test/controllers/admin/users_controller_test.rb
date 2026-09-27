@@ -250,6 +250,6 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to admin_user_path(@user)
-    assert_match "Resend fora do ar", flash[:alert]
+    assert_no_match "Resend fora do ar", flash[:alert]
   end
 end
