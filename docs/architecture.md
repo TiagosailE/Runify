@@ -103,7 +103,8 @@ gem `omniauth-rails_csrf_protection` exige POST na fase de request
 - Só age a partir da semana 2 do plano (`current_week > 1`), e só se houver
   `Workout` completados na semana anterior — sem dado, sem ajuste.
 - No máximo uma vez por semana por plano (`training_plans.last_adjusted_week`),
-  chamado só pelo `WeeklyAiAnalysisJob` de segunda: registrar feedback não
+  chamado só pelo `WeeklyAiAnalysisJob`, que roda de segunda a quarta (retenta
+  quem ainda não foi ajustado nos dois dias seguintes): registrar feedback não
   dispara ajuste.
 - A IA sugere direção e percentual, o código corta: aumento até 10%, redução
   até 20%. Distância e duração também respeitam o teto do `TrainingEnvelope`

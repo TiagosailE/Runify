@@ -25,4 +25,4 @@ production:
     schedule: "0 18 * * 0"
   weekly_ai_analysis:
     class: WeeklyAiAnalysisJob
-    schedule: "0 6 * * 1"
+    schedule: "0 6 * * 1-3"

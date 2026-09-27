@@ -1,4 +1,5 @@
 require "test_helper"
+require "fugit"
 
 class WeeklyAiAnalysisJobTest < ActiveJob::TestCase
   include ActiveSupport::Testing::TimeHelpers
@@ -52,6 +53,39 @@ class WeeklyAiAnalysisJobTest < ActiveJob::TestCase
     assert_equal 1, calls
     assert_in_delta 5.5, @next_week.reload.distance.to_f, 0.001
     assert_equal 2, @plan.reload.last_adjusted_week
+  end
+
+  test "nao chama o servico para plano ja ajustado na semana" do
+    instantiations = 0
+    fake_service = Object.new
+    fake_service.define_singleton_method(:analyze_and_adjust) { nil }
+    build = ->(*_args) do
+      instantiations += 1
+      fake_service
+    end
+
+    AiAdjustmentService.stub :new, build do
+      travel_to Date.new(2026, 9, 14) do
+        @plan.update!(last_adjusted_week: 2)
+        WeeklyAiAnalysisJob.new.perform
+        assert_equal 0, instantiations
+
+        @plan.update!(last_adjusted_week: 1)
+        WeeklyAiAnalysisJob.new.perform
+        assert_equal 1, instantiations
+      end
+    end
+  end
+
+  test "agenda a analise de segunda a quarta, as 6h de Brasilia" do
+    options = Rails.application.config_for(:recurring, env: "production")[:weekly_ai_analysis]
+    schedule = Fugit.parse("#{options[:schedule]} #{SolidQueue.time_zone}", multi: :fail)
+
+    time = Time.find_zone("Brasilia").local(2026, 9, 13)
+    runs = Array.new(7) { time = schedule.next_time(time).to_t.in_time_zone("Brasilia") }
+
+    assert_equal [ 1, 2, 3, 1, 2, 3, 1 ], runs.map(&:wday)
+    assert runs.all? { |run| run.hour == 6 && run.min.zero? }
   end
 
   test "nao ajusta na primeira semana do plano" do
