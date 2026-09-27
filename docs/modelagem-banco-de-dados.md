@@ -309,7 +309,7 @@ Filha de `training_plans` (1:N). Representa um treino agendado.
 - `squad_code` — código único de convite, **gerado automaticamente** antes da validação (`SecureRandom.alphanumeric(8).upcase`).
 - `owner_id` — dono.
 - `challenge_start`, `challenge_end`, `challenge_duration` — janela do desafio. `active?` compara `challenge_end` com a data atual.
-- `leaderboard` ordena membros por XP e nível.
+- `leaderboard` ordena membros por nível e, no mesmo nível, por XP (o XP zera a cada level-up, então nível vem primeiro).
 
 **`squad_members`** — junção rica (já descrita na seção 3):
 - `level` (default 1), `experience_points` (default 0), `streak` (default 0), `joined_at`.
