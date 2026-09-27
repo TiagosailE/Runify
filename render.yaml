@@ -40,7 +40,9 @@ services:
         value: "true"
 
       # Resend (e-mail transacional) -- precisa so da API key, ver
-      # config/initializers/resend.rb e app/mailers/application_mailer.rb.
+      # config/initializers/resend.rb. O remetente tem padrao que a Resend
+      # aceita; MAILER_FROM (opcional, nao listado aqui) o troca, ver
+      # config/application.rb.
       - key: RESEND_API_KEY
         sync: false
 

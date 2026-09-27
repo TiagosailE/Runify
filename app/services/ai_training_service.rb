@@ -169,7 +169,7 @@ class AiTrainingService
               type: { type: "STRING" },
               format: { type: "STRING", enum: Workout::FORMATS },
               distance_km: { type: "NUMBER", minimum: 0, maximum: last_week_ceiling, nullable: true },
-              duration_minutes: { type: "INTEGER", minimum: 5, maximum: 300 },
+              duration_minutes: { type: "INTEGER", minimum: 5, maximum: TrainingEnvelope::MAX_SESSION_MINUTES },
               pace: { type: "STRING" },
               description: { type: "STRING" },
               instructions: { type: "STRING" },

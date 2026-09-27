@@ -111,6 +111,7 @@ erDiagram
         date start_date
         date end_date
         integer total_weeks
+        integer last_adjusted_week
         jsonb plan_data
     }
 
@@ -234,7 +235,7 @@ Autenticação gerenciada pelo **Devise** (módulos `database_authenticatable`, 
 
 **Campos de preferências/agenda:**
 - `available_days` (**jsonb**) e `preferred_training_days` (**array de inteiros**) — duas estratégias de armazenamento de disponibilidade semanal, alimentando o gerador de plano de IA.
-- `notifications_enabled` (boolean), `last_strava_sync_at`.
+- `notifications_enabled` (boolean, default `true` para contas novas), `last_strava_sync_at`.
 
 **Métodos de negócio relevantes (lógica que mora no modelo, não no banco):** `strava_connected?`, `active_training_plan`, `age`, `estimated_vo2_max`, `average_recent_pace`, `level`/`experience_points` (delegados ao `primary_squad_member`).
 
@@ -277,7 +278,8 @@ Cada linha é um treino sincronizado. Exemplo clássico do híbrido **normalizad
 
 Plano macro que pertence a um usuário e agrupa os workouts.
 
-- `goal` (texto), `start_date`, `end_date`, `total_weeks`.
+- `goal` (texto), `start_date` (sempre a segunda-feira da semana de geração), `end_date`, `total_weeks`.
+- `last_adjusted_week` (inteiro, nulo): semana em que o `AiAdjustmentService` já ajustou o plano; garante no máximo um ajuste por semana.
 - `status` — máquina de estados validada: `active` / `completed` / `cancelled` (default `active`).
 - `plan_data` (**jsonb**) — estrutura completa devolvida pela IA (Gemini).
 
