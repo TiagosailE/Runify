@@ -38,6 +38,9 @@ class TrainingEnvelope
   MIN_PLAN_WEEKS = 4
   MAX_PLAN_WEEKS = 12
 
+  # Acima disto uma sessao e implausivel: o validador reprova o plano.
+  MAX_SESSION_MINUTES = 300
+
   SESSIONS_BY_LEVEL = {
     absolute_beginner: 3,
     beginner: 3,
@@ -122,6 +125,15 @@ class TrainingEnvelope
 
   def max_weekly_km_for_week(week)
     grow(max_weekly_km, week)
+  end
+
+  # Teto de duracao de UM treino na semana. O validador so barra duracao acima
+  # de MAX_SESSION_MINUTES; abaixo disso o limite implicito e o teto de
+  # distancia da semana no pace mais lento permitido. Serve para corrida
+  # continua e para run/walk (sem distancia no treino, mas cuja sessao inteira,
+  # caminhada incluida, conta no teto de distancia).
+  def max_duration_seconds_for_week(week)
+    [ (max_single_run_km_for_week(week) * slowest_pace_seconds).floor, MAX_SESSION_MINUTES * 60 ].min
   end
 
   def fastest_pace_seconds

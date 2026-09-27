@@ -66,9 +66,9 @@ class NotificationService
     )
   end
 
+  # Sem o guard de notifications_enabled?: red_flags sao alerta de saude
+  # (overtraining, risco de lesao) e chegam mesmo com as notificacoes desligadas.
   def self.send_adjustment_alert(user, adjustment_data)
-    return unless user.notifications_enabled?
-
     recommendations = Array(adjustment_data["recommendations"]).first(2).join(" ")
     red_flags = Array(adjustment_data["red_flags"]).join(", ")
 

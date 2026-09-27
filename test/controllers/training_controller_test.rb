@@ -50,4 +50,31 @@ class TrainingControllerTest < ActionDispatch::IntegrationTest
     post training_feedback_url(workouts(:one)), params: { difficulty: "medium", notes: "ok" }
     assert_response :success
   end
+
+  # O ajuste da IA roda so no job de segunda: o feedback apenas grava.
+  test "feedback grava sem chamar o ajuste da IA mesmo com tres treinos concluidos na semana" do
+    monday = Date.new(2026, 9, 14)
+    plan = users(:one).training_plans.create!(
+      goal: "Teste", status: "active", start_date: monday - 1.week,
+      end_date: monday + 5.weeks, total_weeks: 6, plan_data: {}
+    )
+    workouts = [ 0, 1, 2 ].map do |offset|
+      plan.workouts.create!(
+        week_number: 2, day_of_week: offset + 1, scheduled_date: monday + offset.days,
+        workout_type: "Corrida Leve", workout_format: "continuous", distance: 5.0, duration: 1800,
+        pace: "6:00", description: "leve", instructions: "leve", status: "completed"
+      )
+    end
+
+    boom = ->(*) { raise "o feedback nao deveria chamar o ajuste da IA" }
+
+    travel_to monday + 2.days do
+      AiAdjustmentService.stub :new, boom do
+        post training_feedback_url(workouts.last), params: { difficulty: "facil", notes: "ok" }
+      end
+    end
+
+    assert_response :success
+    assert_equal "facil", workouts.last.reload.workout_details.dig("user_feedback", "difficulty")
+  end
 end

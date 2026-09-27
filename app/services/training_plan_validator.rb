@@ -100,7 +100,7 @@ class TrainingPlanValidator
   def duration_violations(workout, label)
     minutes = workout["duration_minutes"].to_i
     return [ "#{label}: duração ausente ou zerada" ] unless minutes.positive?
-    return [ "#{label}: duração de #{minutes} minutos é implausível" ] if minutes > 300
+    return [ "#{label}: duração de #{minutes} minutos é implausível" ] if minutes > TrainingEnvelope::MAX_SESSION_MINUTES
 
     []
   end

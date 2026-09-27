@@ -3,8 +3,13 @@
 # Mesma divisao de responsabilidade da geracao: a IA sugere a direcao e a
 # intensidade do ajuste, mas o resultado passa pelo teto do TrainingEnvelope
 # antes de virar treino -- senao aumentos sucessivos compõem sem limite.
+# Roda no maximo uma vez por semana por plano (last_adjusted_week): cada
+# chamada multiplica todos os treinos pendentes, entao repetir na mesma semana
+# acumularia o aumento.
 class AiAdjustmentService
-  MAX_ADJUSTMENT_PERCENT = 20
+  # Aumentar e mais arriscado que reduzir, entao o limite e assimetrico.
+  MAX_INCREASE_PERCENT = 10
+  MAX_DECREASE_PERCENT = 20
   # Chaves batem com data-difficulty em training/index.html.erb -- o valor
   # que chega aqui e sempre uma dessas tres, ou nil quando o atleta pulou o
   # feedback.
@@ -19,6 +24,7 @@ class AiAdjustmentService
   def analyze_and_adjust
     current_week = @training_plan.current_week
     return unless current_week > 1
+    return if @training_plan.last_adjusted_week == current_week
 
     previous_week_workouts = @training_plan.workouts_for_week(current_week - 1)
     completed_workouts = previous_week_workouts.select(&:completed?)
@@ -110,7 +116,7 @@ class AiAdjustmentService
       properties: {
         analysis: { type: "STRING" },
         adjustment_type: { type: "STRING", enum: [ "increase", "decrease", "maintain" ] },
-        adjustment_percentage: { type: "INTEGER", minimum: 0, maximum: MAX_ADJUSTMENT_PERCENT },
+        adjustment_percentage: { type: "INTEGER", minimum: 0, maximum: MAX_DECREASE_PERCENT },
         reasoning: { type: "STRING" },
         recommendations: { type: "ARRAY", items: { type: "STRING" } },
         red_flags: { type: "ARRAY", items: { type: "STRING" } }
@@ -121,42 +127,48 @@ class AiAdjustmentService
 
   def apply_adjustments(adjustment_data, current_week)
     adjustment_type = adjustment_data["adjustment_type"]
-    percentage = adjustment_data["adjustment_percentage"].to_f.abs.clamp(0, MAX_ADJUSTMENT_PERCENT) / 100.0
+    percentage = clamped_percentage(adjustment_type, adjustment_data["adjustment_percentage"])
     factor = adjustment_factor(adjustment_type, percentage)
 
     remaining_workouts = @training_plan.workouts.where("week_number >= ? AND status = ?", current_week, "pending")
 
     adjusted_count = 0
 
-    remaining_workouts.each do |workout|
-      original_distance = workout.distance
-      original_duration = workout.duration
+    # Numa transacao com a marca da semana: falha no meio nao deixa parte dos
+    # treinos ajustada sem marca, o que faria a proxima execucao compor de novo.
+    ActiveRecord::Base.transaction do
+      remaining_workouts.each do |workout|
+        original_distance = workout.distance
+        original_duration = workout.duration
 
-      if workout.distance.present?
-        # Teto do envelope para a semana daquele treino: sem isso, aumentos
-        # sucessivos de 10% compõem sem limite semana após semana.
-        ceiling = @envelope.max_single_run_km_for_week(workout.week_number)
-        workout.distance = (workout.distance * factor).round(2).clamp(1.0, ceiling)
+        if workout.distance.present?
+          # Teto do envelope para a semana daquele treino: sem isso, aumentos
+          # sucessivos de 10% compõem sem limite semana após semana.
+          ceiling = @envelope.max_single_run_km_for_week(workout.week_number)
+          workout.distance = (workout.distance * factor).round(2).clamp(1.0, ceiling)
+        end
+
+        workout.duration = adjusted_duration(workout, factor) if workout.duration.present?
+
+        workout.workout_details = (workout.workout_details || {}).merge({
+          "ai_adjustment" => {
+            "adjusted_at" => Time.current.iso8601,
+            "type" => adjustment_type,
+            "percentage" => (percentage * 100).round(1),
+            "reason" => adjustment_data["analysis"],
+            "recommendations" => adjustment_data["recommendations"],
+            "red_flags" => adjustment_data["red_flags"],
+            "original_distance" => original_distance,
+            "original_duration" => original_duration
+          }
+        })
+
+        if workout.save
+          adjusted_count += 1
+        end
       end
 
-      workout.duration = [ (workout.duration * factor).to_i, 600 ].max if workout.duration.present?
-
-      workout.workout_details = (workout.workout_details || {}).merge({
-        "ai_adjustment" => {
-          "adjusted_at" => Time.current.iso8601,
-          "type" => adjustment_type,
-          "percentage" => (percentage * 100).round(1),
-          "reason" => adjustment_data["analysis"],
-          "recommendations" => adjustment_data["recommendations"],
-          "red_flags" => adjustment_data["red_flags"],
-          "original_distance" => original_distance,
-          "original_duration" => original_duration
-        }
-      })
-
-      if workout.save
-        adjusted_count += 1
-      end
+      @training_plan.update!(last_adjusted_week: current_week)
     end
 
     Rails.logger.info "=== AI ADJUSTMENT APPLIED ==="
@@ -171,6 +183,27 @@ class AiAdjustmentService
     end
 
     true
+  end
+
+  # A IA so decide a direcao e a intensidade; o limite por direcao e nosso.
+  # "maintain" (ou qualquer tipo desconhecido) nao move nada.
+  def clamped_percentage(adjustment_type, requested)
+    limit = case adjustment_type
+    when "increase" then MAX_INCREASE_PERCENT
+    when "decrease" then MAX_DECREASE_PERCENT
+    else 0
+    end
+
+    requested.to_f.abs.clamp(0, limit) / 100.0
+  end
+
+  # O teto de duracao so impede o aumento de passar dele: um treino que ja
+  # estava acima (o validador nao amarra duracao ao teto da semana) nunca e
+  # reduzido por causa de um aumento.
+  def adjusted_duration(workout, factor)
+    ceiling = [ @envelope.max_duration_seconds_for_week(workout.week_number), workout.duration ].max
+
+    [ [ (workout.duration * factor).to_i, 600 ].max, ceiling ].min
   end
 
   def adjustment_factor(adjustment_type, percentage)
