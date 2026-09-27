@@ -60,7 +60,6 @@ Rails.application.routes.draw do
 
   get "training", to: "training#index", as: :training_index
   post "training/generate", to: "training#generate", as: :generate_training
-  get "training/:id", to: "training#show", as: :training_show
   post "training/:id/complete", to: "training#complete", as: :training_complete
   post "training/:id/feedback", to: "training#feedback", as: :training_feedback
 

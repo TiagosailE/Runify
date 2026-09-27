@@ -1,6 +1,6 @@
 class TrainingController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_workout, only: [ :show, :complete, :feedback ]
+  before_action :set_workout, only: [ :complete, :feedback ]
 
   def index
     @training_plan = current_user.active_training_plan
@@ -23,9 +23,6 @@ class TrainingController < ApplicationController
     Rails.logger.error "Erro ao gerar plano de treino: #{e.class} - #{e.message}"
     flash[:toast] = { message: "Erro ao gerar plano. Tente novamente.", type: "error" }
     redirect_to training_index_path
-  end
-
-  def show
   end
 
   def complete

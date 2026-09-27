@@ -47,11 +47,6 @@ class TrainingControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "detalhe interno que nao pode vazar", flash[:toast][:message]
   end
 
-  test "should get show" do
-    get training_show_url(workouts(:one))
-    assert_response :success
-  end
-
   test "should get complete" do
     post training_complete_url(workouts(:one))
     assert_response :success

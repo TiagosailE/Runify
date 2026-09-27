@@ -21,10 +21,8 @@ class ActivitiesController < ApplicationController
     @activity.name = @activity.name.presence || "Corrida"
 
     if @activity.save
-      if defined?(XpService)
-        XpService.update_streak(current_user)
-        XpService.award_xp(current_user, @activity)
-      end
+      XpService.update_streak(current_user)
+      XpService.award_xp(current_user, @activity)
       flash[:toast] = { message: "Atividade registrada!", type: "success" }
       redirect_to history_path
     else
