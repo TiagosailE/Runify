@@ -50,6 +50,7 @@ class NotificationService
     week_workouts = training_plan.workouts_for_week(current_week)
     completed = week_workouts.count(&:completed?)
     total = week_workouts.count
+    return if total.zero?
 
     motivation = if completed >= total * 0.8
       "Você está incrível!"

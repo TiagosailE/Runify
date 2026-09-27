@@ -1,6 +1,8 @@
 require "test_helper"
 
 class NotificationServiceTest < ActiveSupport::TestCase
+  include ActiveSupport::Testing::TimeHelpers
+
   setup do
     @user = users(:one)
     @user.update!(notifications_enabled: true)
@@ -66,6 +68,26 @@ class NotificationServiceTest < ActiveSupport::TestCase
     assert_no_difference -> { @user.notifications.count } do
       NotificationService.send_workout_reminder(@user, @continuous)
       NotificationService.send_evening_workout_reminder(@user, @continuous)
+    end
+  end
+
+  test "resumo semanal conta os treinos da semana" do
+    @continuous.update!(status: "completed")
+
+    travel_to Date.new(2026, 9, 20) do # domingo da semana 1
+      NotificationService.send_weekly_summary(@user)
+    end
+
+    assert_match(/1 de 2 treinos/, @user.notifications.last.message)
+  end
+
+  # Plano gerado no fim de semana nasce com a semana 1 vazia: "0 de 0" com
+  # "Voce esta incrivel!" seria mentira.
+  test "resumo semanal nao sai numa semana sem treino" do
+    travel_to Date.new(2026, 9, 27) do # domingo da semana 3, sem treinos
+      assert_no_difference -> { @user.notifications.count } do
+        NotificationService.send_weekly_summary(@user)
+      end
     end
   end
 
