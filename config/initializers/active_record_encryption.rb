@@ -2,9 +2,14 @@
 # ja usa hoje, derivados do secret_key_base antigo) para nao invalidar dado ja
 # cifrado. Dev/test continuam derivando do secret_key_base local -- nao tem
 # master key no CI, e nada ali precisa sobreviver a uma troca de chave.
+#
+# O build da imagem (`SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile`) roda
+# em producao sem master key e nunca toca dado cifrado: nele as chaves saem do
+# secret_key_base descartavel, senao o build quebra. Essa variavel nunca pode
+# estar ligada no runtime.
 module ActiveRecordEncryptionKeys
-  def self.configure!(production: Rails.env.production?)
-    production ? configure_from_credentials! : configure_from_secret_key_base!
+  def self.configure!(production: Rails.env.production?, build: ENV["SECRET_KEY_BASE_DUMMY"].present?)
+    production && !build ? configure_from_credentials! : configure_from_secret_key_base!
   end
 
   HEX_32_BYTES = /\A[0-9a-f]{64}\z/i

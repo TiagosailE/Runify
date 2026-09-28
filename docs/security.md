@@ -360,6 +360,13 @@ alguma chave no `credentials`: erro claro no boot, não silêncio. Dev/test
 continuam derivando do `secret_key_base` local, sem depender de master key
 (o CI não tem uma).
 
+O build da imagem (`SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile`, no
+`Dockerfile`) também roda em produção e sem master key, então nele o
+initializer usa a derivação do `secret_key_base` descartável em vez de exigir o
+`credentials`: o precompile de assets não lê nem grava dado cifrado. Essa
+variável só existe no build; no runtime ela não pode estar definida, senão a
+app subiria com chaves aleatórias.
+
 `StravaIntegration#access_token` também deixou de ser `deterministic: true`
 (existia só pra permitir busca por igualdade no SQL, que nada no código faz,
 conferido por grep). Virou `previous: { deterministic: true }`: valores
