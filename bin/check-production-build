@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Repete o passo de build do Dockerfile: assets:precompile em producao, sem
+# master key. Roda numa copia dos arquivos versionados (config/master.key fica
+# no .gitignore e portanto nao vai junto), entao nao depende do que ha no
+# diretorio de trabalho.
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+cd "$root"
+git ls-files -z | tar --null --ignore-failed-read -T - -cf - | tar -x -C "$tmp"
+cd "$tmp"
+BUNDLE_GEMFILE="$tmp/Gemfile" BUNDLE_WITHOUT=development RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 \
+  bin/rails assets:precompile
