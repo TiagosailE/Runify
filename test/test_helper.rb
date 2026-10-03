@@ -5,6 +5,10 @@ SimpleCov.start "rails" do
 end
 
 ENV["RAILS_ENV"] ||= "test"
+# Valores fixos de teste (nao sao segredos): a suite nao pode depender do .env
+# local, que nao existe no GitHub Actions.
+ENV["STRAVA_CLIENT_ID"] = "123456"
+ENV["STRAVA_CLIENT_SECRET"] = "segredo-de-teste"
 require_relative "../config/environment"
 require "rails/test_help"
 require "minitest/mock"
