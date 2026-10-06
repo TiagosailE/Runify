@@ -39,6 +39,22 @@ jobs:
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
+  production_build:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_WITHOUT: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Precompilar assets em producao sem master key (como o Dockerfile)
+        run: bin/check-production-build
+
   lint:
     runs-on: ubuntu-latest
     env:
