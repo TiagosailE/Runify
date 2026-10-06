@@ -18,7 +18,7 @@ gem "tailwindcss-rails"
 
 gem "jbuilder"
 
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.1"
 
 gem "aws-sdk-s3", require: false
 
