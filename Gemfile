@@ -39,7 +39,7 @@ gem "thruster", require: false
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
-  gem "minitest", "< 6"
+  gem "minitest", "< 7"
 
   gem "bundler-audit", require: false
 
