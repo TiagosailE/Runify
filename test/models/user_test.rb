@@ -15,12 +15,12 @@ class UserTest < ActiveSupport::TestCase
     )
   end
 
-  test "rejeita senha com 11 caracteres e aceita com 12" do
-    curta = build_user(password: "a" * 11, password_confirmation: "a" * 11)
+  test "rejeita senha com 5 caracteres e aceita com 6" do
+    curta = build_user(password: "a" * 5, password_confirmation: "a" * 5)
     assert_not curta.valid?
-    assert_includes curta.errors[:password], "é muito curto (mínimo: 12 caracteres)"
+    assert_includes curta.errors[:password], "é muito curto (mínimo: 6 caracteres)"
 
-    valida = build_user(password: "a" * 12, password_confirmation: "a" * 12)
+    valida = build_user(password: "a" * 6, password_confirmation: "a" * 6)
     assert valida.valid?, valida.errors.full_messages.inspect
   end
 
