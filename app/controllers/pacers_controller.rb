@@ -35,7 +35,7 @@ class PacersController < ApplicationController
   end
 
   def join_by_code
-    squad = Squad.find_by(squad_code: params[:code])
+    squad = Squad.find_by(squad_code: params[:code].to_s.strip.upcase)
 
     if squad.nil?
       redirect_to pacers_path, alert: "Código inválido"
