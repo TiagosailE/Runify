@@ -62,6 +62,13 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "join_by_code aceita codigo em minusculas e com espacos nas pontas" do
+    post join_by_code_pacers_url, params: { code: "  #{squads(:two).squad_code.downcase} " }
+
+    assert_redirected_to pacer_path(squads(:two))
+    assert squads(:two).users.include?(users(:one))
+  end
+
   test "join_by_code rejeita codigo invalido" do
     post join_by_code_pacers_url, params: { code: "codigo-que-nao-existe" }
 
