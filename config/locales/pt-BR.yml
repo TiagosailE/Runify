@@ -47,8 +47,8 @@ pt-BR:
               taken: "já está cadastrado. Entre na sua conta ou use \"Esqueci minha senha\""
             password:
               too_short: "é muito curta: use pelo menos %{count} caracteres"
-            reset_password_token:
-              invalid: "não é válido ou já foi usado. Peça um novo"
+            reset_code:
+              invalid: "inválido ou expirado. Confira o e-mail ou peça um código novo"
       messages:
         record_invalid: "A validação falhou: %{errors}"
         restrict_dependent_destroy:
@@ -83,7 +83,7 @@ pt-BR:
         running_experience: "Experiência com corrida"
         running_experience_years: "Anos de experiência com corrida"
         terms_accepted: "Aceite dos termos"
-        reset_password_token: "Link de redefinição"
+        reset_code: "Código"
       activity:
         name: "Nome"
         distance: "Distância"

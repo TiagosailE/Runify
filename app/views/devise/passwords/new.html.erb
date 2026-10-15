@@ -4,7 +4,7 @@
     <div class="text-left space-y-3">
       <h2 class="text-4xl font-bold text-gray-900">Esqueceu sua senha?</h2>
       <p class="text-base text-gray-600">
-        Informe o e-mail da sua conta. Se ela existir, enviaremos um link para criar uma senha nova.
+        Informe o e-mail da sua conta. Se ela existir, enviaremos um código de 6 dígitos para criar uma senha nova.
       </p>
     </div>
 
@@ -32,14 +32,16 @@
       </div>
 
       <div class="pt-2">
-        <%= f.submit "Enviar instruções",
+        <%= f.submit "Enviar código",
             class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
       </div>
     <% end %>
 
-    <div class="text-center">
+    <div class="text-center space-y-3">
+      <%= link_to "Já tenho um código", edit_password_path(resource_name),
+          class: "block text-base text-teal-500 hover:text-teal-600 font-medium" %>
       <%= link_to "Voltar para o login", new_session_path(resource_name),
-          class: "text-base text-teal-500 hover:text-teal-600 font-medium" %>
+          class: "block text-base text-teal-500 hover:text-teal-600 font-medium" %>
     </div>
 
   </div>

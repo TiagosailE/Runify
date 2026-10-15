@@ -143,7 +143,9 @@ Não havia nenhum. `rate_limit` nativo do Rails 8 (sem gem nova) entrou em:
 
 - Login (`Users::SessionsController`): 10 tentativas / 3 minutos.
 - Cadastro (`Users::RegistrationsController`): 5 / hora.
-- Recuperação de senha (`Users::PasswordsController`): 5 / 15 minutos.
+- Recuperação de senha (`Users::PasswordsController`): pedido de código, 5 / 15
+  minutos por IP e 5 / hora por e-mail; conferência do código, 10 / 15 minutos
+  por IP.
 - Criação de atividade (`ActivitiesController`): 20 / hora, por usuário
   (não por IP) — protege contra farm de XP e bloat de banco via o
   formulário de registro manual, não contra força bruta de credencial.
@@ -307,7 +309,7 @@ Todas reversíveis, nenhuma destrutiva:
 
 | Ação | O que faz | Por que é segura |
 |---|---|---|
-| Enviar redefinição de senha | `send_reset_password_instructions` | O e-mail vai pro próprio usuário; o admin nunca vê nem define a senha. Falha de entrega vira aviso na tela, não erro 500. |
+| Enviar redefinição de senha | `send_password_reset_code` | O e-mail vai pro próprio usuário; o admin nunca vê nem define a senha. Falha de entrega vira aviso na tela, não erro 500. |
 | Cancelar plano ativo | `status: "cancelled"` | Não apaga nada; devolve ao usuário a tela de gerar plano novo e preserva o histórico. |
 | Desconectar Strava | `destroy` da `StravaIntegration` | Mesmo caminho que o botão "Desconectar" da tela do próprio usuário; ele reconecta sozinho. |
 
@@ -376,18 +378,25 @@ correlação por texto cifrado repetido.
 
 ## 9. Recuperação de senha e mensagens de login (2026-10-15)
 
-- **Link de redefinição** (`Users::PasswordsController`, módulo
-  `:recoverable` do Devise): o token vai por e-mail, o banco guarda só o
-  digest, vale por 1 hora (`config.reset_password_within`) e é apagado no
-  primeiro uso. Rate limit de 5 pedidos a cada 15 minutos.
-- **Conta criada pelo Google** (`provider` presente) não recebe link: recebe
+- **Código de redefinição** (`Users::PasswordsController`,
+  `User#send_password_reset_code`): 6 dígitos por e-mail, no lugar do link do
+  Devise. O banco guarda só o HMAC do código (chave derivada do
+  `secret_key_base`, preso ao id do usuário), vale por 15 minutos e é apagado
+  no primeiro uso. Como o código tem só 1 milhão de combinações, ele cai depois
+  de 5 tentativas erradas (contadas com lock, para tentativas em paralelo não
+  passarem do limite) e pedir um código novo invalida o anterior. Com o limite
+  de 5 códigos por hora por e-mail, quem tenta adivinhar fica em no máximo 25
+  chutes por hora por conta, e o dono recebe cada código pedido. Código
+  errado, vencido, de conta sem senha ou de e-mail sem conta dão a mesma
+  mensagem. O parâmetro `reset_code` é filtrado do log.
+- **Conta criada pelo Google** (`provider` presente) não recebe código: recebe
   `UserMailer#google_account_recovery`, que orienta a entrar com "Continuar
   com Google" e aponta a recuperação da própria conta Google. Limite
   conhecido: quem tinha senha e vinculou o Google depois também cai nesse
   caminho; continua entrando pelo Google.
 - **Pedido de recuperação não revela se a conta existe**: a resposta é sempre
-  "Se o e-mail estiver cadastrado, você receberá as instruções em alguns
-  minutos." Falha de entrega (a Resend recusar o remetente, por exemplo) vai
+  "Se o e-mail estiver cadastrado, você receberá um código de 6 dígitos em
+  alguns minutos.", seguida da tela do código. Falha de entrega (a Resend recusar o remetente, por exemplo) vai
   para o log e o Sentry, não para a tela.
 - **Login informa "conta não encontrada" e "senha incorreta" separadamente**,
   por decisão de produto (2026-10-15). Isso permite descobrir se um e-mail tem

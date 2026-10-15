@@ -221,7 +221,7 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to admin_user_path(@user)
     assert_equal "password_reset_sent", AdminAuditLog.newest_first.first.action
-    assert @user.reload.reset_password_token.present?
+    assert @user.reload.reset_password_code_digest.present?
   end
 
   test "redefinicao de senha pelo painel sai com o remetente do ApplicationMailer" do
@@ -239,7 +239,7 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     sign_in @admin
 
     broken = User.find(@user.id)
-    broken.define_singleton_method(:send_reset_password_instructions) do
+    broken.define_singleton_method(:send_password_reset_code) do
       raise StandardError, "Resend fora do ar"
     end
 

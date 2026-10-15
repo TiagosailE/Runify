@@ -82,6 +82,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes body, users(:one).encrypted_password
     assert_not_includes body, "encrypted_password"
     assert_not_includes body, "reset_password_token"
+    assert_not_includes body, "reset_password_code_digest"
   end
 
   test "delete_account com senha errada nao apaga a conta" do

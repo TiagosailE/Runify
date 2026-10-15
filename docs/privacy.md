@@ -83,7 +83,7 @@ internacional):
 |---|---|
 | Acesso | Perfil visível no app; `SettingsController#export_data` para cópia completa |
 | Correção | Editar perfil |
-| Portabilidade | `SettingsController#export_data` — JSON, exclui `encrypted_password`/`reset_password_token`/tokens do Strava de propósito (segredo operacional, não "dado sobre o titular") |
+| Portabilidade | `SettingsController#export_data`: JSON, exclui `encrypted_password`/`reset_password_token`/código de redefinição de senha/tokens do Strava de propósito (segredo operacional, não "dado sobre o titular") |
 | Eliminação | `SettingsController#delete_account` — já existia antes desta entrega, `current_user.destroy` de verdade, não soft-delete |
 | Revogação de consentimento | Excluir a conta (o núcleo do app depende da IA, então não há um "desligar IA e continuar usando" que faça sentido de produto) |
 

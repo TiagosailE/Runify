@@ -67,10 +67,10 @@ module Admin
     end
 
     def send_password_reset
-      @user.send_reset_password_instructions
+      @user.send_password_reset_code
       record_audit("password_reset_sent", @user)
 
-      redirect_to admin_user_path(@user), notice: "E-mail de redefinição de senha enviado."
+      redirect_to admin_user_path(@user), notice: "Código de redefinição de senha enviado por e-mail."
     rescue StandardError => e
       Rails.logger.error("[admin] falha ao enviar redefinição de senha para user #{@user.id}: #{e.class}: #{e.message}")
       redirect_to admin_user_path(@user), alert: "Não foi possível enviar o e-mail. Tente novamente."

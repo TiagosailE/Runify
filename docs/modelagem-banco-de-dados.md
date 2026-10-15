@@ -225,7 +225,7 @@ Isso permite saber quem criou/administra o grupo separadamente de quem apenas pa
 
 Autenticação gerenciada pelo **Devise** (módulos `database_authenticatable`, `registerable`, `recoverable`, `rememberable`, `validatable`).
 
-**Campos de identidade/autenticação:** `email` (único, NOT NULL), `encrypted_password`, `username`, `reset_password_token` (único), `remember_created_at`.
+**Campos de identidade/autenticação:** `email` (único, NOT NULL), `encrypted_password`, `username`, `reset_password_token` (único, do link do Devise, sem uso desde a troca pelo código), `reset_password_code_digest`, `reset_password_code_sent_at` e `reset_password_code_attempts` (código de 6 dígitos da recuperação de senha: HMAC, horário do envio e tentativas erradas), `remember_created_at`.
 
 **Campos de perfil físico/esportivo:**
 - `birth_date` — a idade é **calculada** (método `age`), não armazenada, evitando dado defasado.
