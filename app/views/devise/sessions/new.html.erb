@@ -9,7 +9,7 @@
 
     <%= form_for(resource, as: resource_name, url: session_path(resource_name), 
                  data: { turbo: false },
-                 html: { class: "mt-10 space-y-5" }) do |f| %>
+                 html: { class: "mt-10 space-y-5", novalidate: true }) do |f| %>
       
       <div class="space-y-5">
         
@@ -21,9 +21,11 @@
             <%= f.email_field :email, 
                 autofocus: true, 
                 autocomplete: "email",
-                placeholder: "Usuário",
-                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+                placeholder: "E-mail",
+                "aria-label": "E-mail",
+                class: "appearance-none block w-full px-4 py-4 pl-12 border #{field_border(resource, :email)} placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
           </div>
+          <%= field_error(resource, :email) %>
         </div>
 
         <div>
@@ -34,10 +36,17 @@
             <%= f.password_field :password, 
                 autocomplete: "current-password",
                 placeholder: "Senha",
-                class: "appearance-none block w-full px-4 py-4 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+                "aria-label": "Senha",
+                class: "appearance-none block w-full px-4 py-4 pl-12 border #{field_border(resource, :password)} placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
           </div>
+          <%= field_error(resource, :password) %>
         </div>
 
+      </div>
+
+      <div class="text-right">
+        <%= link_to "Esqueci minha senha", new_password_path(resource_name),
+            class: "text-sm text-gray-500 hover:text-teal-600 font-medium" %>
       </div>
 
       <div class="text-center pt-2">

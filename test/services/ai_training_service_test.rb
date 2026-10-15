@@ -276,6 +276,35 @@ class AiTrainingServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "historico enviado a IA identifica esteira, inclinacao e caminhada" do
+    runner.activities.create!(
+      name: "Esteira", sport_type: "Run", treadmill: true, incline_percent: 1, distance: 5000,
+      duration: 1800, moving_time: 1800, start_date: 1.day.ago, source: "manual"
+    )
+    runner.activities.create!(
+      name: "Caminhada", sport_type: "Walk", distance: 4000, duration: 2700,
+      moving_time: 2700, start_date: 2.days.ago, source: "manual"
+    )
+
+    summary = AiTrainingService.new(runner).send(:activities_summary)
+
+    assert_includes summary, "corrida na esteira, inclinação 1%"
+    assert_includes summary, "caminhada, 4.0km"
+    assert_includes summary, Activity::AI_CONTEXT_NOTE
+  end
+
+  test "historico so de corrida na rua nao leva a nota de esteira" do
+    runner.activities.create!(
+      name: "Rua", sport_type: "Run", distance: 5000, duration: 1800,
+      moving_time: 1800, start_date: 1.day.ago, source: "manual"
+    )
+
+    summary = AiTrainingService.new(runner).send(:activities_summary)
+
+    assert_includes summary, "corrida, 5.0km"
+    assert_not_includes summary, Activity::AI_CONTEXT_NOTE
+  end
+
   test "o envelope usado fica registrado junto do plano" do
     training_plan = stub_gemini(valid_plan_for(runner)) do
       AiTrainingService.new(runner).generate_training_plan

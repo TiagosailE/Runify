@@ -25,12 +25,30 @@ análise de dados do TG, nada no app se comporta diferente por causa dele.
 ## Registro manual de atividade
 
 `ActivitiesController` (`/activities/new`) cobre a entrada manual,
-terminando em `history_path`: formulário pede nome (opcional), data,
-distância (km) e tempo (h/m/s) separados. `sport_type` é sempre `"Run"` —
-o produto é focado em corrida, não expõe seletor de modalidade.
+terminando em `history_path`: formulário pede modalidade (corrida, `"Run"`,
+ou caminhada, `"Walk"`), local (rua ou esteira), nome (opcional), data,
+distância (km) e tempo (h/m/s) separados. Na esteira aparecem também
+velocidade média (km/h) e inclinação média (%, de 0 a 15): sem distância
+informada, ela é calculada como velocidade x tempo; com distância informada,
+a do painel prevalece. `activities.treadmill` e `activities.incline_percent`
+guardam isso. No Strava, `treadmill` vem de `trainer: true` ou de
+`sport_type: "VirtualRun"`.
 
 Tanto o registro manual quanto o Strava chamam `XpService.award_xp` na
-criação — a gamificação não distingue de onde a atividade veio.
+criação, para corrida e caminhada. Regras de pontuação:
+
+- corrida: 10 XP por km + bônus de ritmo (até 25) + bônus de streak;
+- caminhada: 5 XP por km + bônus de streak, sem bônus de ritmo;
+- esteira (corrida ou caminhada): km conta igual, sem bônus de ritmo. Na
+  esteira a correia impõe o ritmo e a distância é estimada pela máquina
+  (rotação da correia, sem GPS; erro de alguns por cento, maior se
+  descalibrada), então o ritmo calculado não serve para premiar.
+
+O streak conta dias com corrida ou caminhada. O ranking semanal de km do
+squad e o teto de segurança do `TrainingEnvelope` continuam só com corrida.
+A IA (geração e ajuste) recebe corridas e caminhadas, cada linha rotulada
+por `Activity#context_label` ("caminhada na esteira, inclinação 6%"), mais
+`Activity::AI_CONTEXT_NOTE` explicando como interpretar esteira e caminhada.
 
 ## Fluxo Strava
 

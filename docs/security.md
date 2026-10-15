@@ -373,3 +373,23 @@ conferido por grep). Virou `previous: { deterministic: true }`: valores
 antigos continuam legíveis, e qualquer `access_token` novo (a cada refresh
 de token) passa a usar o esquema não determinístico, mais seguro contra
 correlação por texto cifrado repetido.
+
+## 9. Recuperação de senha e mensagens de login (2026-10-15)
+
+- **Link de redefinição** (`Users::PasswordsController`, módulo
+  `:recoverable` do Devise): o token vai por e-mail, o banco guarda só o
+  digest, vale por 1 hora (`config.reset_password_within`) e é apagado no
+  primeiro uso. Rate limit de 5 pedidos a cada 15 minutos.
+- **Conta criada pelo Google** (`provider` presente) não recebe link: recebe
+  `UserMailer#google_account_recovery`, que orienta a entrar com "Continuar
+  com Google" e aponta a recuperação da própria conta Google. Limite
+  conhecido: quem tinha senha e vinculou o Google depois também cai nesse
+  caminho; continua entrando pelo Google.
+- **Pedido de recuperação não revela se a conta existe**: a resposta é sempre
+  "Se o e-mail estiver cadastrado, você receberá as instruções em alguns
+  minutos." Falha de entrega (a Resend recusar o remetente, por exemplo) vai
+  para o log e o Sentry, não para a tela.
+- **Login informa "conta não encontrada" e "senha incorreta" separadamente**,
+  por decisão de produto (2026-10-15). Isso permite descobrir se um e-mail tem
+  conta; o rate limit do login (10 tentativas a cada 3 minutos) limita a
+  varredura, e o cadastro já revelava o mesmo ("e-mail já cadastrado").

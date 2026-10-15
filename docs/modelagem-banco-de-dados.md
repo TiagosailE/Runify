@@ -100,6 +100,8 @@ erDiagram
         decimal average_speed
         string pace
         datetime start_date
+        boolean treadmill
+        decimal incline_percent
         jsonb activity_data
     }
 
@@ -262,7 +264,7 @@ Relação 1:1 com o usuário. Guarda as credenciais OAuth e o ciclo de vida do t
 
 Cada linha é um treino sincronizado. Exemplo clássico do híbrido **normalizado + JSONB**:
 
-- **Campos normalizados** (consultáveis/filtráveis): `name`, `sport_type`, `distance` (decimal 8,2), `duration`, `moving_time`, `average_speed` (decimal 5,2), `pace`, `start_date`.
+- **Campos normalizados** (consultáveis/filtráveis): `name`, `sport_type`, `distance` (decimal 8,2), `duration`, `moving_time`, `average_speed` (decimal 5,2), `pace`, `start_date`, `treadmill` (boolean, padrão `false`) e `incline_percent` (decimal 3,1, só na esteira).
 - **`activity_data` (jsonb)** — payload completo do Strava, preservado para auditoria/uso futuro sem inflar o esquema.
 - `strava_activity_id` — id do treino na origem.
 

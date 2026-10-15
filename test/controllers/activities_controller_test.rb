@@ -44,6 +44,8 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
+    assert_select "[data-field-error=distance]", text: "Distância deve ser maior que zero"
+    assert_select "input[name='activity[name]'][value='Sem distância']"
   end
 
   test "destroy removes the caller's activity" do
@@ -70,5 +72,73 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :not_found
+  end
+
+  test "registra caminhada na esteira com inclinacao" do
+    post activities_url, params: {
+      activity: { name: "", start_date: Date.current, sport_type: "Walk", treadmill: "1",
+                  distance_km: "4", incline_percent: "6", speed_kmh: "",
+                  duration_hours: "0", duration_minutes: "45", duration_seconds: "0" }
+    }
+
+    activity = users(:one).activities.order(:created_at).last
+    assert_redirected_to history_path
+    assert_equal "Walk", activity.sport_type
+    assert activity.treadmill?
+    assert_equal 6, activity.incline_percent
+    assert_equal 4000, activity.distance
+    assert_equal "Caminhada na esteira", activity.name
+  end
+
+  test "na esteira sem distancia, calcula a distancia pela velocidade media" do
+    post activities_url, params: {
+      activity: { start_date: Date.current, sport_type: "Run", treadmill: "1",
+                  distance_km: "", speed_kmh: "10", incline_percent: "1",
+                  duration_hours: "0", duration_minutes: "30", duration_seconds: "0" }
+    }
+
+    activity = users(:one).activities.order(:created_at).last
+    assert_equal 5000, activity.distance
+    assert_equal "Corrida na esteira", activity.name
+  end
+
+  test "distancia informada prevalece sobre a velocidade" do
+    post activities_url, params: {
+      activity: { start_date: Date.current, sport_type: "Run", treadmill: "1",
+                  distance_km: "5.3", speed_kmh: "10",
+                  duration_hours: "0", duration_minutes: "30", duration_seconds: "0" }
+    }
+
+    assert_equal 5300, users(:one).activities.order(:created_at).last.distance
+  end
+
+  test "na rua a inclinacao e a velocidade sao ignoradas" do
+    post activities_url, params: {
+      activity: { start_date: Date.current, sport_type: "Run", treadmill: "0",
+                  distance_km: "", speed_kmh: "10", incline_percent: "5",
+                  duration_hours: "0", duration_minutes: "30", duration_seconds: "0" }
+    }
+
+    assert_response :unprocessable_entity
+    assert_nil users(:one).activities.find_by(incline_percent: 5)
+  end
+
+  test "modalidade desconhecida vira corrida" do
+    post activities_url, params: {
+      activity: { start_date: Date.current, sport_type: "Ride", distance_km: "10",
+                  duration_hours: "0", duration_minutes: "30", duration_seconds: "0" }
+    }
+
+    assert_equal "Run", users(:one).activities.order(:created_at).last.sport_type
+  end
+
+  test "formulario oferece corrida, caminhada, rua e esteira" do
+    get new_activity_url
+
+    assert_select "input[type=radio][name='activity[sport_type]'][value=Run]"
+    assert_select "input[type=radio][name='activity[sport_type]'][value=Walk]"
+    assert_select "input[type=radio][name='activity[treadmill]'][value='1']"
+    assert_select "input[name='activity[incline_percent]']"
+    assert_select "input[name='activity[speed_kmh]']"
   end
 end

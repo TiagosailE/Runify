@@ -115,12 +115,14 @@ class AiTrainingService
   end
 
   def activities_summary
-    recent = @user.activities.runs.order(start_date: :desc).limit(10)
+    recent = @user.activities.runs_and_walks.order(start_date: :desc).limit(10)
     return "Nenhuma atividade registrada." if recent.empty?
 
-    recent.map do |activity|
-      "- #{activity.formatted_date}: #{activity.distance_km}km em #{activity.duration_formatted} (pace #{activity.pace_per_km})"
-    end.join("\n")
+    lines = recent.map do |activity|
+      "- #{activity.formatted_date}: #{activity.context_label}, #{activity.distance_km}km em #{activity.duration_formatted} (pace #{activity.pace_per_km})"
+    end
+    lines << Activity::AI_CONTEXT_NOTE if recent.any? { |activity| activity.treadmill? || activity.walk? }
+    lines.join("\n")
   end
 
   def rules

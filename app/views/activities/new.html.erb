@@ -1,3 +1,8 @@
+<% input_class = "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+<% option_class = "flex-1 flex items-center justify-center gap-2 py-3 px-3 border border-gray-300 dark:border-gray-600 rounded-2xl cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50 has-[:checked]:text-teal-700 dark:has-[:checked]:bg-teal-900/30 dark:has-[:checked]:text-teal-300" %>
+<% sport_type = params.dig(:activity, :sport_type).presence_in(Activity::MANUAL_SPORT_TYPES.keys) || "Run" %>
+<% treadmill = params.dig(:activity, :treadmill) == "1" %>
+
 <div class="min-h-screen bg-[#F5F5F5] dark:bg-gray-900 pb-24">
   <%= render "shared/header" %>
 
@@ -5,52 +10,110 @@
     <div class="mb-6">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Registrar atividade</h2>
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-        Sem Strava conectado? Registre a corrida manualmente.
+        Sem Strava conectado? Registre sua corrida ou caminhada manualmente.
       </p>
     </div>
 
-    <%= form_with url: activities_path, scope: :activity, method: :post, local: true, class: "space-y-5" do |f| %>
+    <%= form_with url: activities_path, scope: :activity, method: :post, local: true, class: "space-y-5", novalidate: true,
+                  data: { controller: "activity-form" } do |f| %>
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome (opcional)</label>
-        <%= f.text_field :name,
-            placeholder: "Ex: Corrida no parque",
-            class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Atividade</span>
+        <div class="flex gap-3">
+          <% Activity::MANUAL_SPORT_TYPES.each do |value, label| %>
+            <label class="<%= option_class %>">
+              <%= f.radio_button :sport_type, value, checked: sport_type == value, class: "sr-only" %>
+              <i class="fas <%= value == "Walk" ? "fa-walking" : "fa-running" %>"></i> <%= label %>
+            </label>
+          <% end %>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+          Caminhada vale metade dos pontos por km nos Pacers e mantém sua sequência de dias.
+        </p>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data</label>
-        <%= f.date_field :start_date,
-            value: Date.current,
-            class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Onde</span>
+        <div class="flex gap-3">
+          <label class="<%= option_class %>">
+            <%= f.radio_button :treadmill, "0", checked: !treadmill, class: "sr-only",
+                data: { activity_form_target: "treadmillInput", action: "activity-form#toggle" } %>
+            <i class="fas fa-tree"></i> Rua ou pista
+          </label>
+          <label class="<%= option_class %>">
+            <%= f.radio_button :treadmill, "1", checked: treadmill, class: "sr-only",
+                data: { activity_form_target: "treadmillInput", action: "activity-form#toggle" } %>
+            <i class="fas fa-dumbbell"></i> Esteira
+          </label>
+        </div>
+      </div>
+
+      <div data-activity-form-target="treadmillFields" class="<%= "hidden" unless treadmill %> rounded-2xl bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800 p-4 text-sm text-gray-700 dark:text-gray-300 space-y-2">
+        <p class="font-semibold text-teal-800 dark:text-teal-300"><i class="fas fa-info-circle mr-1"></i>Como preencher um treino na esteira</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Ao terminar, anote a distância e o tempo que aparecem no painel. Relógio no pulso costuma errar a distância na esteira.</li>
+          <li>Se o painel só mostra a velocidade, deixe a distância em branco e informe a velocidade média: a gente calcula.</li>
+          <li>Velocidade em km/h vira ritmo assim: 6 km/h = 10:00 min/km, 8 km/h = 7:30, 10 km/h = 6:00, 12 km/h = 5:00.</li>
+          <li>A distância da esteira pode variar alguns por cento, ainda mais se ela estiver descalibrada. Por isso esteira não ganha bônus de ritmo nos Pacers.</li>
+          <li>Inclinação deixa o treino mais pesado. Em ritmo mais forte, 1% aproxima o esforço da rua (compensa a falta de vento).</li>
+        </ul>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distância (km)</label>
-        <%= f.number_field :distance_km,
-            step: 0.01, min: 0.01,
-            placeholder: "Ex: 5.2",
-            class: "appearance-none block w-full px-4 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+        <label for="activity_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome (opcional)</label>
+        <%= f.text_field :name, value: params.dig(:activity, :name), placeholder: "Ex: Corrida no parque", class: input_class %>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo</label>
+        <label for="activity_start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Data</label>
+        <%= f.date_field :start_date, value: params.dig(:activity, :start_date).presence || Date.current, class: input_class %>
+      </div>
+
+      <div>
+        <label for="activity_distance_km" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distância (km)</label>
+        <%= f.number_field :distance_km, value: params.dig(:activity, :distance_km),
+            step: 0.01, min: 0.01, placeholder: "Ex: 5.2", class: input_class %>
+        <%= field_error(@activity, :distance) %>
+      </div>
+
+      <div data-activity-form-target="treadmillFields" class="<%= "hidden" unless treadmill %> grid grid-cols-2 gap-3">
+        <div>
+          <label for="activity_speed_kmh" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Velocidade média (km/h)</label>
+          <%= f.number_field :speed_kmh, value: params.dig(:activity, :speed_kmh),
+              step: 0.1, min: 1, max: 25, placeholder: "Ex: 9.5", class: input_class %>
+          <p class="text-xs text-gray-400 mt-1">Opcional se informou a distância</p>
+        </div>
+        <div>
+          <label for="activity_incline_percent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Inclinação média (%)</label>
+          <%= f.number_field :incline_percent, value: params.dig(:activity, :incline_percent),
+              step: 0.5, min: 0, max: Activity::MAX_INCLINE_PERCENT, placeholder: "Ex: 1", class: input_class %>
+          <p class="text-xs text-gray-400 mt-1">0 se ficou plana</p>
+          <%= field_error(@activity, :incline_percent) %>
+        </div>
+      </div>
+
+      <div>
+        <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo</span>
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <%= f.number_field :duration_hours, min: 0, placeholder: "h",
+            <%= f.number_field :duration_hours, value: params.dig(:activity, :duration_hours), min: 0, placeholder: "h",
+                "aria-label": "Horas",
                 class: "appearance-none block w-full px-3 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-base" %>
             <p class="text-xs text-gray-400 text-center mt-1">horas</p>
           </div>
           <div>
-            <%= f.number_field :duration_minutes, min: 0, max: 59, placeholder: "m",
+            <%= f.number_field :duration_minutes, value: params.dig(:activity, :duration_minutes), min: 0, max: 59, placeholder: "m",
+                "aria-label": "Minutos",
                 class: "appearance-none block w-full px-3 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-base" %>
             <p class="text-xs text-gray-400 text-center mt-1">min</p>
           </div>
           <div>
-            <%= f.number_field :duration_seconds, min: 0, max: 59, placeholder: "s",
+            <%= f.number_field :duration_seconds, value: params.dig(:activity, :duration_seconds), min: 0, max: 59, placeholder: "s",
+                "aria-label": "Segundos",
                 class: "appearance-none block w-full px-3 py-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-center text-base" %>
             <p class="text-xs text-gray-400 text-center mt-1">seg</p>
           </div>
         </div>
+        <%= field_error(@activity, :duration) %>
       </div>
 
       <div class="pt-4">

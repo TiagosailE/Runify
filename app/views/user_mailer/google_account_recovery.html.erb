@@ -1,0 +1,11 @@
+<p>Olá, <%= @user.username.presence || "corredor" %>!</p>
+
+<p>Recebemos um pedido para redefinir a senha da sua conta no Runify.</p>
+
+<p>Sua conta está ligada ao Google, então você não precisa de uma senha do Runify: na tela de login, toque em <strong>Continuar com Google</strong> e use a conta <%= @user.email %>.</p>
+
+<p><%= link_to "Ir para a tela de login", new_user_session_url %></p>
+
+<p>Se você não lembra a senha da sua conta Google, recupere o acesso pelo próprio Google: <%= link_to @google_recovery_url, @google_recovery_url %></p>
+
+<p>Se não foi você que pediu, ignore este e-mail. Nada foi alterado na sua conta.</p>

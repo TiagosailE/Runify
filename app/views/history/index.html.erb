@@ -111,6 +111,9 @@
                 <div class="flex-1">
                   <p class="text-xs text-gray-500 dark:text-gray-400 mb-1"><%= activity.start_date&.strftime('%d/%m/%Y') %></p>
                   <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-2"><%= activity.name %></h3>
+                  <% if activity.walk? || activity.treadmill? %>
+                    <p class="text-xs font-medium text-teal-600 dark:text-teal-400 mb-2"><%= activity.context_label.capitalize %></p>
+                  <% end %>
                   <div class="flex gap-4 text-xs">
                     <span class="text-gray-600 dark:text-gray-400"><i class="fas fa-route mr-1 text-teal-500"></i><%= activity.distance_km %>km</span>
                     <span class="text-gray-600 dark:text-gray-400"><i class="fas fa-clock mr-1 text-orange-500"></i><%= activity.duration_formatted %></span>

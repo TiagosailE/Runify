@@ -29,6 +29,7 @@ class Users::GoogleSignupsController < ApplicationController
       redirect_to after_sign_in_path_for(user)
     else
       @user = user
+      flash.now[:toast] = { message: user.errors.full_messages.first, type: "error" }
       render :new, status: :unprocessable_entity
     end
   end

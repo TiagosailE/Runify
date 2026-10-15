@@ -37,19 +37,15 @@
 
     <%= yield %>
 
-    <% if flash[:toast].present? %>
+    <% toasts = flash_toasts %>
+    <% if toasts.any? %>
       <%= javascript_tag nonce: true do %>
         (function() {
-          var message = '<%= j (flash[:toast][:message] || flash[:toast]["message"]) %>';
-          var type = '<%= (flash[:toast][:type] || flash[:toast]["type"] || "info") %>';
+          var toasts = <%= raw json_escape(toasts.to_json) %>;
           if (typeof window.showToast === 'function') {
-            window.showToast(message, type);
+            toasts.forEach(function(toast) { window.showToast(toast.message, toast.type); });
           } else {
-            setTimeout(function() {
-              if (typeof window.showToast === 'function') {
-                window.showToast(message, type);
-              }
-            }, 100);
+            window.pendingToasts = (window.pendingToasts || []).concat(toasts);
           }
         })();
       <% end %>

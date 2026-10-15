@@ -28,6 +28,22 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  test "criar Pacer sem nome mostra o erro no campo" do
+    assert_no_difference "Squad.count" do
+      post pacers_url, params: { squad: { name: "", description: "" } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select "[data-field-error=name]", text: "Nome não pode ficar em branco"
+  end
+
+  test "entrar com codigo vazio pede o codigo" do
+    post join_by_code_pacers_url, params: { code: "  " }
+
+    assert_redirected_to pacers_path
+    assert_equal "Digite o código do Pacer para entrar.", flash[:alert]
+  end
+
   test "should get show" do
     get pacer_url(squads(:one))
     assert_response :success
@@ -73,7 +89,7 @@ class PacersControllerTest < ActionDispatch::IntegrationTest
     post join_by_code_pacers_url, params: { code: "codigo-que-nao-existe" }
 
     assert_redirected_to pacers_path
-    assert_equal "Código inválido", flash[:alert]
+    assert_equal "Código inválido. Confira com quem te convidou.", flash[:alert]
   end
 
   test "should get leave" do

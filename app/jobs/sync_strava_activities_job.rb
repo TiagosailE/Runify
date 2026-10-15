@@ -31,6 +31,7 @@ class SyncStravaActivitiesJob < ApplicationJob
       activity.assign_attributes(
         name: strava_activity.name,
         sport_type: strava_activity.sport_type,
+        treadmill: strava_activity.trainer == true || strava_activity.sport_type == "VirtualRun",
         distance: strava_activity.distance,
         duration: strava_activity.elapsed_time,
         moving_time: strava_activity.moving_time,
@@ -42,7 +43,7 @@ class SyncStravaActivitiesJob < ApplicationJob
 
       if activity.save
         if is_new
-          if activity.run?
+          if activity.run? || activity.walk?
             XpService.update_streak(user)
             XpService.award_xp(user, activity)
           end

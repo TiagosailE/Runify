@@ -9,10 +9,10 @@ pt-BR:
     failure:
       already_authenticated: "Você já está autenticado."
       inactive: "Sua conta ainda não foi ativada."
-      invalid: "%{authentication_keys} ou senha inválidos."
+      invalid: "Senha incorreta. Se você criou a conta com o Google, use \"Continuar com Google\"."
       locked: "Sua conta está bloqueada."
       last_attempt: "Você tem mais uma tentativa antes que sua conta seja bloqueada."
-      not_found_in_database: "%{authentication_keys} ou senha inválidos."
+      not_found_in_database: "Não encontramos uma conta com este e-mail. Confira o endereço ou crie uma conta."
       timeout: "Sua sessão expirou. Faça login novamente para continuar."
       unauthenticated: "Você precisa fazer login ou se cadastrar antes de continuar."
       unconfirmed: "Você precisa confirmar seu e-mail antes de continuar."
@@ -46,7 +46,7 @@ pt-BR:
       updated: "Sua conta foi atualizada com sucesso."
       updated_but_not_signed_in: "Sua conta foi atualizada com sucesso, mas como sua senha foi alterada, você precisa fazer login novamente."
     sessions:
-      signed_in: "Logado com sucesso."
+      signed_in: "Login realizado com sucesso."
       signed_out: "Você saiu com sucesso."
       already_signed_out: "Você já tinha saído."
     unlocks:

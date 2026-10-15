@@ -18,7 +18,7 @@ class UserTest < ActiveSupport::TestCase
   test "rejeita senha com 5 caracteres e aceita com 6" do
     curta = build_user(password: "a" * 5, password_confirmation: "a" * 5)
     assert_not curta.valid?
-    assert_includes curta.errors[:password], "é muito curto (mínimo: 6 caracteres)"
+    assert_includes curta.errors[:password], "é muito curta: use pelo menos 6 caracteres"
 
     valida = build_user(password: "a" * 6, password_confirmation: "a" * 6)
     assert valida.valid?, valida.errors.full_messages.inspect
