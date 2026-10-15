@@ -32,6 +32,8 @@ class User < ApplicationRecord
   MAX_WEEKLY_MILEAGE_KM = 300
   AVATAR_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
   AVATAR_MAX_SIZE = 5.megabytes
+  PASSWORD_RESET_CODE_TTL = 15.minutes
+  PASSWORD_RESET_CODE_MAX_ATTEMPTS = 5
 
   # Minimo 18 anos: consentimento parental (LGPD Art. 14) para menores nao
   # esta implementado.
@@ -177,7 +179,69 @@ class User < ApplicationRecord
     (1000.0 / (avg_speed * 60)).round(2)
   end
 
+  # Recuperacao de senha por codigo de 6 digitos, no lugar do link do Devise.
+  # O banco guarda so o HMAC do codigo, preso ao id do usuario. Vale por 15
+  # minutos e cai depois de 5 tentativas erradas, o que segura o chute (o
+  # codigo tem so 1 milhao de combinacoes).
+  attr_accessor :reset_code
+
+  def send_password_reset_code
+    code = SecureRandom.random_number(1_000_000).to_s.rjust(6, "0")
+    update_columns(
+      reset_password_code_digest: password_reset_code_digest(code),
+      reset_password_code_sent_at: Time.current,
+      reset_password_code_attempts: 0
+    )
+    UserMailer.password_reset_code(self, code).deliver_now
+    code
+  end
+
+  # Codigo errado, vencido ou ja usado devolve false com o erro em :reset_code.
+  # Codigo certo com senha invalida devolve false sem gastar o codigo.
+  def reset_password_with_code(code, new_password, new_password_confirmation)
+    unless consume_password_reset_code_attempt(code)
+      errors.add(:reset_code, :invalid)
+      return false
+    end
+
+    if new_password.blank?
+      errors.add(:password, :blank)
+      return false
+    end
+
+    self.password = new_password
+    self.password_confirmation = new_password_confirmation
+    self.reset_password_code_digest = nil
+    self.reset_password_code_sent_at = nil
+    self.reset_password_code_attempts = 0
+    save
+  end
+
   private
+
+  # with_lock: tentativas em paralelo nao passam do limite.
+  def consume_password_reset_code_attempt(code)
+    with_lock do
+      next false if reset_password_code_digest.blank? || reset_password_code_sent_at < PASSWORD_RESET_CODE_TTL.ago
+
+      if ActiveSupport::SecurityUtils.secure_compare(reset_password_code_digest, password_reset_code_digest(code))
+        next true
+      end
+
+      attempts = reset_password_code_attempts + 1
+      if attempts >= PASSWORD_RESET_CODE_MAX_ATTEMPTS
+        update_columns(reset_password_code_digest: nil, reset_password_code_sent_at: nil, reset_password_code_attempts: 0)
+      else
+        update_columns(reset_password_code_attempts: attempts)
+      end
+      false
+    end
+  end
+
+  def password_reset_code_digest(code)
+    key = Rails.application.key_generator.generate_key("password reset code", 32)
+    OpenSSL::HMAC.hexdigest("SHA256", key, "#{id}:#{code}")
+  end
 
   def record_terms_acceptance
     self.terms_accepted_at = Time.current

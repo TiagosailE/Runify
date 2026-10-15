@@ -10,8 +10,8 @@ class DeviseMailerTest < ActionMailer::TestCase
     assert_equal ApplicationMailer.default_params[:from], Devise.mailer_sender
   end
 
-  test "e-mail de redefinicao de senha do Devise sai com o mesmo remetente do ApplicationMailer" do
-    mail = Devise::Mailer.reset_password_instructions(users(:one), "token-de-teste")
+  test "e-mail com o codigo de redefinicao de senha sai com o mesmo remetente do ApplicationMailer" do
+    mail = UserMailer.password_reset_code(users(:one), "123456")
     expected = Mail::Address.new(ApplicationMailer.default_params[:from])
 
     assert_equal [ expected.address ], mail.from

@@ -1,22 +1,51 @@
+<% input_class = "appearance-none block w-full px-4 py-4 pl-12 border placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+
 <div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] px-6 py-12">
   <div class="w-full max-w-sm space-y-8">
 
     <div class="text-left space-y-3">
       <h2 class="text-4xl font-bold text-gray-900">Nova senha</h2>
-      <p class="text-base text-gray-600">Escolha a senha que você vai usar para entrar no Runify.</p>
+      <p class="text-base text-gray-600">
+        Digite o código de 6 dígitos que enviamos para o seu e-mail e escolha a senha nova.
+        O código vale por <%= User::PASSWORD_RESET_CODE_TTL.in_minutes.to_i %> minutos.
+      </p>
     </div>
 
     <%= form_for(resource, as: resource_name, url: password_path(resource_name),
                  data: { turbo: false },
                  html: { method: :put, class: "space-y-5", novalidate: true }) do |f| %>
-      <%= f.hidden_field :reset_password_token %>
 
-      <% if resource.errors.include?(:reset_password_token) %>
-        <div class="rounded-2xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">
-          <%= resource.errors.full_messages_for(:reset_password_token).first %>.
-          <%= link_to "Pedir um novo link", new_password_path(resource_name), class: "font-semibold underline" %>
+      <div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-envelope text-gray-400"></i>
+          </div>
+          <%= f.email_field :email,
+              autocomplete: "email",
+              placeholder: "E-mail",
+              "aria-label": "E-mail",
+              class: "#{input_class} #{field_border(resource, :email)}" %>
         </div>
-      <% end %>
+        <%= field_error(resource, :email) %>
+      </div>
+
+      <div>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-key text-gray-400"></i>
+          </div>
+          <%= f.text_field :reset_code,
+              value: params.dig(:user, :reset_code),
+              autofocus: true,
+              autocomplete: "one-time-code",
+              inputmode: "numeric",
+              maxlength: 6,
+              placeholder: "Código de 6 dígitos",
+              "aria-label": "Código de 6 dígitos",
+              class: "#{input_class} tracking-widest #{field_border(resource, :reset_code)}" %>
+        </div>
+        <%= field_error(resource, :reset_code) %>
+      </div>
 
       <div>
         <div class="relative">
@@ -24,11 +53,10 @@
             <i class="fas fa-lock text-gray-400"></i>
           </div>
           <%= f.password_field :password,
-              autofocus: true,
               autocomplete: "new-password",
               placeholder: "Nova senha",
               "aria-label": "Nova senha",
-              class: "appearance-none block w-full px-4 py-4 pl-12 border #{field_border(resource, :password)} placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+              class: "#{input_class} #{field_border(resource, :password)}" %>
         </div>
         <%= field_error(resource, :password) %>
         <% if @minimum_password_length %>
@@ -45,7 +73,7 @@
               autocomplete: "new-password",
               placeholder: "Confirmar nova senha",
               "aria-label": "Confirmar nova senha",
-              class: "appearance-none block w-full px-4 py-4 pl-12 border #{field_border(resource, :password_confirmation)} placeholder-gray-400 text-gray-900 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base" %>
+              class: "#{input_class} #{field_border(resource, :password_confirmation)}" %>
         </div>
         <%= field_error(resource, :password_confirmation) %>
       </div>
@@ -55,6 +83,13 @@
             class: "w-full flex justify-center py-5 px-4 border border-transparent text-base font-semibold rounded-2xl text-white bg-teal-500 hover:bg-teal-600 focus:outline-none transition-all duration-200 shadow-lg cursor-pointer" %>
       </div>
     <% end %>
+
+    <div class="text-center space-y-3">
+      <%= link_to "Não recebeu? Pedir um código novo", new_password_path(resource_name),
+          class: "block text-base text-teal-500 hover:text-teal-600 font-medium" %>
+      <%= link_to "Voltar para o login", new_session_path(resource_name),
+          class: "block text-base text-teal-500 hover:text-teal-600 font-medium" %>
+    </div>
 
   </div>
 </div>

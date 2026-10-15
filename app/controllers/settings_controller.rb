@@ -69,7 +69,8 @@ class SettingsController < ApplicationController
     data = {
       exported_at: Time.current.iso8601,
       account: current_user.as_json(
-        except: %w[encrypted_password reset_password_token reset_password_sent_at remember_created_at]
+        except: %w[encrypted_password reset_password_token reset_password_sent_at remember_created_at
+                   reset_password_code_digest reset_password_code_sent_at reset_password_code_attempts]
       ),
       activities: current_user.activities.as_json,
       training_plans: current_user.training_plans.as_json(include: :workouts),
