@@ -44,6 +44,8 @@ class ActivitiesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
+    assert_select "[data-field-error=distance]", text: "Distância deve ser maior que zero"
+    assert_select "input[name='activity[name]'][value='Sem distância']"
   end
 
   test "destroy removes the caller's activity" do

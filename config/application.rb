@@ -23,5 +23,9 @@ module Runify
     # onboarding@resend.dev funciona sem verificar dominio proprio na Resend;
     # com dominio verificado, MAILER_FROM troca sem mexer no codigo.
     config.x.mailer_from = ENV["MAILER_FROM"].presence || "Runify <onboarding@resend.dev>"
+
+    # Erro de formulario aparece embaixo do campo (ApplicationHelper#field_error);
+    # o <div class="field_with_errors"> padrao so quebrava os layouts flex.
+    config.action_view.field_error_proc = proc { |html_tag, _instance| html_tag }
   end
 end

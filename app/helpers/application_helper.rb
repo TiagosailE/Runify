@@ -12,6 +12,24 @@ module ApplicationHelper
     days[date.strftime("%A")]
   end
 
+  FLASH_TOAST_TYPES = { "notice" => "success", "alert" => "error" }.freeze
+
+  # Todo retorno de acao vira toast: flash[:toast] dos controllers do app e
+  # notice/alert do Devise, do rate_limit e dos redirects com alert:.
+  def flash_toasts
+    toasts = FLASH_TOAST_TYPES.filter_map do |key, type|
+      { message: flash[key], type: type } if flash[key].present?
+    end
+
+    toast = flash[:toast]
+    if toast.present?
+      toast = toast.with_indifferent_access
+      toasts << { message: toast[:message], type: toast[:type].presence || "info" } if toast[:message].present?
+    end
+
+    toasts
+  end
+
   # Padrao de erro de formulario do app: mensagem embaixo do campo e borda
   # vermelha. Resultado de acao (salvou, falhou, sem conexao) vai em toast.
   def field_error(record, attribute)

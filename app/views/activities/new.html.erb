@@ -14,7 +14,7 @@
       </p>
     </div>
 
-    <%= form_with url: activities_path, scope: :activity, method: :post, local: true, class: "space-y-5",
+    <%= form_with url: activities_path, scope: :activity, method: :post, local: true, class: "space-y-5", novalidate: true,
                   data: { controller: "activity-form" } do |f| %>
       <div>
         <span class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Atividade</span>
@@ -72,6 +72,7 @@
         <label for="activity_distance_km" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distância (km)</label>
         <%= f.number_field :distance_km, value: params.dig(:activity, :distance_km),
             step: 0.01, min: 0.01, placeholder: "Ex: 5.2", class: input_class %>
+        <%= field_error(@activity, :distance) %>
       </div>
 
       <div data-activity-form-target="treadmillFields" class="<%= "hidden" unless treadmill %> grid grid-cols-2 gap-3">
@@ -86,6 +87,7 @@
           <%= f.number_field :incline_percent, value: params.dig(:activity, :incline_percent),
               step: 0.5, min: 0, max: Activity::MAX_INCLINE_PERCENT, placeholder: "Ex: 1", class: input_class %>
           <p class="text-xs text-gray-400 mt-1">0 se ficou plana</p>
+          <%= field_error(@activity, :incline_percent) %>
         </div>
       </div>
 
@@ -111,6 +113,7 @@
             <p class="text-xs text-gray-400 text-center mt-1">seg</p>
           </div>
         </div>
+        <%= field_error(@activity, :duration) %>
       </div>
 
       <div class="pt-4">

@@ -24,6 +24,7 @@ class PacersController < ApplicationController
 
       redirect_to pacer_path(@squad), notice: "Pacer criado com sucesso!"
     else
+      flash.now[:toast] = { message: @squad.errors.full_messages.first, type: "error" }
       render :new, status: :unprocessable_entity
     end
   end
@@ -35,10 +36,16 @@ class PacersController < ApplicationController
   end
 
   def join_by_code
-    squad = Squad.find_by(squad_code: params[:code].to_s.strip.upcase)
+    code = params[:code].to_s.strip.upcase
+    if code.blank?
+      redirect_to pacers_path, alert: "Digite o código do Pacer para entrar."
+      return
+    end
+
+    squad = Squad.find_by(squad_code: code)
 
     if squad.nil?
-      redirect_to pacers_path, alert: "Código inválido"
+      redirect_to pacers_path, alert: "Código inválido. Confira com quem te convidou."
       return
     end
 

@@ -14,10 +14,6 @@
     <%= form_with model: (@user || User.new), url: google_signup_path, method: :post,
                   scope: :user, data: { turbo: false }, class: "mt-10 space-y-5" do |f| %>
 
-      <% if @user %>
-        <%= render "devise/shared/error_messages", resource: @user %>
-      <% end %>
-
       <div class="flex items-start gap-3 pt-2">
         <%= f.check_box :terms_accepted,
             class: "mt-1 w-5 h-5 rounded border-gray-300 text-teal-500 focus:ring-teal-500 cursor-pointer flex-shrink-0" %>
@@ -28,6 +24,7 @@
           <%= link_to "Termos de Uso", terms_of_use_path, target: "_blank", class: "text-teal-600 font-medium underline" %>.
         </label>
       </div>
+      <%= field_error(@user, :terms_accepted) %>
 
       <div class="text-center pt-2">
         <%= link_to "Cancelar e voltar", new_user_session_path,
