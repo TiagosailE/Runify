@@ -39,6 +39,16 @@ pt-BR:
         other: "não possui o tamanho esperado (%{count} caracteres)"
   activerecord:
     errors:
+      models:
+        user:
+          attributes:
+            email:
+              invalid: "inválido. Confira se digitou certo (ex.: nome@email.com)"
+              taken: "já está cadastrado. Entre na sua conta ou use \"Esqueci minha senha\""
+            password:
+              too_short: "é muito curta: use pelo menos %{count} caracteres"
+            reset_password_token:
+              invalid: "não é válido ou já foi usado. Peça um novo"
       messages:
         record_invalid: "A validação falhou: %{errors}"
         restrict_dependent_destroy:
@@ -73,6 +83,7 @@ pt-BR:
         running_experience: "Experiência com corrida"
         running_experience_years: "Anos de experiência com corrida"
         terms_accepted: "Aceite dos termos"
+        reset_password_token: "Link de redefinição"
       activity:
         name: "Nome"
         distance: "Distância"
