@@ -61,11 +61,13 @@ class AiAdjustmentService
 
     completion_rate = (completed_workouts.count.to_f / @training_plan.workouts_for_week(current_week - 1).count * 100).round
 
-    recent_activities = @user.activities.runs.where("start_date >= ?", 7.days.ago).order(start_date: :desc)
+    recent_activities = @user.activities.runs_and_walks.where("start_date >= ?", 7.days.ago).order(start_date: :desc)
     activities_summary = if recent_activities.any?
-      recent_activities.map do |act|
-        "- #{act.start_date.strftime('%d/%m')}: #{(act.distance/1000.0).round(2)}km, pace #{format_pace(act.average_speed)}"
-      end.join("\n")
+      lines = recent_activities.map do |act|
+        "- #{act.start_date.strftime('%d/%m')}: #{act.context_label}, #{(act.distance/1000.0).round(2)}km, pace #{format_pace(act.average_speed)}"
+      end
+      lines << Activity::AI_CONTEXT_NOTE if recent_activities.any? { |act| act.treadmill? || act.walk? }
+      lines.join("\n")
     else
       "Nenhuma atividade registrada na última semana"
     end

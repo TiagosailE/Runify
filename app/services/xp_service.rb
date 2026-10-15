@@ -1,13 +1,17 @@
 class XpService
   BASE_XP_PER_KM = 10
+  WALK_XP_PER_KM = 5
 
+  # Caminhada vale metade por km. Esteira e caminhada nao ganham bonus de
+  # ritmo: na esteira a correia impoe o ritmo e a distancia e estimada pela
+  # maquina, entao o ritmo calculado nao e confiavel o bastante para premiar.
   def self.calculate_xp(activity, squad_member)
     distance_km = activity.distance_km
-    pace = calculate_pace_minutes(activity)
     streak = squad_member.streak
 
-    base_xp = (distance_km * BASE_XP_PER_KM).to_i
-    pace_bonus = calculate_pace_bonus(pace)
+    xp_per_km = activity.walk? ? WALK_XP_PER_KM : BASE_XP_PER_KM
+    base_xp = (distance_km * xp_per_km).to_i
+    pace_bonus = activity.walk? || activity.treadmill? ? 0 : calculate_pace_bonus(calculate_pace_minutes(activity))
     streak_bonus = streak * 10
 
     total_xp = base_xp + pace_bonus + streak_bonus
@@ -32,7 +36,7 @@ class XpService
   end
 
   def self.calculate_streak(user)
-    activity_dates = user.activities.runs.select(:start_date).map { |activity| activity.start_date.to_date }.to_set
+    activity_dates = user.activities.runs_and_walks.select(:start_date).map { |activity| activity.start_date.to_date }.to_set
     return 0 if activity_dates.empty?
 
     today = Date.current

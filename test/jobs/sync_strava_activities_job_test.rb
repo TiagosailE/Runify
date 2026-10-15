@@ -75,6 +75,39 @@ class SyncStravaActivitiesJobTest < ActiveJob::TestCase
     assert user.activities.exists?(strava_activity_id: "99")
   end
 
+  test "sync_user_activities marca como esteira a corrida com trainer e da xp para caminhada" do
+    user = users(:one)
+    user.strava_integration.destroy
+    StravaIntegration.create!(
+      user: user, strava_athlete_id: "1234", access_token: "a", refresh_token: "r",
+      token_expires_at: 1.day.from_now, active: true
+    )
+
+    treadmill_run = OpenStruct.new(
+      id: 101, name: "Esteira", sport_type: "Run", trainer: true, distance: 5000.0,
+      elapsed_time: 1800, moving_time: 1800, average_speed: 2.78,
+      start_date: Time.current, to_h: { id: 101 }
+    )
+    walk = OpenStruct.new(
+      id: 102, name: "Caminhada", sport_type: "Walk", trainer: false, distance: 3000.0,
+      elapsed_time: 2400, moving_time: 2400, average_speed: 1.25,
+      start_date: Time.current, to_h: { id: 102 }
+    )
+    fake_api = Object.new
+    fake_api.define_singleton_method(:athlete_activities) { |*_args, **_kwargs| [ treadmill_run, walk ] }
+
+    awarded = []
+    XpService.stub :award_xp, ->(_user, activity) { awarded << activity.strava_activity_id } do
+      Strava::Api::Client.stub :new, fake_api do
+        SyncStravaActivitiesJob.new.sync_user_activities(user)
+      end
+    end
+
+    assert user.activities.find_by(strava_activity_id: "101").treadmill?
+    assert_not user.activities.find_by(strava_activity_id: "102").treadmill?
+    assert_equal %w[101 102], awarded
+  end
+
   test "sync_user_activities is a no-op for users without an active strava connection" do
     user = users(:two)
     result = SyncStravaActivitiesJob.new.sync_user_activities(user)

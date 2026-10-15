@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_27_120100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_15_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_120100) do
     t.datetime "created_at", null: false
     t.decimal "distance", precision: 8, scale: 2
     t.integer "duration"
+    t.decimal "incline_percent", precision: 3, scale: 1
     t.integer "moving_time"
     t.string "name"
     t.string "pace"
@@ -66,6 +67,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_120100) do
     t.string "sport_type"
     t.datetime "start_date"
     t.string "strava_activity_id"
+    t.boolean "treadmill", default: false, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["start_date"], name: "index_activities_on_start_date"

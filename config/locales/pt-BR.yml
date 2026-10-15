@@ -80,6 +80,8 @@ pt-BR:
         start_date: "Data"
         sport_type: "Modalidade"
         source: "Origem"
+        treadmill: "Esteira"
+        incline_percent: "Inclinação"
       workout:
         status: "Status"
         workout_format: "Formato do treino"

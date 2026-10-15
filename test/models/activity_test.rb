@@ -73,4 +73,38 @@ class ActivityTest < ActiveSupport::TestCase
     assert_includes user.activities.runs, corrida
     assert_not_includes user.activities.runs, pedal
   end
+
+  test "caminhada e corrida entram em runs_and_walks, pedal nao" do
+    run = Activity.create!(valid_attributes)
+    walk = Activity.create!(valid_attributes.merge(sport_type: "Walk"))
+    ride = Activity.create!(valid_attributes.merge(sport_type: "Ride"))
+
+    scope = Activity.runs_and_walks
+    assert_includes scope, run
+    assert_includes scope, walk
+    assert_not_includes scope, ride
+    assert_not_includes Activity.runs, walk
+  end
+
+  test "inclinacao fora de 0 a 15 por cento e rejeitada" do
+    activity = Activity.new(valid_attributes.merge(treadmill: true, incline_percent: 16))
+    assert_not activity.valid?
+    assert_includes activity.errors[:incline_percent], "deve ficar entre 0 e 15%"
+
+    activity.incline_percent = -1
+    assert_not activity.valid?
+
+    activity.incline_percent = 2.5
+    assert activity.valid?
+  end
+
+  test "context_label descreve modalidade, esteira e inclinacao" do
+    assert_equal "corrida", Activity.new(valid_attributes).context_label
+    assert_equal "caminhada", Activity.new(valid_attributes.merge(sport_type: "Walk")).context_label
+    assert_equal "corrida na esteira, inclinação 1%",
+      Activity.new(valid_attributes.merge(treadmill: true, incline_percent: 1)).context_label
+    assert_equal "caminhada na esteira, inclinação 7,5%",
+      Activity.new(valid_attributes.merge(sport_type: "Walk", treadmill: true, incline_percent: 7.5)).context_label
+    assert_equal "corrida na esteira", Activity.new(valid_attributes.merge(treadmill: true)).context_label
+  end
 end

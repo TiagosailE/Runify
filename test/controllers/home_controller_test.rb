@@ -51,6 +51,18 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "20.0 km", response.body
   end
 
+  test "caminhada nao soma km no ranking semanal do squad" do
+    users(:one).activities.create!(
+      name: "Caminhada", sport_type: "Walk", distance: 6_000, duration: 3600,
+      moving_time: 3600, start_date: Time.current, source: "manual"
+    )
+
+    get dashboard_url
+
+    assert_response :success
+    assert_no_match "6.0 km", response.body
+  end
+
   test "km da semana soma corretamente atividade de corrida" do
     user = users(:one)
     user.activities.create!(

@@ -135,4 +135,29 @@ class XpServiceTest < ActiveSupport::TestCase
 
     assert @user.achievements.exists?(name: "Nível 10")
   end
+
+  test "caminhada vale metade do xp por km e nao tem bonus de ritmo" do
+    activity = create_activity(Time.current)
+    activity.update!(sport_type: "Walk", distance: 5000, duration: 600, moving_time: 600)
+
+    assert_equal 25, XpService.calculate_xp(activity, @squad_member) # 5km x 5
+  end
+
+  test "corrida na esteira conta os km mas nao ganha bonus de ritmo" do
+    activity = create_activity(Time.current)
+    activity.update!(treadmill: true, distance: 5000, duration: 1500, moving_time: 1500)
+
+    assert_equal 50, XpService.calculate_xp(activity, @squad_member) # sem os 5 do ritmo de 5:00/km
+  end
+
+  test "caminhada mantem o streak" do
+    travel_to Time.zone.local(2026, 10, 14, 12, 0, 0) do
+      create_activity(1.day.ago)
+      create_activity(Time.current).update!(sport_type: "Walk")
+
+      XpService.update_streak(@user)
+
+      assert_equal 2, @squad_member.reload.streak
+    end
+  end
 end

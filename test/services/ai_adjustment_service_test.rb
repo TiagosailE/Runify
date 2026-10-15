@@ -56,6 +56,21 @@ class AiAdjustmentServiceTest < ActiveSupport::TestCase
     }
   end
 
+  test "prompt do ajuste identifica treino na esteira" do
+    @user.activities.create!(
+      name: "Esteira", sport_type: "Run", treadmill: true, incline_percent: 2, distance: 6000,
+      duration: 2100, moving_time: 2100, average_speed: 2.86, start_date: 1.day.ago, source: "manual"
+    )
+
+    prompt = nil
+    GeminiClient.stub :generate_json, ->(given_prompt, **_opts) { prompt = given_prompt; adjustment("maintain", 0) } do
+      AiAdjustmentService.new(@user, @plan).analyze_and_adjust
+    end
+
+    assert_includes prompt, "corrida na esteira, inclinação 2%"
+    assert_includes prompt, Activity::AI_CONTEXT_NOTE
+  end
+
   # O bug: "maintain" multiplicava por 1.05, ou seja, aumentava 5% toda
   # semana em que a IA pedia justamente para NAO aumentar.
   test "maintain nao altera a carga" do

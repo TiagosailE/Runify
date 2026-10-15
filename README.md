@@ -30,8 +30,9 @@ para coleta de dados.
   das últimas atividades, sujeita à cota de atletas do Strava.
 - **Pacers.** Grupos de amigos entram por código, com ranking por nível e XP,
   quilometragem da semana e sequência de dias correndo.
-- **XP, níveis e conquistas.** Só corridas contam (pedal, natação e caminhada
-  ficam de fora).
+- **XP, níveis e conquistas.** Corrida e caminhada contam (caminhada vale
+  metade por km); pedal e natação ficam de fora. Treino na esteira entra com
+  inclinação e velocidade, sem bônus de ritmo.
 - **Notificações** de treino do dia e resumo semanal.
 - **Autenticação** por e-mail e senha ou Google, com aceite de Termos e
   Política de Privacidade (LGPD) e exclusão de conta.
