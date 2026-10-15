@@ -25,6 +25,22 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "Conectar com Strava", response.body
   end
 
+  # Regressao: o botao de registrar so existia no estado vazio. Quem
+  # sincronizou o Strava (e depois desconectou ou nao) ficava sem caminho na
+  # home para registrar atividade manual.
+  test "com atividades, registrar atividade continua na home com ou sem Strava" do
+    user = users(:one)
+    assert user.activities.any?
+
+    user.strava_integration.update!(active: true)
+    get dashboard_url
+    assert_select "a[href='#{new_activity_path}']"
+
+    user.strava_integration.destroy!
+    get dashboard_url
+    assert_select "a[href='#{new_activity_path}']"
+  end
+
   test "estado vazio sem Strava conectado oferece conectar" do
     user = users(:one)
     user.activities.destroy_all
